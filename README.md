@@ -1,6 +1,6 @@
 # Redmine DMSF Plugin 4.1.4 devel
 
-[![GitHub CI](https://github.com/danmunn/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=devel)](https://github.com/danmunn/redmine_dmsf/actions/workflows/rubyonrails.yml)
+[![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=devel)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
 
 Redmine DMSF is Document Management System Features plugin for Redmine issue tracking system; It is aimed to replace current Redmine's Documents module.
@@ -10,7 +10,7 @@ Redmine DMSF now comes bundled with WebDAV functionality: if switched on within 
 WebDAV functionality is provided through Dav4Rack library.
 
 The development has been supported by [Kontron](https://www.kontron.com) and has been released as open source thanks to their generosity.
-Project home: <https://github.com/danmunn/redmine_dmsf>
+Project home: <https://github.com/picman/redmine_dmsf>
 
 Redmine Document Management System "Features" plugin is distributed under GNU General Public License v2 (GPL).
 Redmine is a flexible project management web application, released under the terms of the GNU General Public License v2 (GPL) at <https://www.redmine.org/>
@@ -199,9 +199,9 @@ parameters: *file*
 You can either clone the master branch or download the latest zipped version. Before installing ensure that the Redmine
 instance is stopped.
 
-    git clone git@github.com:danmunn/redmine_dmsf.git
+    git clone git@github.com:picman/redmine_dmsf.git
 
-    wget https://github.com/danmunn/redmine_dmsf/archive/master.zip
+    wget https://github.com/picman/redmine_dmsf/archive/master.zip
 
 1. In case of upgrade **BACKUP YOUR DATABASE, ORIGINAL PLUGIN AND THE FOLDER WITH DOCUMENTS** first!!!
 2. Put redmine_dmsf plugin directory into plugins. The plugins sub-directory must be named just **redmine_dmsf**. In case
@@ -325,7 +325,7 @@ After these steps re-start your instance of Redmine.
 
 ## Contributing
 
-If you've added something, why not share it. Fork the repository (github.com/danmunn/redmine_dmsf),
+If you've added something, why not share it. Fork the repository (github.com/picman/redmine_dmsf),
 make the changes and send a pull request to the maintainers.
 
 Changes with tests, and full documentation are preferred.
