@@ -31,13 +31,6 @@ a.dmsf-label {
     margin-left: 4px;
 }
 
-/* Query form */
-.query-columns > span { /* EasyExtension */
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-}
-
 /* Revision's downloads box */
 #dmsf_buttons.dmsf-controls {
     float: left
@@ -162,15 +155,6 @@ div#dmsf_new_revision {
 
 .dmsf-widget-header-text {
     padding: 5px 0 0 0;
-}
-
-.dmsf-revision-access { /* EasyExtension */
-    margin-left: 0;
-    margin-right: 0;
-}
-
-div.dmsf-controls .dmsf-revision-action-button { /* EasyExtension */
-    border-style: none;
 }
 
 div[id*="revision_access_"] {

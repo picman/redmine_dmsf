@@ -19,28 +19,16 @@
 
 module RedmineDmsf
   module Patches
-    # Queries controller
-    module QueriesControllerPatch
-      ##################################################################################################################
-      # New methods
-
-      private
-
-      def redirect_to_dmsf_query(options)
-        if @project
-          redirect_to dmsf_folder_path(@project, options)
-        else
-          redirect_to home_path(options)
+    # CustomField patch
+    module CustomFieldPatch
+      def self.included(base)
+        base.class_eval do
+          safe_attributes :dmsf_not_inheritable
         end
       end
     end
   end
 end
 
-# Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_controller_patch 'QueriesController', 'RedmineDmsf::Patches::QueriesControllerPatch',
-                                             prepend: true
-else
-  QueriesController.prepend RedmineDmsf::Patches::QueriesControllerPatch
-end
+# Apply patch
+CustomField.include RedmineDmsf::Patches::CustomFieldPatch

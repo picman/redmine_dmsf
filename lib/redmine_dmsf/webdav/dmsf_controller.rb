@@ -77,19 +77,11 @@ module RedmineDmsf
             raise Unauthorized
           end
           token = Token.find_by(user_id: user.id, action: 'dmsf_webdav_digest')
-          if token.nil? && defined?(EasyExtensions)
-            if user.easy_digest_token_expired?
-              Rails.logger.error "Digest authentication: #{user} is locked"
-              raise Unauthorized
-            end
-            ha1 = user.easy_digest_token
-          else
-            unless token
-              Rails.logger.error "Digest authentication: no digest found for #{username}"
-              raise Unauthorized
-            end
-            ha1 = token.value
+          unless token
+            Rails.logger.error "Digest authentication: no digest found for #{username}"
+            raise Unauthorized
           end
+          ha1 = token.value
           ha2 = ActiveSupport::Digest.hexdigest("#{request.env['REQUEST_METHOD']}:#{uri}")
           required_response = if qop
                                 ActiveSupport::Digest.hexdigest("#{ha1}:#{nonce}:#{nc}:#{cnonce}:#{qop}:#{ha2}")

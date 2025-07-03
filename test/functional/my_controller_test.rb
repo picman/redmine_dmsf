@@ -33,8 +33,6 @@ class MyControllerTest < RedmineDmsf::Test::TestCase
     @jsmith.pref.save!
     get '/my/page'
     assert_response :success
-    return if defined?(EasyExtensions)
-
     assert_select 'div#list-top' do
       assert_select 'h3', { text: "#{l(:open_approvals)} (1)" }
     end
@@ -46,8 +44,6 @@ class MyControllerTest < RedmineDmsf::Test::TestCase
     @jsmith.pref.save!
     get '/my/page'
     assert_response :success
-    return if defined?(EasyExtensions)
-
     assert_select 'div#list-top' do
       assert_select 'h3', { text: "#{l(:open_approvals)} (0)" }
     end
@@ -60,8 +56,6 @@ class MyControllerTest < RedmineDmsf::Test::TestCase
     @admin.pref.save!
     get '/my/page'
     assert_response :success
-    return if defined?(EasyExtensions)
-
     text = l(:locked_documents)
     text << " (0 #{l(:label_number_of_folders).downcase} / 1 #{l(:label_number_of_documents).downcase})"
     assert_select 'div#list-top' do
@@ -77,8 +71,6 @@ class MyControllerTest < RedmineDmsf::Test::TestCase
     @folder1.add_watcher @jsmith
     @project1.add_watcher @jsmith
     get '/my/page'
-    return if defined?(EasyExtensions)
-
     assert_response :success
     assert_select 'div#list-top' do
       assert_select 'h3', { text: "#{l(:label_dmsf_watched)} (2/1)" }

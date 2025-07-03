@@ -62,8 +62,4 @@ module RedmineDmsf
 end
 
 # Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_model_patch 'User', 'RedmineDmsf::Patches::UserPatch'
-else
-  User.prepend RedmineDmsf::Patches::UserPatch
-end
+User.prepend RedmineDmsf::Patches::UserPatch

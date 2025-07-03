@@ -162,8 +162,4 @@ module RedmineDmsf
 end
 
 # Apply patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_model_patch 'Issue', 'RedmineDmsf::Patches::IssuePatch'
-else
-  Issue.prepend RedmineDmsf::Patches::IssuePatch
-end
+Issue.prepend RedmineDmsf::Patches::IssuePatch

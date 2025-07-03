@@ -19,23 +19,18 @@
 
 module RedmineDmsf
   module Patches
-    # AccessControl patch
-    module AccessControlPatch
+    # Queries controller
+    module QueriesControllerPatch
       ##################################################################################################################
-      # Overridden methods
-      def self.prepended(base)
-        base.singleton_class.prepend(ClassMethods)
-      end
+      # New methods
 
-      # Class methods
-      module ClassMethods
-        def available_project_modules
-          # Removes the original Documents from project's modules (replaced with DMSF)
-          if RedmineDmsf.remove_original_documents_module?
-            super.reject { |m| m == :documents }
-          else
-            super
-          end
+      private
+
+      def redirect_to_dmsf_query(options)
+        if @project
+          redirect_to dmsf_folder_path(@project, options)
+        else
+          redirect_to home_path(options)
         end
       end
     end
@@ -43,4 +38,4 @@ module RedmineDmsf
 end
 
 # Apply the patch
-Redmine::AccessControl.prepend RedmineDmsf::Patches::AccessControlPatch unless defined?(EasyPatchManager)
+QueriesController.prepend RedmineDmsf::Patches::QueriesControllerPatch

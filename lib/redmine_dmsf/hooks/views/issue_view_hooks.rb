@@ -26,8 +26,6 @@ module RedmineDmsf
         include DmsfFilesHelper
 
         def view_issues_form_details_bottom(context = {})
-          return if defined?(EasyExtensions)
-
           context[:container] = context[:issue]
           attach_documents_form(context)
         end
@@ -36,7 +34,7 @@ module RedmineDmsf
           html = +''
           container = context[:container]
           # Radio buttons
-          if allowed_to_attach_documents(container) && allowed_to_attach_attachments(container)
+          if allowed_to_attach_documents(container)
             html << '<p>'
             classes = +'inline'
             html << "<label class=\"#{classes}\">"
@@ -60,22 +58,17 @@ module RedmineDmsf
             html << '</label>'
             html << '</p>'
             if User.current.pref.dmsf_attachments_upload_choice == 'DMSF'
-              html << context[:hook_caller].late_javascript_tag(
+              html << context[:hook_caller].javascript_tag(
                 "$('.attachments-container:not(.dmsf-uploader)').hide();"
               )
             end
           end
           # Upload form
           html << attach_documents_form(context, label: false) if allowed_to_attach_documents(container)
-          unless allowed_to_attach_attachments(container)
-            html << context[:hook_caller].late_javascript_tag("$('.attachments-container:not(.dmsf-uploader)').hide();")
-          end
           html
         end
 
         def view_issues_show_description_bottom(context = {})
-          return if defined?(EasyExtensions)
-
           show_attached_documents context[:issue], context[:controller]
         end
 
@@ -101,7 +94,7 @@ module RedmineDmsf
 
         def view_issues_edit_notes_bottom_style(context = {})
           if ((User.current.pref.dmsf_attachments_upload_choice == 'Attachments') ||
-            !allowed_to_attach_documents(context[:container])) && allowed_to_attach_attachments(context[:container])
+            !allowed_to_attach_documents(context[:container]))
             ''
           else
             'display: none'
@@ -116,14 +109,6 @@ module RedmineDmsf
 
           return false if container.project && (!User.current.allowed_to?(:file_manipulation, container.project) ||
             (container.project&.dmsf_act_as_attachable != Project::ATTACHABLE_DMS_AND_ATTACHMENTS))
-
-          true
-        end
-
-        def allowed_to_attach_attachments(container)
-          return true unless defined?(EasyExtensions)
-
-          return container.project.module_enabled?(:documents) if container.respond_to?(:project) && container.project
 
           true
         end
@@ -165,8 +150,7 @@ module RedmineDmsf
           return unless allowed_to_attach_documents(container)
 
           html = +'<p'
-          if User.current.pref.dmsf_attachments_upload_choice == 'Attachments' &&
-             allowed_to_attach_attachments(container)
+          if User.current.pref.dmsf_attachments_upload_choice == 'Attachments'
             html << ' style="display: none;"'
           end
           html << '>'
@@ -191,132 +175,9 @@ module RedmineDmsf
           links = get_links(container)
           return if links.blank?
 
-          if defined?(EasyExtensions)
-            attachment_rows links, container, controller
-          else
-            controller.send :render_to_string,
-                            { partial: 'dmsf_files/links',
-                              locals: { links: links, thumbnails: Setting.thumbnails_enabled? } }
-          end
-        end
-
-        def attachment_rows(links, container, controller)
-          return unless links.any?
-
-          html = "<tbody><tr><th colspan=\"4\">#{l(:label_dmsf_attachments)} (#{links.count})</th></tr>"
-          links.each do |dmsf_file, link, _created_at|
-            html << attachment_row(dmsf_file, link, container, controller)
-          end
-          html << '</tbody>'
-          html
-        end
-
-        def attachment_row(dmsf_file, link, container, controller)
-          html = link ? +'<tr class="dmsf-gray">' : +'<tr>'
-          # Checkbox
-          html << '<td></td>'
-          file_view_url = url_for({ controller: :dmsf_files, action: 'view', id: dmsf_file })
-          # Title, size
-          html << '<td>'
-          data = "#{dmsf_file.last_revision.detect_content_type}:#{h(dmsf_file.name)}:#{file_view_url}"
-          icon_name = icon_for_mime_type(Redmine::MimeType.css_class_of(dmsf_file.name))
-          icon_class = icon_class_for_mime_type(dmsf_file.name)
-          html << link_to(sprite_icon(icon_name, h(dmsf_file.title)),
-                          file_view_url,
-                          target: '_blank',
-                          rel: 'noopener',
-                          class: "icon #{icon_class}",
-                          title: h(dmsf_file.last_revision.try(:tooltip)),
-                          'data-downloadurl' => data)
-          html << "<span class=\"size dmsf-size\">(#{number_to_human_size(dmsf_file.last_revision.size)})</span>"
-          if dmsf_file.description.present?
-            desc = clean_wiki_text(textilizable(dmsf_file.description))
-            html << " - #{h(desc)}"
-          end
-          html << '</td>'
-          # Author, updated at
-          html << '<td>'
-          author = "#{h(dmsf_file.last_revision.user)}, #{format_time(dmsf_file.last_revision.updated_at)}"
-          html << "<span class=\"author\">#{author}</span>"
-          html << '</td>'
-          # Command icons
-          html << '<td class="fast-icons easy-query-additional-ending-buttons hide-when-print">'
-          # Details
-          html << if User.current.allowed_to? :file_manipulation, dmsf_file.project
-                    link_to sprite_icon('edit', ''), dmsf_file_path(id: dmsf_file),
-                            title: l(:link_details, title: h(dmsf_file.last_revision.title)),
-                            class: 'icon icon-edit'
-                  else
-                    '<span class="icon"></span>'
-                  end
-          # Email
-          html << link_to(sprite_icon('email', ''),
-                          entries_operations_dmsf_path(id: dmsf_file.project, email_entries: 'email',
-                                                       files: [dmsf_file.id]),
-                          method: :post, title: l(:heading_send_documents_by_email), class: 'icon icon-email-disabled')
-          # Lock
-          html << if !dmsf_file.locked?
-                    link_to sprite_icon('lock', ''), lock_dmsf_files_path(id: dmsf_file),
-                            title: l(:title_lock_file), class: 'icon icon-lock'
-                  elsif dmsf_file.unlockable? && (!dmsf_file.locked_for_user? ||
-                    User.current.allowed_to?(:force_file_unlock, dmsf_file.project))
-                    link_to sprite_icon('unlock', ''), unlock_dmsf_files_path(id: dmsf_file),
-                            title: dmsf_file.locked_title, class: 'icon icon-unlock'
-                  else
-                    content_tag 'span',
-                                sprite_icon('unlock', ''),
-                                title: dmsf_file.locked_title,
-                                class: 'icon icon-unlock'
-                  end
-          if dmsf_file.locked?
-            html << ('<span class="icon"></span>' * 2)
-          else
-            # Notifications
-            html << if dmsf_file.notification
-                      link_to sprite_icon('email', ''), notify_deactivate_dmsf_files_path(id: dmsf_file),
-                              title: l(:title_notifications_active_deactivate), class: 'icon icon-email'
-                    else
-                      link_to sprite_icon('email-disabled', ''),
-                              notify_activate_dmsf_files_path(id: dmsf_file),
-                              title: l(:title_notifications_not_active_activate), class: 'icon icon-email-add'
-                    end
-            # Delete
-            if container.attributes_editable? && ((link && User.current.allowed_to?(:file_manipulation,
-                                                                                    dmsf_file.project)) || (!link &&
-              User.current.allowed_to?(:file_delete, dmsf_file.project)))
-              back_url = case container.class.name
-                         when 'Issue'
-                           issue_path container
-                         when 'EasyCrmCase'
-                           easy_crm_case_path container
-                         end
-              url = if link
-                      dmsf_link_path link, commit: 'yes', back_url: back_url
-                    else
-                      dmsf_file_path id: dmsf_file, commit: 'yes', back_url: back_url
-                    end
-              html << delete_link(url, icon_only: true)
-            end
-          end
-          # Approval workflow
-          if dmsf_file.last_revision.dmsf_workflow_id
-            wf = DmsfWorkflow.find_by(id: dmsf_file.last_revision.dmsf_workflow_id)
-          end
-          html << controller.send(:render_to_string,
-                                  { partial: 'dmsf_workflows/approval_workflow_button',
-                                    locals: {
-                                      file: dmsf_file,
-                                      file_approval_allowed: User.current.allowed_to?(:file_approval,
-                                                                                      dmsf_file.project),
-                                      workflows_available: DmsfWorkflow.exists?(['project_id = ? OR project_id IS NULL',
-                                                                                 dmsf_file.project.id]),
-                                      project: dmsf_file.project,
-                                      wf: wf,
-                                      dmsf_link_id: nil
-                                    } })
-          html << '</td>'
-          html << '</tr>'
-          html
+          controller.send :render_to_string,
+                          { partial: 'dmsf_files/links',
+                            locals: { links: links, thumbnails: Setting.thumbnails_enabled? } }
         end
       end
     end

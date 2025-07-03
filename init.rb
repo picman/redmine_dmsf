@@ -82,8 +82,6 @@ Redmine::MenuManager.map :project_menu do |menu|
             param: :id,
             html: { class: 'icon icon-dmsf' }
   # New menu extension
-  next if defined?(EasyExtensions)
-
   menu.push :dmsf_file, { controller: 'dmsf_upload', action: 'multi_upload' },
             caption: :label_dmsf_new_top_level_document, parent: :new_object
   menu.push :dmsf_folder, { controller: 'dmsf', action: 'new' },

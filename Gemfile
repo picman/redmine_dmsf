@@ -24,14 +24,12 @@ source 'https://rubygems.org' do
   gem 'zip-zip' unless Dir.exist?(File.expand_path('../../vault', __FILE__))
 
   # Redmine extensions
-  unless Dir.exist?(File.expand_path('../../easyproject', __FILE__))
-    gem 'active_record_union'
-    gem 'simple_enum'
-    group :xapian do
-      gem 'xapian-ruby'
-    end
+  gem 'active_record_union'
+  gem 'simple_enum'
+  group :xapian do
+    gem 'xapian-ruby'
   end
-  unless %w[easyproject easy_gantt custom_tables]
+  unless %w[easy_gantt custom_tables]
          .any? { |plugin| Dir.exist?(File.expand_path("../../#{plugin}", __FILE__)) }
     group :test do
       gem 'rails-controller-testing'

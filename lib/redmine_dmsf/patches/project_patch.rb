@@ -132,8 +132,4 @@ module RedmineDmsf
 end
 
 # Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_model_patch 'Project', 'RedmineDmsf::Patches::ProjectPatch', prepend: true
-else
-  Project.prepend RedmineDmsf::Patches::ProjectPatch
-end
+Project.prepend RedmineDmsf::Patches::ProjectPatch

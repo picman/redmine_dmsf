@@ -31,20 +31,16 @@ class DmsfPluginTest < RedmineDmsf::Test::HelperTest
   end
 
   def test_an_obsolete_plugin_present_no
-    return if defined?(EasyExtensions)
-
     # No such plugin is present
     assert_not RedmineDmsf::Plugin.an_obsolete_plugin_present?
   end
 
   def test_an_obsolete_plugin_present_yes
-    unless defined?(EasyExtensions)
-      # Create a fake redmine_checklists plugin
-      path = Rails.root.join('plugins/redmine_resources')
-      FileUtils.mkdir_p path
-    end
+    # Create a fake redmine_checklists plugin
+    path = Rails.root.join('plugins/redmine_resources')
+    FileUtils.mkdir_p path
     assert RedmineDmsf::Plugin.an_obsolete_plugin_present?
-    FileUtils.rm_rf(path) unless defined?(EasyExtensions)
+    FileUtils.rm_rf path
   end
 
   def test_lib_available?

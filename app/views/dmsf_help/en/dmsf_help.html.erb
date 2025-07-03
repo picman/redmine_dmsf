@@ -4,8 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Wiki formatting</title>
     <%= stylesheet_link_tag 'wiki_syntax.css' %>
-    <% plugin = defined?(EasyExtensions) ? nil : :redmine_dmsf %>
-    <%= stylesheet_link_tag 'dmsf_help.css', plugin: plugin %>
+    <%= stylesheet_link_tag 'dmsf_help.css', plugin: :redmine_dmsf %>
 </head>
 <body>
 

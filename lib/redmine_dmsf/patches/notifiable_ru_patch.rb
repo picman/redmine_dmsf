@@ -19,30 +19,33 @@
 
 module RedmineDmsf
   module Patches
-    # Role
-    module RolePatch
-      ##################################################################################################################
-      # New methods
-
+    # TODO: This is just a workaround to fix alias_method usage in RedmineUp's plugins, which is in conflict with
+    #   prepend and causes an infinite loop.
+    module NotifiableRuPatch
       def self.included(base)
+        base.extend ClassMethods
         base.class_eval do
-          before_destroy :remove_dmsf_references, prepend: true
+          class << self
+            alias_method :all_without_resources_dmsf, :all
+            alias_method :all, :all_with_resources_dmsf
+          end
         end
       end
 
-      def remove_dmsf_references
-        return unless id
-
-        substitute = Role.anonymous
-        DmsfFolderPermission.where(object_id: id, object_type: 'Role').update_all object_id: substitute.id
+      # Class methods
+      module ClassMethods
+        def all_with_resources_dmsf
+          notifications = all_without_resources_dmsf
+          notifications << Redmine::Notifiable.new('dmsf_workflow_plural')
+          notifications << Redmine::Notifiable.new('dmsf_legacy_notifications')
+          notifications
+        end
       end
     end
   end
 end
 
 # Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_model_patch 'Role', 'RedmineDmsf::Patches::RolePatch', prepend: true
-else
-  Role.prepend RedmineDmsf::Patches::RolePatch
+if RedmineDmsf::Plugin.an_obsolete_plugin_present?
+  Redmine::Notifiable.include RedmineDmsf::Patches::NotifiableRuPatch
 end

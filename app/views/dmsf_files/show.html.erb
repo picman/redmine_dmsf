@@ -37,16 +37,10 @@
                     lock_dmsf_files_path(id: @file, back_url: dmsf_file_path(id: @file)),
                     title: l(:title_lock_file), class: 'icon icon-lock' %>
       <% end %>
-      <% if defined?(EasyExtensions) %>
+      <%= actions_dropdown do %>
         <%= render partial: 'dmsf_context_menus/revisions',
                    locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                             notifications: @notifications, back_url: dmsf_file_path(id: @file)} %>
-      <% else %>
-        <%= actions_dropdown do %>
-          <%= render partial: 'dmsf_context_menus/revisions',
-                     locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                               notifications: @notifications, back_url: dmsf_file_path(id: @file) } %>
-        <% end %>
+                             notifications: @notifications, back_url: dmsf_file_path(id: @file) } %>
       <% end %>
     <% end %>
   <% end %>
@@ -72,16 +66,10 @@
   <div class="dmsf-revision-box">
     <div class="dmsf-widget-header fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix">
       <div class="dmsf-controls contextual">
-        <% if defined?(EasyExtensions) %>
+        <%= actions_dropdown do %>
           <%= render partial: 'dmsf_context_menus/revision_actions',
                      locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
                                file_manipulation_allowed: @file_manipulation_allowed, revision: revision } %>
-        <% else %>
-          <%= actions_dropdown do %>
-            <%= render partial: 'dmsf_context_menus/revision_actions',
-                       locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                                 file_manipulation_allowed: @file_manipulation_allowed, revision: revision } %>
-          <% end %>
         <% end %>
       </div>
       <div class="dmsf-widget-header-text">
@@ -176,7 +164,7 @@
   <% end %>
 <% end %>
 
-<%= late_javascript_tag do %>
+<%= javascript_tag do %>
   $('a.delete-revision').click(function(event) {
     if(!window.confirm('<%= l(:text_are_you_sure) %>')) {
       event.preventDefault();

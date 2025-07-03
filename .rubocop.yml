@@ -84,7 +84,7 @@ Naming/AccessorMethodName:
 
 Naming/PredicateName:
   Exclude:
-    - patches/attachable_patch.rb # Easy tests
+    - patches/attachable_patch.rb
 
 Style/HashSyntax:
   EnforcedShorthandSyntax: either
@@ -95,7 +95,7 @@ Style/ZeroLengthPredicate:
 
 Rails/BulkChangeTable:
   Exclude:
-    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb # Easy tests
+    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb
 
 Rails/DangerousColumnNames:
   Exclude:
@@ -123,8 +123,8 @@ Rails/SkipsModelValidations:
 
 Rails/ThreeStateBooleanColumn:
   Exclude:
-    - db/migrate/04_dmsf_0_9_0.rb # Easy tests
-    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb # Easy tests
+    - db/migrate/04_dmsf_0_9_0.rb
+    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb
 
 Rails/UniqueValidationWithoutIndex:
   Exclude:

@@ -19,36 +19,43 @@
 
 module RedmineDmsf
   module Patches
-    # AccessControl patch
-    # TODO: This is just a workaround to fix alias_method usage in Easy's plugins, which is in conflict with
-    #   prepend and causes an infinite loop.
-    module AccessControlEasyPatch
+    # User preference
+    module UserPreferencePatch
       ##################################################################################################################
-      # Overridden methods
-      def self.included(base)
-        base.extend(ClassMethods)
+      # New methods
 
-        base.class_eval do
-          class << self
-            alias_method_chain :available_project_modules, :easy
-          end
-        end
+      UserPreference.safe_attributes 'dmsf_attachments_upload_choice'
+
+      def dmsf_attachments_upload_choice
+        self[:dmsf_attachments_upload_choice] || 'DMSF'
       end
 
-      # Class methods
-      module ClassMethods
-        def available_project_modules_with_easy
-          # Removes the original Documents from project's modules (replaced with DMSF)
-          modules = available_project_modules_without_easy
-          modules.delete(:documents) if RedmineDmsf.remove_original_documents_module?
-          modules
-        end
+      def dmsf_attachments_upload_choice=(value)
+        self[:dmsf_attachments_upload_choice] = value
+      end
+
+      UserPreference.safe_attributes 'default_dmsf_query'
+
+      def default_dmsf_query
+        self[:default_dmsf_query] || nil
+      end
+
+      def default_dmsf_query=(value)
+        self[:default_dmsf_query] = value
+      end
+
+      UserPreference.safe_attributes 'receive_download_notification'
+
+      def receive_download_notification
+        self[:receive_download_notification] || '0'
+      end
+
+      def receive_download_notification=(value)
+        self[:receive_download_notification] = value
       end
     end
   end
 end
 
 # Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_other_patch 'Redmine::AccessControl', 'RedmineDmsf::Patches::AccessControlEasyPatch'
-end
+UserPreference.prepend RedmineDmsf::Patches::UserPreferencePatch

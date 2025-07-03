@@ -17,22 +17,28 @@
 # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
 # <https://www.gnu.org/licenses/>.
 
+# Redmine's PDF export patch to view DMS images
+
+require 'redmine/export/pdf'
+
 module RedmineDmsf
   module Patches
-    # CustomField patch
-    module CustomFieldPatch
-      def self.included(base)
-        base.class_eval do
-          safe_attributes :dmsf_not_inheritable
+    # PDF
+    module PdfPatch
+      ##################################################################################################################
+      # Overridden methods
+
+      def get_image_filename(attrname)
+        if attrname =~ %r{/dmsf/files/(\d+)/}
+          file = DmsfFile.find_by(id: Regexp.last_match(1))
+          file&.last_revision&.disk_file
+        else
+          super
         end
       end
     end
   end
 end
 
-# Apply patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_model_patch 'CustomField', 'RedmineDmsf::Patches::CustomFieldPatch'
-else
-  CustomField.include RedmineDmsf::Patches::CustomFieldPatch
-end
+# Apply the patch
+Redmine::Export::PDF::ITCPDF.prepend RedmineDmsf::Patches::PdfPatch

@@ -404,12 +404,4 @@ function dmsfSetupFileDrop() {
     }
 }
 
-if(typeof EASY == "undefined"){
-    $(document).ready(dmsfSetupFileDrop);
-}
-else {
-    EASY.schedule.late(function () {
-        dmsfSetupFileDrop();
-        $(document).on("erui_new_dom", dmsfSetupFileDrop);
-    });
-}
+$(document).ready(dmsfSetupFileDrop);

@@ -23,8 +23,6 @@ require File.expand_path('../../../test_helper', __FILE__)
 class SearchPatchTest < RedmineDmsf::Test::UnitTest
   def test_available_search_types
     assert Redmine::Search.available_search_types.include?('documents')
-    return if defined?(EasyExtensions) # It doesn't work with Easy due to alias_method_change
-
     with_settings plugin_redmine_dmsf: { 'remove_original_documents_module' => '1' } do
       assert_not Redmine::Search.available_search_types.include?('documents')
     end

@@ -27,15 +27,9 @@
     <table class="list dmsf odd-even <%= query.css_classes %> context-menu-container" data-hascontextmenu="true">
       <thead>
       <tr>
-        <% if defined?(EasyExtensions) %>
-          <%# Easy checkbox %>
-          <%= content_tag :th, link_to_function('', 'EASY.contextMenu.toggleIssuesSelection($(this))',
-               title: "#{l(:button_check_all)}/#{l(:button_uncheck_all)}", class: 'icon icon-checked') %>
-        <% else %>
-          <th class="checkbox hide-when-print">
-            <%= check_box_tag 'check_all', '', false, class: 'toggle-selection', title: "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
-          </th>
-        <% end %>
+        <th class="checkbox hide-when-print">
+          <%= check_box_tag 'check_all', '', false, class: 'toggle-selection', title: "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
+        </th>
         <% query.inline_columns.each do |column| %>
           <%= column_header(query, column, query_options) %>
         <% end %>

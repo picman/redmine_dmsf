@@ -17,25 +17,30 @@
 # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
 # <https://www.gnu.org/licenses/>.
 
-require File.expand_path('../../../test_helper', __FILE__)
+module RedmineDmsf
+  module Patches
+    # Search patch
+    module SearchPatch
+      ##################################################################################################################
+      # Overridden methods
+      def self.prepended(base)
+        base.singleton_class.prepend(ClassMethods)
+      end
 
-# Attachable tests
-class AttachablePatchTest < RedmineDmsf::Test::UnitTest
-  fixtures :issues, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
-  def setup
-    super
-    @issue1 = Issue.find 1
-    @issue5 = Issue.find 5
-  end
-
-  def test_has_attachmets
-    if defined?(EasyExtensions)
-      assert @issue1.has_attachments?
-      assert_not @issue5.has_attachments?
-    else
-      assert @issue1.dmsf_files.present?
-      assert @issue5.dmsf_files.blank?
+      # Class methods
+      module ClassMethods
+        def available_search_types
+          # Removes the original Documents from searching (replaced with DMSF)
+          if RedmineDmsf.remove_original_documents_module?
+            super.reject { |t| t == 'documents' }
+          else
+            super
+          end
+        end
+      end
     end
   end
 end
+
+# Apply the patch
+Redmine::Search.prepend RedmineDmsf::Patches::SearchPatch

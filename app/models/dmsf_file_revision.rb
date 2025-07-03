@@ -118,10 +118,6 @@ class DmsfFileRevision < ApplicationRecord
     remove_extension(filename).gsub(/_+/, ' ')
   end
 
-  def self.easy_activity_custom_project_scope(scope, options, _)
-    scope.where(dmsf_files: { project_id: options[:project_ids] })
-  end
-
   def delete(commit: false, force: true)
     if dmsf_file.locked_for_user?
       errors.add :base, l(:error_file_is_locked)

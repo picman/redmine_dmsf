@@ -46,20 +46,14 @@
     <% end %>
     <td class="buttons">
       <% unless node.system %>
-        <% if defined?(EasyExtensions) %>
-          <%= link_to '', '#', title: l(:button_actions),
-                      class: 'icon-only icon-actions js-contextmenu icon-more-horiz',
-                      data: { cy: "icon__more_horiz--#{node.type}_#{node.id}" } %>
-        <% else %>
-          <%= link_to_context_menu %>
-        <% end %>
+        <%= link_to_context_menu %>
       <% end %>
     </td>
   </tr>
 <% end %>
 
 <% unless query.deleted || query&.project.nil? %>
-  <%= late_javascript_tag do %>
+  <%= javascript_tag do %>
     $(function() {
       $("table.dmsf tr").removeClass("ui-draggable-dragging ui-droppable-active ui-droppable-hover ui-draggable-handle");
       $(".dmsf-draggable").draggable({

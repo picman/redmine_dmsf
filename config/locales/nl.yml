@@ -82,7 +82,7 @@ nl:
   title_lock_file: Vergrendel om wijzigingen door andere leden te voorkomen
   title_download_checked: Download aangevinkt in Zip archief
   title_send_checked_by_email: Verzending aangevinkt door e-mail
-  link_user_preferences: Easy DMS project voorkeuren
+  link_user_preferences: DMS project voorkeuren
   heading_send_documents_by_email: Verstuur documenten per e-mail
   label_email_from: Van
   label_email_to: Aan
@@ -178,7 +178,7 @@ nl:
   error_file_can_not_be_created: Bestand kan niet aangemaakt worden in opslag directory
   error_wrong_zip_encoding: Onjuiste Zip encoding
   warning_xapian_not_available: Xapian niet beschikbaar
-  menu_dmsf: Easy DMS
+  menu_dmsf: DMS
   label_physical_file_delete: Fysiek bestand verwijderen
   user_is_not_project_member: U bent geen lid van het project
   heading_access_downloads_emails: Downloads/E-mails
@@ -187,7 +187,7 @@ nl:
   label_dmsf_updated: Bijgewerkt
   label_dmsf_downloaded: Gedownload
   title_total_size_of_all_files: Totale grootte van alle bestanden onder deze map
-  project_module_dmsf: Easy DMS
+  project_module_dmsf: DMS
   warning_no_project_to_copy_file_to: Geen project om bestand naar te kopiëren
   comment_copied_from: "Gekopieerd van %{source}"
   field_target_project: Doelproject

@@ -31,7 +31,7 @@
                     class: 'icon icon-add', data: { cy: 'button__create-folder--dmsf' } %>
       <% end %>
     <% end %>
-    <% if defined?(EasyExtensions) %>
+    <%= actions_dropdown do %>
       <%= render partial: 'dmsf_context_menus/main', locals: {
           folder_manipulation_allowed: @folder_manipulation_allowed,
           system_folder: @system_folder,
@@ -40,19 +40,7 @@
           locked: @locked,
           file_manipulation_allowed: @file_manipulation_allowed,
           trash_enabled: @trash_enabled,
-          notifications: @notifications } %>
-    <% else %>
-      <%= actions_dropdown do %>
-        <%= render partial: 'dmsf_context_menus/main', locals: {
-            folder_manipulation_allowed: @folder_manipulation_allowed,
-            system_folder: @system_folder,
-            folder: @folder,
-            project: @project,
-            locked: @locked,
-            file_manipulation_allowed: @file_manipulation_allowed,
-            trash_enabled: @trash_enabled,
-            notifications: @notifications} %>
-      <% end %>
+          notifications: @notifications} %>
     <% end %>
   </div>
 <% end %>
@@ -103,24 +91,6 @@
   <% end %>
 <% end %>
 
-<% if defined?(EasyExtensions) %>
-  <%= late_javascript_tag do %>
-    $(function() {
-      $("p.buttons").addClass("filter-buttons form-actions");
-      let buttonApply = $("p.filter-buttons > a.icon-checked");
-      buttonApply.addClass("button-positive");
-      buttonApply.text("<%= l('easy_query.button_apply.issue') %>");
-      let buttonClear = $("p.filter-buttons > a.icon-reload");
-      buttonClear.addClass("button-negative");
-      buttonClear.text("<%= l('easy_query.label.default_filters') %>");
-      $("p.filter-buttons > a.icon-save").addClass("button");
-      $("p.filter-buttons > a.icon-edit").addClass("button");
-      $("p.filter-buttons > a.icon-del").addClass("button");
-      $("#query_form_with_buttons > p.buttons").show();
-    });
-  <% end %>
-<% end %>
-
-<% late_javascript_tag do %>
+<% javascript_tag do %>
   "$('#ajax-indicator').hide();"
 <% end %>

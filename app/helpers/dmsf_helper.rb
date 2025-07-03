@@ -24,14 +24,6 @@ require 'csv'
 module DmsfHelper
   include Redmine::I18n
 
-  unless defined?(EasyExtensions)
-
-    def late_javascript_tag(content_or_options_with_block = nil, html_options = {}, &block)
-      javascript_tag content_or_options_with_block, html_options, &block
-    end
-
-  end
-
   def self.temp_filename(filename)
     filename = sanitize_filename(filename)
     timestamp = DateTime.current.strftime('%y%m%d%H%M%S')

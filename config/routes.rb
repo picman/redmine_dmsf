@@ -168,11 +168,9 @@ if Redmine::Plugin.installed? 'redmine_dmsf'
     end
 
     # WebDAV workaround for clients checking WebDAV availability in the root
-    unless defined?(EasyExtensions)
-      match '/',
-            to: ->(env) { [405, {}, ["#{env['REQUEST_METHOD']} method is not allowed"]] },
-            via: %i[propfind options]
-    end
+    match '/',
+          to: ->(env) { [405, {}, ["#{env['REQUEST_METHOD']} method is not allowed"]] },
+          via: %i[propfind options]
     match '/dmsf',
           to: ->(env) { [405, {}, ["#{env['REQUEST_METHOD']} method is not allowed"]] },
           via: %i[propfind options]

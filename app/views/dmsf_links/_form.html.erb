@@ -45,7 +45,7 @@
           <%= select_tag 'dmsf_link[target_project_id]',
             project_tree_options_for_select(DmsfFile.allowed_target_projects_on_copy,
             selected: @dmsf_link.target_project) %>
-          <%= late_javascript_tag do %>
+          <%= javascript_tag do %>
               $('#dmsf_link_target_project_id').change(function(){
                 $.ajax({
                   url: '<%= escape_javascript autocomplete_for_project_dmsf_link_path(@project, format: 'js') %>',
@@ -71,7 +71,7 @@
         <% if !@fast_links || (@type != 'link_to') %>
           <%= select_tag 'dmsf_link[target_folder_id]',
             folder_tree_options_for_select(DmsfFolder.directory_tree(@dmsf_link.target_project)) %>
-          <%= late_javascript_tag do %>
+          <%= javascript_tag do %>
               $('#dmsf_link_target_folder_id').change(function(){
                 $.ajax({
                   url: '<%= escape_javascript autocomplete_for_folder_dmsf_link_path(@project, format: 'js') %>',
@@ -109,7 +109,7 @@
     </div>
   </div>
 <% end %>
-<%= late_javascript_tag do %>
+<%= javascript_tag do %>
 $(document).ready(function(){
   <%# Select2 extension, TODO: in case of a modal window, select2 makes problems %>
   <% unless modal || @fast_links %>

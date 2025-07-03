@@ -75,7 +75,6 @@ class DmsfUploadController < ApplicationController
     @attachment.author = User.current
     @attachment.filename = params[:filename].presence || Redmine::Utils.random_hex(16)
     @attachment.content_type = params[:content_type].presence
-    @attachment.skip_description_required = true if defined?(EasyExtensions)
     begin
       Attachment.skip_callback(:commit, :after, :reuse_existing_file_if_possible, raise: false)
       saved = @attachment.save

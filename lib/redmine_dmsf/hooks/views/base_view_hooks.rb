@@ -23,14 +23,12 @@ module RedmineDmsf
       # Base view hooks
       class BaseViewHooks < Redmine::Hook::ViewListener
         def view_layouts_base_html_head(context = {})
-          unless /^(Dmsf|Projects|Issues|Queries|EasyCrmCases|MyController|SettingsController|WikiController)/.match?(
+          unless /^(Dmsf|Projects|Issues|Queries|MyController|SettingsController|WikiController)/.match?(
             context[:controller].class.name
           )
             return
           end
-
-          partial = "hooks/#{defined?(EasyExtensions) ? 'easy' : 'redmine'}_dmsf/view_layouts_base_html_head"
-          context[:controller].send :render_to_string, { partial: partial }
+          context[:controller].send :render_to_string, { partial: 'hooks/redmine_dmsf/view_layouts_base_html_head' }
         end
       end
     end

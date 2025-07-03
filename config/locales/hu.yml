@@ -82,7 +82,7 @@ hu:
   title_lock_file: Zárolás, hogy más felhasználók nem tudjank változtatni rajt
   title_download_checked: Ellenőrzött letöltése a Zip archívumba
   title_send_checked_by_email: Kijelöltek küldése  email-ben
-  link_user_preferences: Easy DMS projekt preferenciák
+  link_user_preferences: DMS projekt preferenciák
   heading_send_documents_by_email: Dokumentumok küldése emailen
   label_email_from: Valakitől
   label_email_to: Valakinek

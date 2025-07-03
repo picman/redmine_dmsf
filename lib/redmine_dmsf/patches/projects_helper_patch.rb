@@ -2,7 +2,7 @@
 
 # Redmine plugin for Document Management System "Features"
 #
-# Karel Pičman <karel.picman@kontron.com>
+# Vít Jonáš <vit.jonas@gmail.com>, Daniel Munn <dan.munn@munnster.co.uk>, Karel Pičman <karel.picman@kontron.com>
 #
 # This file is part of Redmine DMSF plugin.
 #
@@ -17,28 +17,36 @@
 # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
 # <https://www.gnu.org/licenses/>.
 
-# Redmine's PDF export patch to view DMS images
-
 module RedmineDmsf
   module Patches
-    # Puma
-    module PumaPatch
+    # Project helper
+    module ProjectsHelperPatch
       ##################################################################################################################
       # Overridden methods
-      def self.included(base)
-        base.class_eval do
-          # WebDAV methods
-          methods = Puma::Const::SUPPORTED_HTTP_METHODS |
-                    %w[OPTIONS HEAD GET PUT POST DELETE PROPFIND PROPPATCH MKCOL COPY MOVE LOCK UNLOCK]
-          remove_const :SUPPORTED_HTTP_METHODS
-          const_set :SUPPORTED_HTTP_METHODS, methods.freeze
-        end
+
+      def project_settings_tabs
+        tabs = super
+        dmsf_tabs =
+          [
+            {
+              name: 'dmsf',
+              action: { controller: 'dmsf_state', action: 'user_pref_save' },
+              partial: 'dmsf_state/user_pref', label: :menu_dmsf
+            },
+            {
+              name: 'dmsf_workflow',
+              action: { controller: 'dmsf_workflows', action: 'index' },
+              partial: 'dmsf_workflows/main', label: :label_dmsf_workflow_plural
+            }
+          ]
+        tabs.concat(
+          dmsf_tabs.select { |dmsf_tab| User.current.allowed_to?(dmsf_tab[:action], @project) }
+        )
+        tabs
       end
     end
   end
 end
 
 # Apply the patch
-if !defined?(EasyPatchManager) && RedmineDmsf::Plugin.lib_available?('puma/const')
-  Puma::Const.include RedmineDmsf::Patches::PumaPatch
-end
+ProjectsController.send(:helper, RedmineDmsf::Patches::ProjectsHelperPatch)

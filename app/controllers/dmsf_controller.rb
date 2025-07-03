@@ -759,11 +759,7 @@ class DmsfController < ApplicationController
 
   def query
     retrieve_default_query true
-    @query = if defined?(EasyExtensions)
-               retrieve_query_without_easy_extensions DmsfQuery, true
-             else
-               retrieve_query DmsfQuery, true
-             end
+    @query = retrieve_query DmsfQuery, true
   end
 
   def retrieve_default_query(use_session)

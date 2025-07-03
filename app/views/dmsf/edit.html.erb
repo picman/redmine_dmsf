@@ -33,7 +33,7 @@
                                  back_url: edit_dmsf_url(id: @project, folder_id: @folder)),
         title: l(:title_lock_file), class: 'icon icon-lock' %>
     <% end %>
-    <% if defined?(EasyExtensions) %>
+    <%= actions_dropdown do %>
       <%= render partial: 'dmsf_context_menus/folder',
                  locals: { dmsf_folder: @folder,
                            locked: @folder.locked?,
@@ -47,22 +47,6 @@
                            notifications: @notifications,
                            back_url: edit_dmsf_url(id: @project, folder_id: @folder)
                  } %>
-    <% else %>
-      <%= actions_dropdown do %>
-        <%= render partial: 'dmsf_context_menus/folder',
-                   locals: { dmsf_folder: @folder,
-                             locked: @folder.locked?,
-                             allowed: true,
-                             dmsf_link: nil,
-                             project: @project,
-                             folder: @folder.dmsf_folder,
-                             edit: true,
-                             unlockable: @folder.unlockable? && (!@folder.locked_for_user? || User.current.allowed_to?(:force_file_unlock, @project)),
-                             email_allowed: User.current.allowed_to?(:email_documents, @project),
-                             notifications: @notifications,
-                             back_url: edit_dmsf_url(id: @project, folder_id: @folder)
-                   } %>
-      <% end %>
     <% end %>
   <% end %>
 </div>

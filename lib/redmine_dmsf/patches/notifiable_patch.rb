@@ -19,23 +19,19 @@
 
 module RedmineDmsf
   module Patches
-    # TODO: This is just a workaround to fix alias_method usage in RedmineUp's plugins, which is in conflict with
-    #   prepend and causes an infinite loop.
-    module NotifiableRuPatch
-      def self.included(base)
-        base.extend ClassMethods
-        base.class_eval do
-          class << self
-            alias_method :all_without_resources_dmsf, :all
-            alias_method :all, :all_with_resources_dmsf
-          end
-        end
+    # Notifiable
+    module NotifiablePatch
+      def self.prepended(base)
+        base.singleton_class.prepend(ClassMethods)
       end
 
       # Class methods
       module ClassMethods
-        def all_with_resources_dmsf
-          notifications = all_without_resources_dmsf
+        ################################################################################################################
+        # Overridden methods
+        #
+        def all
+          notifications = super
           notifications << Redmine::Notifiable.new('dmsf_workflow_plural')
           notifications << Redmine::Notifiable.new('dmsf_legacy_notifications')
           notifications
@@ -46,8 +42,6 @@ module RedmineDmsf
 end
 
 # Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_other_patch 'Redmine::Notifiable', 'RedmineDmsf::Patches::NotifiableRuPatch'
-elsif RedmineDmsf::Plugin.an_obsolete_plugin_present?
-  Redmine::Notifiable.include RedmineDmsf::Patches::NotifiableRuPatch
+unless RedmineDmsf::Plugin.an_obsolete_plugin_present?
+  Redmine::Notifiable.prepend RedmineDmsf::Patches::NotifiablePatch
 end

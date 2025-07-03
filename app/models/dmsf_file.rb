@@ -628,63 +628,8 @@ class DmsfFile < ApplicationRecord
 
     id = Regexp.last_match(1).to_i
     case dmsf_folder.dmsf_folder&.title
-    when '.CRM cases'
-      EasyCrmCase.visible.find_by id: id
     when '.Issues'
       Issue.visible.find_by id: id
-    end
-  end
-
-  if defined?(EasyExtensions)
-    include Redmine::Utils::Shell
-
-    def sheet?
-      case File.extname(last_revision&.disk_filename)
-      when '.ods', # LibreOffice
-        '.xls', '.xlsx', '.xlsm' # MS Office
-        true
-      else
-        false
-      end
-    end
-
-    def content
-      if File.exist?(last_revision.disk_file)
-        if File.size?(last_revision.disk_file) < 5.megabytes
-          tmp = Rails.root.join('tmp')
-          if sheet?
-            cmd = "#{shell_quote(RedmineDmsf::Preview::OFFICE_BIN)} --convert-to 'csv' \
-                   --outdir #{shell_quote(tmp.to_s)} #{shell_quote(last_revision.disk_file)}"
-            text_file = tmp.join(last_revision.disk_filename).sub_ext('.csv')
-          elsif office_doc?
-            cmd = "#{shell_quote(RedmineDmsf::Preview::OFFICE_BIN)} --convert-to 'txt:Text (encoded):UTF8' \
-                   --outdir #{shell_quote(tmp.to_s)} #{shell_quote(last_revision.disk_file)}"
-            text_file = tmp.join(last_revision.disk_filename).sub_ext('.txt')
-          elsif pdf?
-            text_file = tmp.join(last_revision.disk_filename).sub_ext('.txt')
-            cmd = "pdftotext -q #{shell_quote(last_revision.disk_file)} #{shell_quote(text_file.to_s)}"
-          elsif text?
-            return File.read(last_revision.disk_file)
-          end
-          if cmd
-            if system(cmd) && File.exist?(text_file)
-              text = File.read(text_file)
-              FileUtils.rm_f text_file
-              return text
-            else
-              Rails.logger.error "Conversion to text failed (#{$CHILD_STATUS}):\nCommand: #{cmd}"
-            end
-          end
-        else
-          Rails.logger.warn "File #{last_revision.disk_file} is to big to be indexed (>5MB)"
-        end
-      end
-      description
-    rescue StandardError => e
-      Rails.logger.warn e.message
-      ''
-    ensure
-      FileUtils.rm_f(text_file) if text_file.present?
     end
   end
 
