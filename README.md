@@ -12,11 +12,11 @@ WebDAV functionality is provided through Dav4Rack library.
 The development has been supported by [Kontron](https://www.kontron.com) and has been released as open source thanks to their generosity.
 Project home: <https://github.com/picman/redmine_dmsf>
 
-Redmine Document Management System "Features" plugin is distributed under GNU General Public License v2 (GPL).
-Redmine is a flexible project management web application, released under the terms of the GNU General Public License v2 (GPL) at <https://www.redmine.org/>
+Redmine Document Management System "Features" plugin is distributed under GNU General Public License v3 (GPL).
+33Redmine is a flexible project management web application, released under the terms of the GNU General Public License v2 (GPL) at <https://www.redmine.org/>
 
 Further information about the GPL license can be found at
-<https://www.gnu.org/licenses/old-licenses/gpl-2.0.html#SEC1>
+<https://www.gnu.org/licenses/gpl-3.0.html>
 
 ## Features
 
