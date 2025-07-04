@@ -252,13 +252,8 @@
                                     selected: RedmineDmsf.dmsf_webdav? ? '1' : '0'),
                  onchange: "$('#dmsf_webdav_block').toggle()" %>
   <em class="info">
-    <% if disabled %>
-      <% @settings['dmsf_webdav'] = '0' %>
-      <%= l(:note_webdav_disabled) %>
-    <% else %>
-      <%= l(:note_webdav, protocol: Setting.protocol, domain: Setting.host_name) %><br>
-      <%= l(:label_default) %>: <%= l(:select_option_deactivated) %>
-    <% end %>
+    <%= l(:note_webdav, protocol: Setting.protocol, domain: Setting.host_name) %><br>
+    <%= l(:label_default) %>: <%= l(:select_option_deactivated) %>
   </em>
 </p>
 
