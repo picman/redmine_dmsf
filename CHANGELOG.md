@@ -1,8 +1,21 @@
 Changelog for Redmine DMSF
 ==========================
 
-4.2.0 *????-??-??*
+4.2.0 *2025-07-04*
 ------------------
+
+    SQL server compatibility
+    Change of the license from GNU GPL v2 to v3
+    PDF thumbnails
+
+NOTE: These issues are still from the original danmunn's repository
+
+* Bug: #1601 - Serialization of attached documents is wrong
+* Bug: #1600 - Different versions for different types of uploading
+* Bug: #1599 - Empty Trash => Error 500
+* New: #1597 - GNU GPL v2 -> v3
+* New: #1596 - Add a warning about searching in sub-folders
+* Bug: #1595 - DMSF WebDAV Configuration Fails on Redmine 6.0.5
 
 4.1.3 *2025-05-09*
 ------------------
