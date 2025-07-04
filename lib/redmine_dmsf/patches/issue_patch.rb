@@ -4,35 +4,30 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 module RedmineDmsf
   module Patches
-    # Easy CRM case
-    module EasyCrmCasePatch
+    # Issue
+    module IssuePatch
       ##################################################################################################################
       # New methods
 
-      def self.included(base)
+      def self.prepended(base)
         base.class_eval do
           before_destroy :delete_system_folder, prepend: true
         end
-      end
-
-      def attributes_editable?
-        true
       end
 
       def save_dmsf_attachments(dmsf_attachments)
@@ -95,25 +90,34 @@ module RedmineDmsf
         @saved_dmsf_links_wfs || {}
       end
 
-      def system_folder(create: false)
-        parent = DmsfFolder.issystem.find_by(project_id: project_id, title: '.CRM cases')
+      def main_system_folder(create: false, prj_id: nil)
+        prj_id ||= project_id
+        parent = DmsfFolder.issystem.find_by(project_id: prj_id, title: '.Issues')
         if create && !parent
           parent = DmsfFolder.new
-          parent.project_id = project_id
-          parent.title = '.CRM cases'
-          parent.description = 'Documents assigned to CRM cases'
+          parent.project_id = prj_id
+          parent.title = '.Issues'
+          parent.description = 'Documents assigned to issues'
           parent.user_id = User.anonymous.id
           parent.system = true
           parent.save
         end
+        parent
+      end
+
+      def system_folder(create: false, prj_id: nil)
+        prj_id ||= project_id
+        parent = main_system_folder(create: create, prj_id: prj_id)
         if parent
-          folder = DmsfFolder.issystem.where(["project_id = ? AND dmsf_folder_id = ? AND title LIKE '? - %'",
-                                              project_id, parent.id, id]).first
+          folder = DmsfFolder.issystem
+                             .where(project_id: prj_id, dmsf_folder_id: parent.id)
+                             .where(['title LIKE :con', { con: "#{id} - %" }])
+                             .first
           if create && !folder
             folder = DmsfFolder.new
             folder.dmsf_folder_id = parent.id
-            folder.project_id = project_id
-            folder.title = "#{id} - #{name}"
+            folder.project_id = prj_id
+            folder.title = "#{id} - #{DmsfFolder.get_valid_title(subject)}"
             folder.user_id = User.anonymous.id
             folder.system = true
             folder.save
@@ -123,11 +127,11 @@ module RedmineDmsf
       end
 
       def dmsf_files
-        system_folder&.dmsf_files || []
+        system_folder&.dmsf_files&.visible || []
       end
 
       def dmsf_links
-        system_folder&.dmsf_links || []
+        system_folder&.dmsf_links&.visible || []
       end
 
       def delete_system_folder
@@ -144,7 +148,7 @@ module RedmineDmsf
 
       # Adds a journal detail for an attachment that was added or removed
       def journalize_dmsf_file(dmsf_file, added_or_removed)
-        key = added_or_removed == :removed ? :old_value : :value
+        key = (added_or_removed == :removed ? :old_value : :value)
         init_journal User.current
         current_journal.details << JournalDetail.new(
           property: 'dmsf_file',
@@ -157,8 +161,5 @@ module RedmineDmsf
   end
 end
 
-# Apply the patch
-if defined?(EasyPatchManager)
-  EasyPatchManager.register_model_patch 'EasyCrmCase', 'RedmineDmsf::Patches::EasyCrmCasePatch',
-                                        if: -> { EasyPluginLoader.plugin_active? 'easy_crm_2_0' }
-end
+# Apply patch
+Issue.prepend RedmineDmsf::Patches::IssuePatch

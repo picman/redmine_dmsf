@@ -4,19 +4,18 @@
 #
 # Daniel Munn <dan.munn@munnster.co.uk>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 require 'uuidtools'
 require 'addressable/uri'
@@ -265,7 +264,7 @@ module RedmineDmsf
           raise Locked if file.locked_for_user?
 
           if dest.exist? && !dest.collection?
-            if dest.resource.file.last_revision.size.zero? || reuse_version_for_locked_file(dest.resource.file)
+            if dest.resource.file.last_revision.size.zero? || reuse_version_for_locked_file?(dest.resource.file)
               # Last revision in the destination has zero size so reuse that revision
               new_revision = dest.resource.file.last_revision
             else
@@ -391,7 +390,7 @@ module RedmineDmsf
         entity = file || folder
         return unless entity
 
-        refresh = args && (!args[:scope]) && (!args[:type])
+        refresh = args && !args[:scope] && !args[:type]
         args ||= {}
         args[:method] = @request.request_method.downcase
         http_if = request.get_header('HTTP_IF')
@@ -465,7 +464,7 @@ module RedmineDmsf
           # logically assume is that the lock is being refreshed (office loves
           # to do this for example, so we do a few checks, try to find the lock
           # and ultimately extend it, otherwise we return Conflict for any failure
-          refresh = args && (!args[:scope]) && (!args[:type]) # Perhaps a lock refresh
+          refresh = args && !args[:scope] && !args[:type] # Perhaps a lock refresh
           if refresh
             http_if = request.get_header('HTTP_IF')
             if http_if.blank?
@@ -555,7 +554,7 @@ module RedmineDmsf
             Rails.logger.info "Versioning disabled for #{basename}"
             reuse_revision = true
           end
-          reuse_revision = true if reuse_version_for_locked_file(file)
+          reuse_revision = true if reuse_version_for_locked_file?(file)
           last_revision = file.last_revision
           if last_revision.size.zero? || reuse_revision
             new_revision = last_revision
@@ -722,7 +721,7 @@ module RedmineDmsf
         File.new disk_file
       end
 
-      def reuse_version_for_locked_file(file)
+      def reuse_version_for_locked_file?(file)
         locks = file.lock
         locks.each do |lock|
           next if lock.expired?

@@ -4,19 +4,18 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 require File.expand_path('../../test_helper', __FILE__)
 
@@ -34,13 +33,10 @@ class UserPatchTest < RedmineDmsf::Test::UnitTest
     assert_equal 0, DmsfFileRevision.where(dmsf_workflow_assigned_by_user_id: id).all.size
     assert_equal 0, DmsfFileRevision.where(dmsf_workflow_started_by_user_id: id).all.size
     assert_equal 0, DmsfFile.where(deleted_by_user_id: id).all.size
-    assert_equal 0, DmsfFolder.where(user_id: id).all.size
     assert_equal 0, DmsfFolder.where(deleted_by_user_id: id).all.size
     assert_equal 0, DmsfLink.where(user_id: id).all.size
     assert_equal 0, DmsfLink.where(deleted_by_user_id: id).all.size
-    # TODO: Expected: 0, Actual: 1 in Easy extension
-    return if defined?(EasyExtensions)
-
+    assert_equal 0, DmsfFolder.where(user_id: id).all.size
     assert_equal 0, DmsfLock.where(user_id: id).all.size
     assert_equal 0, DmsfWorkflowStepAction.where(author_id: id).all.size
     assert_equal 0, DmsfWorkflowStepAssignment.where(user_id: id).all.size

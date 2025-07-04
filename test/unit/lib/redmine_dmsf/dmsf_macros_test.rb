@@ -4,40 +4,55 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 require File.expand_path('../../../../test_helper', __FILE__)
 
 # Macros tests
 class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
-  include ApplicationHelper
-  include ActionView::Helpers
-  include ActionDispatch::Routing
-  include ERB::Util
-  include Rails.application.routes.url_helpers
-  include ActionView::Helpers::UrlHelper
-
   fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions
+
+  # Mock view context for macros
+  class DmsfView
+    include ApplicationHelper
+    include ActionView::Helpers
+    include ActionDispatch::Routing
+    include ERB::Util
+    include Rails.application.routes.url_helpers
+  end
+
+  # Cache the view context to avoid creating it for each macro call
+  def dmsf_view_context
+    @dmsf_view_context ||= DmsfView.new
+  end
+
+  # Hack to bypass missing methods to mocked view context
+  def respond_to_missing?(name, include_private)
+    dmsf_view_context.respond_to?(name) || super
+  end
+
+  def method_missing(method_name, ...)
+    dmsf_view_context.send(method_name.to_s, ...)
+  end
 
   def setup
     super
     User.current = @jsmith
-    default_url_options[:host] = 'www.example.com'
+    Rails.application.routes.default_url_options[:host] = 'www.example.com'
     @file1 = DmsfFile.find_by(id: 1)
-    @file6 = DmsfFile.find_by(id: 6)  # video
-    @file7 = DmsfFile.find_by(id: 7)  # image
+    @file6 = DmsfFile.find_by(id: 6) # video
+    @file7 = DmsfFile.find_by(id: 7) # image
     @folder1 = DmsfFolder.find_by(id: 1)
   end
 
@@ -346,10 +361,12 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
     text = textilizable("{{dmsftn(#{@file7.id} #{@file7.id})}}")
     url = static_dmsf_file_url(@file7, @file7.last_revision.name)
     img = image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: 200)
-    link = link_to(img, url, target: '_blank',
-                             rel: 'noopener',
-                             title: h(@file7.last_revision.try(:tooltip)),
-                             'data-downloadurl': 'image/gif:test.gif:http://www.example.com/dmsf/files/7/test.gif')
+    link = link_to(img,
+                   url,
+                   target: '_blank',
+                   rel: 'noopener',
+                   title: h(@file7.last_revision.try(:tooltip)),
+                   'data-downloadurl': 'image/gif:test.gif:http://www.example.com/dmsf/files/7/test.gif')
     assert text.include?(link + link), text
   end
 
@@ -380,10 +397,12 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
     height = '480'
     text = textilizable("{{dmsftn(#{@file7.id}, height=#{height})}}")
     img = image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: 480)
-    link = link_to(img, url, target: '_blank',
-                             rel: 'noopener',
-                             title: h(@file7.last_revision.try(:tooltip)),
-                             'data-downloadurl': 'image/gif:test.gif:http://www.example.com/dmsf/files/7/test.gif')
+    link = link_to(img,
+                   url,
+                   target: '_blank',
+                   rel: 'noopener',
+                   title: h(@file7.last_revision.try(:tooltip)),
+                   'data-downloadurl': 'image/gif:test.gif:http://www.example.com/dmsf/files/7/test.gif')
     assert text.include?(link), text
     width = '640'
     text = textilizable("{{dmsftn(#{@file7.id}, width=#{width})}}")

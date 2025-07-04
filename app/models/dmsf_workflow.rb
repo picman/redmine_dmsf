@@ -4,19 +4,18 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 # Workflow
 class DmsfWorkflow < ApplicationRecord
@@ -110,7 +109,6 @@ class DmsfWorkflow < ApplicationRecord
         end
       end
     end
-    true
   end
 
   def delegates(query, dmsf_workflow_step_assignment_id, dmsf_file_revision_id)
@@ -187,7 +185,7 @@ class DmsfWorkflow < ApplicationRecord
     end
   end
 
-  def try_finish(revision, action, user_id)
+  def try_finish?(revision, action, user_id)
     case action.action
     when DmsfWorkflowStepAction::ACTION_APPROVE
       assignments = next_assignments(revision.id)
@@ -217,7 +215,7 @@ class DmsfWorkflow < ApplicationRecord
   def copy_to(project, name = nil)
     new_wf = dup
     new_wf.name = name if name
-    new_wf.project_id = project ? project.id : nil
+    new_wf.project_id = project&.id
     new_wf.author = User.current
     if new_wf.save
       dmsf_workflow_steps.each do |step|

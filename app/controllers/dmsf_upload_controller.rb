@@ -4,19 +4,18 @@
 #
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 # Upload controller
 class DmsfUploadController < ApplicationController
@@ -26,7 +25,7 @@ class DmsfUploadController < ApplicationController
   before_action :authorize, except: %i[upload delete_dmsf_attachment delete_dmsf_link_attachment]
   before_action :authorize_global, only: %i[upload delete_dmsf_attachment delete_dmsf_link_attachment]
   before_action :find_folder, except: %i[upload commit delete_dmsf_attachment delete_dmsf_link_attachment]
-  before_action :permissions, except: %i[upload commit delete_dmsf_attachment delete_dmsf_link_attachment]
+  before_action :permissions?, except: %i[upload commit delete_dmsf_attachment delete_dmsf_link_attachment]
 
   helper :custom_fields
   helper :dmsf_workflows
@@ -34,7 +33,7 @@ class DmsfUploadController < ApplicationController
 
   accept_api_auth :upload, :commit
 
-  def permissions
+  def permissions?
     render_403 unless DmsfFolder.permissions?(@folder)
     true
   end
@@ -76,7 +75,6 @@ class DmsfUploadController < ApplicationController
     @attachment.author = User.current
     @attachment.filename = params[:filename].presence || Redmine::Utils.random_hex(16)
     @attachment.content_type = params[:content_type].presence
-    @attachment.skip_description_required = true if defined?(EasyExtensions)
     begin
       Attachment.skip_callback(:commit, :after, :reuse_existing_file_if_possible, raise: false)
       saved = @attachment.save
@@ -108,7 +106,7 @@ class DmsfUploadController < ApplicationController
 
     @folder = DmsfFolder.visible.find_by(id: attachments[:folder_id]) if attachments[:folder_id].present?
     # standard file input uploads
-    uploaded_files = attachments.select { |key, _| key == 'uploaded_file' }
+    uploaded_files = attachments.slice('uploaded_file')
     uploaded_files.each_value do |uploaded_file|
       upload = DmsfUpload.create_from_uploaded_attachment(@project, @folder, uploaded_file)
       next unless upload

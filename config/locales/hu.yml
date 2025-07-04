@@ -3,21 +3,18 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
+# This file is part of Redmine DMSF plugin.
 #
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 hu:
   dmsf: DMS  # Custom fields tab title
@@ -85,7 +82,7 @@ hu:
   title_lock_file: Zárolás, hogy más felhasználók nem tudjank változtatni rajt
   title_download_checked: Ellenőrzött letöltése a Zip archívumba
   title_send_checked_by_email: Kijelöltek küldése  email-ben
-  link_user_preferences: Easy DMS projekt preferenciák
+  link_user_preferences: DMS projekt preferenciák
   heading_send_documents_by_email: Dokumentumok küldése emailen
   label_email_from: Valakitől
   label_email_to: Valakinek
@@ -492,13 +489,9 @@ hu:
   label_dmsf_commit: Commit
   label_dmsf_upload_commit: Upload and commit
 
-  easy_pages:
-    modules:
-      dmsf_locked_documents: My locked documents
-      dmsf_open_approvals: My open approvals
-      dmsf_watched_documents: My watched documents
-    module_category:
-      easy_dms: Easy DMS
+  notice_search_in_subfolders: Searching in sub-folders is not recursive. For a recursive search go to the top level.
+  warning_folder_unlockable: The folder can't be unlocked
+  redmine_dmsf: Redmine DMSF
 
   activerecord:
     errors:

@@ -4,19 +4,18 @@
 #
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 # File revision
 class DmsfFileRevision < ApplicationRecord
@@ -119,16 +118,12 @@ class DmsfFileRevision < ApplicationRecord
     remove_extension(filename).gsub(/_+/, ' ')
   end
 
-  def self.easy_activity_custom_project_scope(scope, options, _)
-    scope.where(dmsf_files: { project_id: options[:project_ids] })
-  end
-
   def delete(commit: false, force: true)
     if dmsf_file.locked_for_user?
       errors.add :base, l(:error_file_is_locked)
       return false
     end
-    if !commit && (!force && (dmsf_file.dmsf_file_revisions.length <= 1))
+    if !commit && !force && (dmsf_file.dmsf_file_revisions.length <= 1)
       errors.add :base, l(:error_at_least_one_revision_must_be_present)
       return false
     end

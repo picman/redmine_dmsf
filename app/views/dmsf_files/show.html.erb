@@ -3,19 +3,18 @@
   #
   # Vít Jonáš <vit.jonas@gmail.com>, Daniel Munn <dan.munn@munnster.co.uk>, Karel Pičman <karel.picman@kontron.com>
   #
-  # This program is free software; you can redistribute it and/or
-  # modify it under the terms of the GNU General Public License
-  # as published by the Free Software Foundation; either version 2
-  # of the License, or (at your option) any later version.
+  # This file is part of Redmine DMSF plugin.
   #
-  # This program is distributed in the hope that it will be useful,
-  # but WITHOUT ANY WARRANTY; without even the implied warranty of
-  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  # GNU General Public License for more details.
+  # Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+  # Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+  # later version.
   #
-  # You should have received a copy of the GNU General Public License
-  # along with this program; if not, write to the Free Software
-  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  # Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  # more details.
+  #
+  # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+  # <https://www.gnu.org/licenses/>.
 %>
 
 <% html_title l(:dmsf) %>
@@ -38,16 +37,10 @@
                     lock_dmsf_files_path(id: @file, back_url: dmsf_file_path(id: @file)),
                     title: l(:title_lock_file), class: 'icon icon-lock' %>
       <% end %>
-      <% if defined?(EasyExtensions) %>
+      <%= actions_dropdown do %>
         <%= render partial: 'dmsf_context_menus/revisions',
                    locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                             notifications: @notifications, back_url: dmsf_file_path(id: @file)} %>
-      <% else %>
-        <%= actions_dropdown do %>
-          <%= render partial: 'dmsf_context_menus/revisions',
-                     locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                               notifications: @notifications, back_url: dmsf_file_path(id: @file) } %>
-        <% end %>
+                             notifications: @notifications, back_url: dmsf_file_path(id: @file) } %>
       <% end %>
     <% end %>
   <% end %>
@@ -61,9 +54,11 @@
   <%= render partial: 'file_new_revision' %>
 <% end %>
 
-<div class="dmsf-id-box">
-  <strong><%= label_tag '', l(:label_document) %></strong>
-  #<%= @file.id %>
+<div>
+  <div class="dmsf-id-box">
+    <strong><%= label_tag '', l(:label_document) %></strong>
+    #<%= @file.id %>
+  </div>
 </div>
 
 <h3><%= l(:heading_revisions) %></h3>
@@ -71,16 +66,10 @@
   <div class="dmsf-revision-box">
     <div class="dmsf-widget-header fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix">
       <div class="dmsf-controls contextual">
-        <% if defined?(EasyExtensions) %>
+        <%= actions_dropdown do %>
           <%= render partial: 'dmsf_context_menus/revision_actions',
                      locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
                                file_manipulation_allowed: @file_manipulation_allowed, revision: revision } %>
-        <% else %>
-          <%= actions_dropdown do %>
-            <%= render partial: 'dmsf_context_menus/revision_actions',
-                       locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                                 file_manipulation_allowed: @file_manipulation_allowed, revision: revision } %>
-          <% end %>
         <% end %>
       </div>
       <div class="dmsf-widget-header-text">
@@ -164,7 +153,6 @@
       </div>
     </div>
   </div>
-  <br>
 <% end %>
 <span class="pagination"><%= pagination_links_full @revision_pages, @revision_count %></span>
 
@@ -176,7 +164,7 @@
   <% end %>
 <% end %>
 
-<%= late_javascript_tag do %>
+<%= javascript_tag do %>
   $('a.delete-revision').click(function(event) {
     if(!window.confirm('<%= l(:text_are_you_sure) %>')) {
       event.preventDefault();

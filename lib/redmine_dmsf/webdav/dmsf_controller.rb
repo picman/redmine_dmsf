@@ -4,19 +4,20 @@
 #
 # Daniel Munn <dan.munn@munnster.co.uk>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
+require "#{File.dirname(__FILE__)}/dmsf_digest"
 
 module RedmineDmsf
   module Webdav
@@ -34,7 +35,7 @@ module RedmineDmsf
       def process
         return super unless RedmineDmsf.dmsf_webdav_authentication == 'Digest'
 
-        status = skip_authorization? || authenticate ? process_action || OK : Dav4rack::HttpStatus::Unauthorized
+        status = skip_authorization? || authenticate? ? process_action || OK : Dav4rack::HttpStatus::Unauthorized
       rescue Dav4rack::HttpStatus::Status => e
         status = e
       ensure
@@ -50,14 +51,14 @@ module RedmineDmsf
         end
       end
 
-      def authenticate
+      def authenticate?
         return super unless RedmineDmsf.dmsf_webdav_authentication == 'Digest'
 
         auth_header = request.authorization.to_s
         scheme = auth_header.split(' ', 2).first&.downcase
         if scheme == 'digest'
           Rails.logger.info 'Authentication: digest'
-          digest = Digest.new(request.authorization)
+          digest = DmsfDigest.new(request.authorization)
           params = digest.params
           username = params['username']
           response = params['response']
@@ -76,19 +77,11 @@ module RedmineDmsf
             raise Unauthorized
           end
           token = Token.find_by(user_id: user.id, action: 'dmsf_webdav_digest')
-          if token.nil? && defined?(EasyExtensions)
-            if user.easy_digest_token_expired?
-              Rails.logger.error "Digest authentication: #{user} is locked"
-              raise Unauthorized
-            end
-            ha1 = user.easy_digest_token
-          else
-            unless token
-              Rails.logger.error "Digest authentication: no digest found for #{username}"
-              raise Unauthorized
-            end
-            ha1 = token.value
+          unless token
+            Rails.logger.error "Digest authentication: no digest found for #{username}"
+            raise Unauthorized
           end
+          ha1 = token.value
           ha2 = ActiveSupport::Digest.hexdigest("#{request.env['REQUEST_METHOD']}:#{uri}")
           required_response = if qop
                                 ActiveSupport::Digest.hexdigest("#{ha1}:#{nonce}:#{nc}:#{cnonce}:#{qop}:#{ha2}")
@@ -106,7 +99,7 @@ module RedmineDmsf
         raise Unauthorized if User.current.anonymous?
 
         Rails.logger.info "Current user: #{User.current}, User-Agent: #{request.user_agent}"
-        User.current
+        User.current && !User.current.anonymous?
       end
     end
   end

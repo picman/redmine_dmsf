@@ -3,19 +3,18 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 nl:
   dmsf: DMS
@@ -83,7 +82,7 @@ nl:
   title_lock_file: Vergrendel om wijzigingen door andere leden te voorkomen
   title_download_checked: Download aangevinkt in Zip archief
   title_send_checked_by_email: Verzending aangevinkt door e-mail
-  link_user_preferences: Easy DMS project voorkeuren
+  link_user_preferences: DMS project voorkeuren
   heading_send_documents_by_email: Verstuur documenten per e-mail
   label_email_from: Van
   label_email_to: Aan
@@ -179,7 +178,7 @@ nl:
   error_file_can_not_be_created: Bestand kan niet aangemaakt worden in opslag directory
   error_wrong_zip_encoding: Onjuiste Zip encoding
   warning_xapian_not_available: Xapian niet beschikbaar
-  menu_dmsf: Easy DMS
+  menu_dmsf: DMS
   label_physical_file_delete: Fysiek bestand verwijderen
   user_is_not_project_member: U bent geen lid van het project
   heading_access_downloads_emails: Downloads/E-mails
@@ -188,7 +187,7 @@ nl:
   label_dmsf_updated: Bijgewerkt
   label_dmsf_downloaded: Gedownload
   title_total_size_of_all_files: Totale grootte van alle bestanden onder deze map
-  project_module_dmsf: Easy DMS
+  project_module_dmsf: DMS
   warning_no_project_to_copy_file_to: Geen project om bestand naar te kopiëren
   comment_copied_from: "Gekopieerd van %{source}"
   field_target_project: Doelproject
@@ -491,13 +490,9 @@ nl:
   label_dmsf_commit: Commit
   label_dmsf_upload_commit: Upload and commit
 
-  easy_pages:
-    modules:
-      dmsf_locked_documents: My locked documents
-      dmsf_open_approvals: My open approvals
-      dmsf_watched_documents: My watched documents
-    module_category:
-      easy_dms: Easy DMS
+  notice_search_in_subfolders: Searching in sub-folders is not recursive. For a recursive search go to the top level.
+  warning_folder_unlockable: The folder can't be unlocked
+  redmine_dmsf: Redmine DMSF
 
   activerecord:
     errors:

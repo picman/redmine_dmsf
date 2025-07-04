@@ -4,19 +4,18 @@
 #
 #  Vít Jonáš <vit.jonas@gmail.com>, Daniel Munn <dan.munn@munnster.co.uk>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 require "#{File.dirname(__FILE__)}/../../lib/redmine_dmsf/dmsf_zip"
 
@@ -31,7 +30,7 @@ class DmsfController < ApplicationController
                 except: %i[new create edit_root save_root add_email append_email autocomplete_for_user digest
                            reset_digest]
   before_action :find_parent, only: %i[new create delete]
-  before_action :permissions
+  before_action :permissions?
   # Also try to lookup folder by title if this is an API call
   before_action :find_folder_by_title, only: [:show]
   before_action :query, only: %i[expand_folder show trash empty_trash index]
@@ -51,7 +50,7 @@ class DmsfController < ApplicationController
   helper :context_menus
   helper :watchers
 
-  def permissions
+  def permissions?
     if !DmsfFolder.permissions?(@folder, allow_system: false)
       render_403
     elsif @folder && @project && (@folder.project != @project)
@@ -83,7 +82,7 @@ class DmsfController < ApplicationController
     @file_manipulation_allowed = User.current.allowed_to?(:file_manipulation, @project)
     @trash_enabled = @folder_manipulation_allowed && @file_manipulation_allowed
     @notifications = Setting.notified_events.include?('dmsf_legacy_notifications')
-    @query.dmsf_folder_id = @folder ? @folder.id : nil
+    @query.dmsf_folder_id = @folder&.id
     @query.deleted = false
     @query.sub_projects |= RedmineDmsf.dmsf_projects_as_subfolders?
     if @folder&.deleted? || (params[:folder_title].present? && !@folder)
@@ -93,6 +92,10 @@ class DmsfController < ApplicationController
     if @query.valid?
       respond_to do |format|
         format.html do
+          # Warn about searching in sub-folders
+          if @folder && params['set_filter'].present? && params['f'].present?
+            flash.now[:warning] = l(:notice_search_in_subfolders)
+          end
           @dmsf_count = @query.dmsf_count
           @dmsf_pages = Paginator.new @dmsf_count, per_page_option, params['page']
           render layout: !request.xhr?
@@ -360,7 +363,7 @@ class DmsfController < ApplicationController
 
   def lock
     if @folder.nil?
-      flash[:warning] = l(:warning_foler_unlockable)
+      flash[:warning] = l(:warning_folder_unlockable)
     elsif @folder.locked?
       flash[:warning] = l(:warning_folder_already_locked)
     else
@@ -372,7 +375,7 @@ class DmsfController < ApplicationController
 
   def unlock
     if @folder.nil?
-      flash[:warning] = l(:warning_foler_unlockable)
+      flash[:warning] = l(:warning_folder_unlockable)
     elsif !@folder.locked?
       flash[:warning] = l(:warning_folder_not_locked)
     elsif @folder.locks[0].user == User.current || User.current.allowed_to?(:force_file_unlock, @project)
@@ -756,11 +759,7 @@ class DmsfController < ApplicationController
 
   def query
     retrieve_default_query true
-    @query = if defined?(EasyExtensions)
-               retrieve_query_without_easy_extensions DmsfQuery, true
-             else
-               retrieve_query DmsfQuery, true
-             end
+    @query = retrieve_query DmsfQuery, true
   end
 
   def retrieve_default_query(use_session)

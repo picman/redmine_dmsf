@@ -4,19 +4,18 @@
 #
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 require "#{File.dirname(__FILE__)}/../../lib/redmine_dmsf/lockable"
 
@@ -118,31 +117,19 @@ class DmsfFolder < ApplicationRecord
     if folder&.system
       return false unless allow_system || User.current.allowed_to?(:display_system_folders, folder.project)
 
-      if ['.Issues', '.CRM cases'].exclude?(folder.title) &&
-         !folder.issue&.visible?(User.current) &&
-         !folder.easy_crm_case&.visible?(User.current)
-        return false
-      end
+      return false if (folder.title != '.Issues') && !folder.issue&.visible?(User.current)
     end
     # Permissions to the folder?
     if folder.dmsf_folder_permissions.any?
       role_ids = User.current.roles_for_project(folder.project).map(&:id)
       role_permission_ids = folder.dmsf_folder_permissions.roles.map(&:object_id)
-      if RUBY_VERSION < '3.1' # intersect? method added in Ruby 3.1, though we support 2.7 too
-        return true if role_ids.intersection(role_permission_ids).any?
-      elsif role_ids.intersect?(role_permission_ids)
-        return true
-      end
+      return true if role_ids.intersect?(role_permission_ids)
 
       principal_ids = folder.dmsf_folder_permissions.users.map(&:object_id)
       return true if principal_ids.include?(User.current.id)
 
       user_group_ids = User.current.groups.map(&:id)
-      if RUBY_VERSION < '3.1' # intersect? method added in Ruby 3.1, though we support 2.7 too
-        principal_ids.intersection(user_group_ids).any?
-      else
-        principal_ids.intersect?(user_group_ids)
-      end
+      principal_ids.intersect? user_group_ids
     else
       DmsfFolder.permissions? folder.dmsf_folder, allow_system: allow_system, file: file
     end
@@ -484,19 +471,6 @@ class DmsfFolder < ApplicationRecord
       @issue = Issue.find_by(id: issue_id) if issue_id.positive?
     end
     @issue
-  end
-
-  def easy_crm_case
-    if @easy_crm_case.nil? && system
-      case_id = title.to_i
-      begin
-        ecc = 'EasyCrmCase'.constantize
-      rescue NameError => _e
-        ecc = nil
-      end
-      @easy_crm_case = EasyCrmCase.find_by(id: case_id) if ecc && case_id.positive?
-    end
-    @easy_crm_case
   end
 
   def update_from_params(params)

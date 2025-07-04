@@ -4,19 +4,18 @@
 #
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 require 'tmpdir'
 require 'csv'
@@ -24,14 +23,6 @@ require 'csv'
 # DMSF helper
 module DmsfHelper
   include Redmine::I18n
-
-  unless defined?(EasyExtensions)
-
-    def late_javascript_tag(content_or_options_with_block = nil, html_options = {}, &block)
-      javascript_tag content_or_options_with_block, html_options, &block
-    end
-
-  end
 
   def self.temp_filename(filename)
     filename = sanitize_filename(filename)
@@ -87,9 +78,7 @@ module DmsfHelper
   def email_entry_tmp_file_path(entry)
     sanitized_entry = DmsfHelper.sanitize_filename(entry)
     file_name = "#{RedmineDmsf::DmsfZip::FILE_PREFIX}#{sanitized_entry}.zip"
-    # rubocop:disable Rails/FilePath
-    File.join(Rails.root.to_s, 'tmp', file_name)
-    # rubocop:enable Rails/FilePath
+    Rails.root.join 'tmp', file_name
   end
 
   # Extracts the variable part of the temp file name to be used as identifier in the
@@ -97,6 +86,6 @@ module DmsfHelper
   def tmp_entry_identifier(zipped_content)
     path = Pathname.new(zipped_content)
     zipped_file = path.basename(path.extname).to_s
-    zipped_file.delete_prefix(RedmineDmsf::DmsfZip::FILE_PREFIX)
+    zipped_file.delete_prefix RedmineDmsf::DmsfZip::FILE_PREFIX
   end
 end

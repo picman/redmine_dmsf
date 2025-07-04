@@ -4,19 +4,18 @@
 #
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 # Files controller
 class DmsfFilesController < ApplicationController
@@ -26,7 +25,7 @@ class DmsfFilesController < ApplicationController
   before_action :find_revision, only: %i[delete_revision obsolete_revision]
   before_action :find_folder, only: %i[delete create_revision]
   before_action :authorize
-  before_action :permissions
+  before_action :permissions?
 
   accept_api_auth :show, :view, :delete, :create_revision
 
@@ -39,7 +38,7 @@ class DmsfFilesController < ApplicationController
 
   include QueriesHelper
 
-  def permissions
+  def permissions?
     render_403 if @file && !DmsfFolder.permissions?(@file.dmsf_folder, allow_system: true, file: true)
     true
   end
@@ -335,17 +334,13 @@ class DmsfFilesController < ApplicationController
   end
 
   def thumbnail
-    if @file.image?
-      tbnail = @file.thumbnail(size: params[:size])
-      if tbnail
-        if stale?(etag: tbnail)
-          send_file tbnail,
-                    filename: filename_for_content_disposition(@file.last_revision.disk_file),
-                    type: @file.last_revision.detect_content_type,
-                    disposition: 'inline'
-        end
-      else
-        head :not_found
+    tbnail = @file.thumbnail(size: params[:size])
+    if tbnail
+      if stale?(etag: tbnail)
+        send_file tbnail,
+                  filename: filename_for_content_disposition(@file.last_revision.disk_file),
+                  type: @file.last_revision.detect_content_type,
+                  disposition: 'inline'
       end
     else
       head :not_found

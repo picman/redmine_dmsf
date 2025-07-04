@@ -3,19 +3,18 @@
   #
   # Karel Pičman <karel.picman@kontron.com>
   #
-  # This program is free software; you can redistribute it and/or
-  # modify it under the terms of the GNU General Public License
-  # as published by the Free Software Foundation; either version 2
-  # of the License, or (at your option) any later version.
+  # This file is part of Redmine DMSF plugin.
   #
-  # This program is distributed in the hope that it will be useful,
-  # but WITHOUT ANY WARRANTY; without even the implied warranty of
-  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  # GNU General Public License for more details.
+  # Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+  # Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+  # later version.
   #
-  # You should have received a copy of the GNU General Public License
-  # along with this program; if not, write to the Free Software
-  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  # Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  # more details.
+  #
+  # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+  # <https://www.gnu.org/licenses/>.
 %>
 
 <% options = {} %>
@@ -40,24 +39,21 @@
       <%= check_box_tag('ids[]', "#{node.type}-#{node.id}", false, id: nil) unless node.system %>
     </td>
     <% query.inline_columns.each do |column| %>
-      <%= content_tag 'td', column_content(column, node), class: column.css_classes %>
+      <% classes = column.css_classes.to_s.dup %>
+      <%  classes << ' dmsf-gray' if node.type.match?(/link$/) %>
+      <%  classes << ' dmsf-system' if node.system %>
+      <%= content_tag 'td', column_content(column, node), class: classes %>
     <% end %>
     <td class="buttons">
       <% unless node.system %>
-        <% if defined?(EasyExtensions) %>
-          <%= link_to '', '#', title: l(:button_actions),
-                      class: 'icon-only icon-actions js-contextmenu icon-more-horiz',
-                      data: { cy: "icon__more_horiz--#{node.type}_#{node.id}" } %>
-        <% else %>
-          <%= link_to_context_menu %>
-        <% end %>
+        <%= link_to_context_menu %>
       <% end %>
     </td>
   </tr>
 <% end %>
 
 <% unless query.deleted || query&.project.nil? %>
-  <%= late_javascript_tag do %>
+  <%= javascript_tag do %>
     $(function() {
       $("table.dmsf tr").removeClass("ui-draggable-dragging ui-droppable-active ui-droppable-hover ui-draggable-handle");
       $(".dmsf-draggable").draggable({

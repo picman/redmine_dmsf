@@ -4,19 +4,18 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 module RedmineDmsf
   module Hooks
@@ -54,12 +53,7 @@ module RedmineDmsf
         def controller_issues_bulk_edit_before_save(context = {})
           controller_issues_before_save context
           # Call also the after safe hook, 'cause it's missing in Redmine
-          controller_issues_after_save(context, edit: true) unless defined?(EasyExtensions)
-        end
-
-        # Unfortunately this hook is missing in Redmine. It's called in Easy Redmine only.
-        def controller_issues_bulk_edit_after_save(context = {})
-          controller_issues_after_save context, edit: true
+          controller_issues_after_save(context, edit: true)
         end
 
         private
@@ -158,7 +152,7 @@ module RedmineDmsf
           # Attach DMS documents
           uploaded_files = params[:dmsf_attachments]
           details = params[:committed_files]
-          if uploaded_files && details
+          if uploaded_files
             system_folder = issue.system_folder(create: true)
             uploaded_files.each do |key, uploaded_file|
               upload = DmsfUpload.create_from_uploaded_attachment(issue.project, system_folder, uploaded_file)
@@ -167,11 +161,16 @@ module RedmineDmsf
               uploaded_file[:disk_filename] = upload.disk_filename
               uploaded_file[:name] = upload.name
               uploaded_file[:title] = upload.title
-              uploaded_file[:description] = details[key][:description]
-              uploaded_file[:comment] = details[key][:comment]
-              uploaded_file[:version_major] = details[key][:version_major]
-              uploaded_file[:version_minor] = details[key][:version_minor]
-              uploaded_file[:version_patch] = details[key][:version_patch]
+              if details
+                uploaded_file[:description] = details[key][:description]
+                uploaded_file[:comment] = details[key][:comment]
+                uploaded_file[:version_major] = details[key][:version_major]
+                uploaded_file[:version_minor] = details[key][:version_minor]
+                uploaded_file[:version_patch] = details[key][:version_patch]
+              else
+                uploaded_file[:version_major] = 0
+                uploaded_file[:version_minor] = 1
+              end
               uploaded_file[:size] = upload.size
               uploaded_file[:mime_type] = upload.mime_type
               uploaded_file[:tempfile_path] = upload.tempfile_path
@@ -179,7 +178,7 @@ module RedmineDmsf
               if params[:dmsf_attachments_wfs].present? && params[:dmsf_attachments_wfs][key].present?
                 uploaded_file[:workflow_id] = params[:dmsf_attachments_wfs][key].to_i
               end
-              uploaded_file[:custom_field_values] = details[key][:custom_field_values]
+              uploaded_file[:custom_field_values] = details[key][:custom_field_values] if details
             end
             DmsfUploadHelper.commit_files_internal uploaded_files, issue.project, system_folder, context[:controller],
                                                    issue, new_object: @new_object

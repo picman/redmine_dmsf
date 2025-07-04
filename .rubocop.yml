@@ -2,19 +2,18 @@
 #
 # Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 AllCops:
   TargetRubyVersion: 3.2
@@ -85,7 +84,7 @@ Naming/AccessorMethodName:
 
 Naming/PredicateName:
   Exclude:
-    - patches/attachable_patch.rb # Easy tests
+    - patches/attachable_patch.rb
 
 Style/HashSyntax:
   EnforcedShorthandSyntax: either
@@ -96,7 +95,7 @@ Style/ZeroLengthPredicate:
 
 Rails/BulkChangeTable:
   Exclude:
-    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb # Easy tests
+    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb
 
 Rails/DangerousColumnNames:
   Exclude:
@@ -111,8 +110,8 @@ Rails/SkipsModelValidations:
   Exclude:
     - app/helpers/dmsf_upload_helper.rb # touch is Okay
     - app/models/dmsf_workflow.rb # update doesn't work here
-    - patches/user_patch.rb
-    - patches/role_patch.rb
+    - lib/redmine_dmsf/patches/user_patch.rb
+    - lib/redmine_dmsf/patches/role_patch.rb
     - db/migrate/20170526144701_dmsf_attachable.rb
     - db/migrate/20170421101901_dmsf_file_container_rollback.rb
     - db/migrate/20170118142001_dmsf_file_container.rb
@@ -124,8 +123,8 @@ Rails/SkipsModelValidations:
 
 Rails/ThreeStateBooleanColumn:
   Exclude:
-    - db/migrate/04_dmsf_0_9_0.rb # Easy tests
-    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb # Easy tests
+    - db/migrate/04_dmsf_0_9_0.rb
+    - db/migrate/20170217141601_add_dmsf_not_inheritable_to_custom_fields.rb
 
 Rails/UniqueValidationWithoutIndex:
   Exclude:

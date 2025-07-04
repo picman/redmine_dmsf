@@ -4,19 +4,18 @@
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
 
 cs:
   dmsf: DMS  # Custom fields tab title
@@ -155,7 +154,7 @@ cs:
   permission_force_file_unlock: Vynucené odemknutí souboru
   permission_manage_workflows: Spravovat schvalovací procesy
   permission_file_delete: Mazat dokumenty
-  permission_display_system_folders: Zobrazit systémové adresáře
+  permission_display_system_folders: Zobrazit systémové složky
   permission_file_approval: File approval
   permission_email_documents: Email documents
   label_file: Soubor
@@ -366,7 +365,7 @@ cs:
   field_dmsf_not_inheritable: Není dědičné
   
   label_webdav_use_project_names: Použít názvy projektů
-  note_webdav_use_project_names: Použít názvy projektů místo identifikátorů pro názvy adresářů.
+  note_webdav_use_project_names: Použít názvy projektů místo identifikátorů pro názvy složek.
 
   label_last_approver: Poslední schvalovatel
 
@@ -389,8 +388,8 @@ cs:
     např.: XAPIAN_CJK_NGRAM=true ruby plugins/redmine_dmsf/extra/xapian_indexer.rb -fv"
 
   label_dmsf_fast_links: Rychlé odkazy
-  text_dmsf_fast_links_info: Při vytváření odkazů budete moci zadat přímo ID cílového adresáře za účelem zrychlení
-    procesu vytváření odkazů nebo kopírování dokumentů a adresářů.
+  text_dmsf_fast_links_info: Při vytváření odkazů budete moci zadat přímo ID cílové složky za účelem zrychlení
+    procesu vytváření odkazů nebo kopírování dokumentů a složek.
 
   label_dmsf_permissions: Povolený přístup pro
   label_inherited_permissions: Zděděný přístup pro
@@ -410,14 +409,14 @@ cs:
   dmsf_webdav_ignore_1b_file_for_authentication: Ignorovat 1b soubor poslaný kvůli autentizaci
   dmsf_webdav_ignore_1b_file_for_authentication_info: Total Commander WebDAV plugin
 
-  text_not_empty: Adresář není prázdný.
+  text_not_empty: Složka není prázdná.
   label_scroll_down: Posunout se dolů
   note_webdav_disabled: WebDAV je zablokovaný. Kontaktujte administrátora.
 
   dmsf_copy: "Kopie (%{n})"
   label_empty_trash_bin: Vysypat koš
   label_dmsf_projects_as_subfolders: Podprojekty jako podaresáře
-  note_dmsf_projects_as_subfolders: Přidá podprojekty jako podadresáře do pohledu DMS
+  note_dmsf_projects_as_subfolders: Přidá podprojekty jako podsložky do pohledu DMS
   only_approval_zero_minor_version: Schvalovat pouze hlavní verze
   title_assignment_minor: Přiřazení není dovoleno, podružná verze musí být nula
   title_start_minor: Zahájení není dovoleno, podružná verze musí být nula
@@ -492,13 +491,9 @@ cs:
   label_dmsf_commit: Potvrdit
   label_dmsf_upload_commit: Nahrát a potvrdit
 
-  easy_pages:
-    modules:
-      dmsf_locked_documents: My locked documents
-      dmsf_open_approvals: My open approvals
-      dmsf_watched_documents: My watched documents
-    module_category:
-      easy_dms: Easy DMS
+  notice_search_in_subfolders: Vyhledávání v podsložkách není rekurzivní. Pro rekurzivní vyhledávání běžte do nejvyšší úrovně.
+  warning_folder_unlockable: Složku nelze odemknout
+  redmine_dmsf: Redmine DMSF
 
   activerecord:
     errors:

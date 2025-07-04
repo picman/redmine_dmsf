@@ -4,20 +4,21 @@
 #
 # Vít Jonáš <vit.jonas@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
+# This file is part of Redmine DMSF plugin.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require "#{File.dirname(__FILE__)}/../../lib/redmine_dmsf/lockable"
+require "#{File.dirname(__FILE__)}/../../lib/redmine_dmsf/plugin"
 require 'English'
 
 # File
@@ -498,7 +499,7 @@ class DmsfFile < ApplicationRecord
   end
 
   def thumbnailable?
-    image? && Redmine::Thumbnail.convert_available?
+    Redmine::Thumbnail.convert_available? && (image? || (pdf? && Redmine::Thumbnail.gs_available?))
   end
 
   def previewable?
@@ -569,15 +570,17 @@ class DmsfFile < ApplicationRecord
   end
 
   def assigned?(user)
-    if last_revision&.dmsf_workflow
-      last_revision.dmsf_workflow.next_assignments(last_revision.id).each do |assignment|
-        return true if assignment.user == user
-      end
+    return false unless last_revision&.dmsf_workflow
+
+    last_revision.dmsf_workflow.next_assignments(last_revision.id).each do |assignment|
+      return true if assignment.user == user
     end
     false
   end
 
   def custom_value(custom_field)
+    return nill unless last_revision
+
     last_revision.custom_field_values.each do |cv|
       return cv if cv.custom_field == custom_field
     end
@@ -589,8 +592,6 @@ class DmsfFile < ApplicationRecord
   end
 
   def thumbnail(options = {})
-    return unless image?
-
     size = options[:size].to_i
     if size.positive?
       # Limit the number of thumbnails per image
@@ -603,7 +604,7 @@ class DmsfFile < ApplicationRecord
     size = 100 unless size.positive?
     target = File.join(Attachment.thumbnails_storage_path, "#{id}_#{last_revision.digest}_#{size}.thumb")
     begin
-      Redmine::Thumbnail.generate last_revision.disk_file.to_s, target, size
+      Redmine::Thumbnail.generate last_revision.disk_file.to_s, target, size, pdf?
     rescue StandardError => e
       Rails.logger.error do
         %(An error occured while generating thumbnail for #{last_revision.disk_file} to #{target}\n
@@ -625,61 +626,10 @@ class DmsfFile < ApplicationRecord
   def container
     return unless dmsf_folder&.system && dmsf_folder.title&.match(/(^\d+)/)
 
-    issue_id = Regexp.last_match(1)
-    parent = dmsf_folder.dmsf_folder
-    Regexp.last_match(1).constantize.visible.find_by(id: issue_id) if parent&.title&.match(/^\.(.+)s/)
-  end
-
-  if defined?(EasyExtensions)
-    include Redmine::Utils::Shell
-
-    def sheet?
-      case File.extname(last_revision&.disk_filename)
-      when '.ods', # LibreOffice
-        '.xls', '.xlsx', '.xlsm' # MS Office
-        true
-      else
-        false
-      end
-    end
-
-    def content
-      if File.exist?(last_revision.disk_file)
-        if File.size?(last_revision.disk_file) < 5.megabytes
-          tmp = Rails.root.join('tmp')
-          if sheet?
-            cmd = "#{shell_quote(RedmineDmsf::Preview::OFFICE_BIN)} --convert-to 'csv' \
-                   --outdir #{shell_quote(tmp.to_s)} #{shell_quote(last_revision.disk_file)}"
-            text_file = tmp.join(last_revision.disk_filename).sub_ext('.csv')
-          elsif office_doc?
-            cmd = "#{shell_quote(RedmineDmsf::Preview::OFFICE_BIN)} --convert-to 'txt:Text (encoded):UTF8' \
-                   --outdir #{shell_quote(tmp.to_s)} #{shell_quote(last_revision.disk_file)}"
-            text_file = tmp.join(last_revision.disk_filename).sub_ext('.txt')
-          elsif pdf?
-            text_file = tmp.join(last_revision.disk_filename).sub_ext('.txt')
-            cmd = "pdftotext -q #{shell_quote(last_revision.disk_file)} #{shell_quote(text_file.to_s)}"
-          elsif text?
-            return File.read(last_revision.disk_file)
-          end
-          if cmd
-            if system(cmd) && File.exist?(text_file)
-              text = File.read(text_file)
-              FileUtils.rm_f text_file
-              return text
-            else
-              Rails.logger.error "Conversion to text failed (#{$CHILD_STATUS}):\nCommand: #{cmd}"
-            end
-          end
-        else
-          Rails.logger.warn "File #{last_revision.disk_file} is to big to be indexed (>5MB)"
-        end
-      end
-      description
-    rescue StandardError => e
-      Rails.logger.warn e.message
-      ''
-    ensure
-      FileUtils.rm_f(text_file) if text_file.present?
+    id = Regexp.last_match(1).to_i
+    case dmsf_folder.dmsf_folder&.title
+    when '.Issues'
+      Issue.visible.find_by id: id
     end
   end
 

@@ -1,34 +1,42 @@
-/* Redmine plugin for Document Management System "Features"
- *
- * Karel Pičman <karel.picman@kontron.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+  Redmine plugin for Document Management System "Features"
+
+  Karel Pičman <karel.picman@kontron.com>
+
+  This file is part of Redmine DMSF plugin.
+
+  Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+  Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+  <https://www.gnu.org/licenses/>.
  */
 
 function dmsfAddLink(linksSpan, linkId, linkName, title, project, awf) {
+    let attachmentsForm = linksSpan.closest('.dmsf-uploader')
+    let attachmentsIcons = attachmentsForm.find('.dmsf-attachments-icons');
+    let delIcon = attachmentsIcons.find('svg.svg-del').clone();
+    let linkIcon = attachmentsIcons.find('svg.svg-dmsf-link').clone();
+    let assignmentIcon = attachmentsIcons.find('svg.svg-dmsf-assignment').clone();
     let nextLinkId = dmsfAddLink.nextLinkId++;
     let linkSpan = $('<span>', { id: 'dmsf_links_attachments_' + nextLinkId, 'class': 'attachment' });
-    let iconDel = $('<a>').attr({href: '#', 'class': 'remove-upload icon-only icon-del'});
+    let iconDel = $('<a>')
+        .attr({href: '#', class: 'remove-upload icon-only icon-del', title: 'Delete'})
+        .append(delIcon);
     let inputId = $('<input>', {type: 'hidden', name: 'dmsf_links[' + nextLinkId + ']'}).val(linkId);
-    let inputName = $('<input>', {type: 'text', class: 'filename readonly'}).val(linkName);
+    let inputName = $('<input>', {type: 'text', class: 'filename icon icon-link readonly'}).val(linkName);
     linkSpan.append(inputId);
+    linkSpan.append(linkIcon);
     linkSpan.append(inputName);
     linkSpan.append(iconDel.click(dmsfRemoveFileLbl));
     if(awf) {
-        let iconWf = $('<a>').attr({href: "/dmsf-workflows/" + project + "/assign?dmsf_link_id=" + linkId,
-            'class': 'modify-upload icon-only icon-ok', 'data-remote': 'true', 'title': title});
+        let iconWf = $('<a>').attr({href: "/dmsf_workflows/" + project + "/assign?dmsf_link_id=" + linkId,
+            'class': 'modify-upload icon-only icon-ok', 'data-remote': 'true', 'title': title}).append(assignmentIcon);
         linkSpan.append(iconWf);
     }
     linksSpan.append(linkSpan);
@@ -130,49 +138,57 @@ function replaceVersion(detailsForm, attachmentId, name, version) {
             str = str.replace('<option value="' + version + '">' + version + '</option>', '<option selected="selected" value="' + version + '">' + version + '</option>');
         }
         else {
-            let c = String.fromCharCode(160); // &nbsp;
-            str = str.replace('<option value="">' + c + '</option>', '<option selected="selected" value="">' + c + '</option>');
+            str = str.replace('<option value=" ">' + ' ' + '</option>', '<option selected="selected" value="">' + ' ' + '</option>');
         }
         detailsForm = detailsForm.substring(0, index) + str;
     }
     return detailsForm;
 }
 
+function dmsfRevisionDetails(elem, attachmentId) {
+    let newRevisionForm = $('#dmsf_attachments_details_' + attachmentId);
+    newRevisionForm.toggle();
+    elem.text("[" + (newRevisionForm.is(':visible') ? "-" : "+") + "]");
+}
+
 function dmsfAddFile(inputEl, file, eagerUpload) {
     let attachments = $('#dmsf_attachments_fields');
     let max = ($(inputEl).attr('multiple') == 'multiple') ? 10 : 1
+    let attachmentsForm = $(inputEl).closest('.dmsf-uploader')
+    let attachmentsIcons = attachmentsForm.find('.dmsf-attachments-icons');
+    let delIcon = attachmentsIcons.find('svg.svg-del').clone();
+    let attachmentIcon = attachmentsIcons.find('svg.svg-attachment').clone();
+    let assignmentIcon = attachmentsIcons.find('svg.svg-dmsf-assignment').clone();
     if (attachments.children('.attachment').length < max) {
         let attachmentId = dmsfAddFile.nextAttachmentId++;
         let fileSpan = $('<span>', { id: 'dmsf_attachments_' + attachmentId, 'class': 'attachment' });
-        let iconDel = $('<a>').attr({href: '#', 'class': 'remove-upload icon-only icon-del'}).toggle(!eagerUpload);
-        let fileName = $('<input>', {type: 'text', 'class': 'filename readonly',
+        let iconDel = $('<a>')
+            .attr({href: '#', class: 'remove-upload icon-only icon-del', title: 'Delete'})
+            .append(delIcon)
+            .toggle(!eagerUpload);
+        let fileName = $('<input>', {type: 'text', 'class': 'filename icon icon-attachment readonly',
             name: 'dmsf_attachments[' + attachmentId + '][filename]', readonly: 'readonly'}).val(file.name);
+        fileSpan.append(attachmentIcon);
         fileSpan.append(fileName);
         if($(inputEl).attr('multiple') == 'multiple') {
             fileSpan.append(iconDel.click(dmsfRemoveFileLbl));
             if ($(inputEl).data('awf')) {
                 let iconWf = $('<a>').attr({
-                    href: '/dmsf-workflows/' + $(inputEl).attr(
+                    href: '/dmsf_workflows/' + $(inputEl).attr(
                         'data-project') + "/assign?attachment_id=" + attachmentId,
-                    'class': 'modify-upload icon-only icon-ok',
-                    'data-remote': 'true'
-                });
+                    class: 'modify-upload icon-only icon-ok',
+                    'data-remote': 'true',
+                    title: 'Assign an approval workflow'
+                }).append(assignmentIcon);
                 fileSpan.append(iconWf);
             }
             // Details
             let detailsDiv = $('<div>').attr({id: 'dmsf_attachments_details_' + attachmentId});
             let detailsArrow = $('<a>');
             detailsArrow.text('[+]');
-            detailsArrow.attr({href: "#", 'data-cy': 'toggle__new_revision_from_content--dmsf', title: 'Details'});
-            detailsArrow.attr(
-                {
-                    onclick: "let newRevisionForm = $('#dmsf_attachments_details_" + attachmentId + "');" +
-                        "let operator = newRevisionForm.is(':visible') ? '+' : '-';" +
-                        "newRevisionForm.toggle();" +
-                        "$(this).text('[' + operator + ']');" +
-                        "$('#dmsf-upload-button').hide();" +
-                        "return false;"
-                });
+            detailsArrow.attr({href: "#", 'data-cy': 'toggle__new_revision_from_content--dmsf', title: 'Details',
+                class: 'dmsf-plus-button'});
+            detailsArrow.attr('onclick', "dmsfRevisionDetails($(this), " + attachmentId + "); return false;");
             let files = $(inputEl).data('files');
             let locked = isFileLocked(file.name, files);
             let detailsForm = $(inputEl).data(locked ? 'dmsf-file-details-form-locked' : 'dmsf-file-details-form');
@@ -208,14 +224,13 @@ function dmsfAddFile(inputEl, file, eagerUpload) {
             detailsDiv.append(detailsForm);
             detailsDiv.hide();
             fileSpan.append(detailsArrow)
+            fileSpan.append(detailsDiv);
             attachments.append(fileSpan);
-            attachments.append(detailsDiv);
         } else {
             fileSpan.append(iconDel.click(dmsfRemoveFileLbl));
             attachments.append(fileSpan);
             $('#dmsf_file_revision_name').val(file.name);
         }
-        attachments.append('<br>');
         if(eagerUpload) {
             dmsfAjaxUpload(file, attachmentId, fileSpan, inputEl);
         }
@@ -389,12 +404,4 @@ function dmsfSetupFileDrop() {
     }
 }
 
-if(typeof EASY == "undefined"){
-    $(document).ready(dmsfSetupFileDrop);
-}
-else {
-    EASY.schedule.late(function () {
-        dmsfSetupFileDrop();
-        $(document).on("erui_new_dom", dmsfSetupFileDrop);
-    });
-}
+$(document).ready(dmsfSetupFileDrop);

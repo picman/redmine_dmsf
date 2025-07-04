@@ -1,23 +1,22 @@
 <%
-# encoding: utf-8
-#
-# Redmine plugin for Document Management System "Features"
-#
-# Karel Pičman <karel.picman@kontron.com>
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  # encoding: utf-8
+  #
+  # Redmine plugin for Document Management System "Features"
+  #
+  # Karel Pičman <karel.picman@kontron.com>
+  #
+  # This file is part of Redmine DMSF plugin.
+  #
+  # Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+  # Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+  # later version.
+  #
+  # Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+  # the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  # more details.
+  #
+  # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+  # <https://www.gnu.org/licenses/>.
 %>
 
 <% all_assignments =  DmsfWorkflowStepAssignment.
@@ -31,40 +30,31 @@
       order('dmsf_workflow_step_assignments.dmsf_file_revision_id, dmsf_workflow_steps.step').to_a %>
 <% assignments = all_assignments.delete_if { |a| (a.dmsf_file_revision != a.dmsf_file_revision.dmsf_file.last_revision) } %>
 <% assignments.uniq! { |a| a.dmsf_file_revision } %>
-<% easy_extension = defined?(EasyExtensions) %>
-<% unless easy_extension %>
-  <h3><%= l(:open_approvals)%> (<%= assignments.size %>)</h3>
-<% end %>
+<h3><%= l(:open_approvals)%> (<%= assignments.size %>)</h3>
 <% if assignments.any? %>
   <%= form_tag({}, data: { cm_url: dmsf_context_menu_path }) do %>
     <%= hidden_field_tag 'back_url', my_page_path, id: nil %>
     <table class="list">
       <thead>
         <tr>
-          <% unless easy_extension %>
-            <th class="checkbox hide-when-print">
-              <%= check_box_tag 'check_all', '', false, class: 'toggle-selection',
-                                title: "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
-            </th>
-          <% end %>
+          <th class="checkbox hide-when-print">
+            <%= check_box_tag 'check_all', '', false, class: 'toggle-selection',
+                              title: "#{l(:button_check_all)}/#{l(:button_uncheck_all)}" %>
+          </th>
           <th><%= l(:field_project) %></th>
           <th><%= l(:field_label_dmsf_workflow) %></th>
           <th><%= l(:field_status) %></th>
           <th><%= l(:label_document) %></th>
           <th><%= l(:field_folder) %></th>
-          <% unless easy_extension %>
-            <th></th>
-          <% end %>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <% assignments.each do |assignment| %>
           <tr id="file-<%= assignment.dmsf_file_revision.dmsf_file.id %>" class="hascontextmenu">
-            <% unless easy_extension %>
-              <td class="checkbox hide-when-print">
-                <%= check_box_tag 'ids[]', "file-#{assignment.dmsf_file_revision.dmsf_file.id}", false, id: nil %>
-              </td>
-            <% end %>
+            <td class="checkbox hide-when-print">
+              <%= check_box_tag 'ids[]', "file-#{assignment.dmsf_file_revision.dmsf_file.id}", false, id: nil %>
+            </td>
             <td class="project">
               <% if assignment.dmsf_file_revision.dmsf_file.project %>
                 <%= link_to_project assignment.dmsf_file_revision.dmsf_file.project %>
@@ -106,17 +96,15 @@
                 <% end %>
               <% end %>
             </td>
-            <% unless easy_extension %>
-              <td class="buttons">
-                <%= link_to_context_menu %>
-              </td>
-            <% end %>
+            <td class="buttons">
+              <%= link_to_context_menu %>
+            </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% end %>
-  <%= context_menu unless easy_extension %>
+  <%= context_menu %>
 <% else %>
   <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
