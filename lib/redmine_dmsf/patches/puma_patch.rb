@@ -39,6 +39,4 @@ module RedmineDmsf
 end
 
 # Apply the patch
-if RedmineDmsf::Plugin.lib_available?('puma/const')
-  Puma::Const.include RedmineDmsf::Patches::PumaPatch
-end
+Puma::Const.include RedmineDmsf::Patches::PumaPatch if RedmineDmsf::Plugin.lib_available?('puma/const')

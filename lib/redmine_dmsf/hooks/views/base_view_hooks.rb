@@ -28,6 +28,7 @@ module RedmineDmsf
           )
             return
           end
+
           context[:controller].send :render_to_string, { partial: 'hooks/redmine_dmsf/view_layouts_base_html_head' }
         end
       end

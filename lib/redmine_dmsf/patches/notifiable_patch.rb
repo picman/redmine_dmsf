@@ -42,6 +42,4 @@ module RedmineDmsf
 end
 
 # Apply the patch
-unless RedmineDmsf::Plugin.an_obsolete_plugin_present?
-  Redmine::Notifiable.prepend RedmineDmsf::Patches::NotifiablePatch
-end
+Redmine::Notifiable.prepend RedmineDmsf::Patches::NotifiablePatch unless RedmineDmsf::Plugin.an_obsolete_plugin_present?
