@@ -61,10 +61,17 @@ class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
     assert_response :forbidden
   end
 
-  def test_view_file_ok
+  def test_view_file_standard_url
     # Permissions OK
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
     get "/dmsf/files/#{@file1.id}/view", params: { id: @file1.id }
+    assert_response :success
+  end
+
+  def test_view_file_pretty_url
+    # Permissions OK
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    get "/dmsf/files/#{@file1.id}/test.txt", params: { id: @file1.id }
     assert_response :success
   end
 

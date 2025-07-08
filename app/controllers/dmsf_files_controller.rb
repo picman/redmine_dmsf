@@ -81,7 +81,7 @@ class DmsfFilesController < ApplicationController
       send_file pdf_preview, filename: "#{basename}.pdf", type: 'application/pdf', disposition: 'inline'
     # Text preview
     elsif !api_request? && params[:download].blank? && (@file.size <= Setting.file_max_size_displayed.to_i.kilobyte) &&
-          (@file.text? || @file.markdown? || @file.textile?) && !@file.html?
+          (@file.text? || @file.markdown? || @file.textile?) && !@file.html? && formats.include?(:html)
       @content = File.read(@revision.disk_file, mode: 'rb')
       render action: 'document'
     # Offer the file for download
