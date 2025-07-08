@@ -95,15 +95,10 @@ NOTE: These issues are still from the original danmunn's repository
 ------------------
 
     Multiple file upload fix
+    Uploaded file size fix
 
 * Bug: #1559 - Multiple files upload
 * Bug: #1558 - Deleting of uploaded files
-
-3.2.3 *2024-10-18*
-------------------
-
-    Uploaded file size fix
-
 * Bug: 1556 - Wrong file size when uploading documents
 
 3.2.2 *2024-10-09*
