@@ -465,8 +465,6 @@ de:
 
   label_remove_original_documents_module: Original Projektmodule Dokumente entfernen
 
-  text_fulltext_search: 'Full-text Suche in Dokumente fordert die Existenz %{cmd1} and %{cmd2} auf dem Server.'
-
   notice_entries_copied: Kopieren ist gelungen
   notice_entries_moved: Verschieben ist gelungen
   label_dmsf_file_revision: DMS Dokument Rev.

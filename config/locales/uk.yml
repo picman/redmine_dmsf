@@ -471,8 +471,6 @@ uk:
 
   label_remove_original_documents_module: Видалити модуль оригінальних документів
 
-  text_fulltext_search: 'Повнотекстовий пошук вимагає наявності %{cmd1} та %{cmd2} команд на сервері.'
-
   notice_entries_copied: Copying has succeeded
   notice_entries_moved: Moving has succeeded
   label_dmsf_file_revision: DMS Document rev.
