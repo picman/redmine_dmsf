@@ -51,22 +51,56 @@ class DmsfFile < ApplicationRecord
               case_sensitive: true
             }
 
-  acts_as_event title: proc { |o| o.name },
-                description: proc { |o|
-                  desc = Redmine::Search.cache_store.fetch("DmsfFile-#{o.id}")
-                  if desc
-                    Redmine::Search.cache_store.delete("DmsfFile-#{o.id}")
-                  else
-                    # Set desc to an empty string if o.description is nil
-                    desc = o.description.nil? ? +'' : +o.description
-                    desc += ' / ' if o.description.present? && o.last_revision.comment.present?
-                    desc += o.last_revision.comment if o.last_revision.comment.present?
-                  end
-                  desc
-                },
-                url: proc { |o| { controller: 'dmsf_files', action: 'view', id: o } },
-                datetime: proc { |o| o.updated_at },
-                author: proc { |o| o.last_revision.user }
+  acts_as_event(
+    title: proc { |o|
+      @searched_revision = nil
+      o.dmsf_file_revisions.visible.each do |r|
+        key = "DmsfFile-#{o.id}-#{r.id}"
+        @desc = Redmine::Search.cache_store.fetch(key)
+        next unless @desc
+
+        Redmine::Search.cache_store.delete key
+        @searched_revision = r
+        break
+      end
+      if @searched_revision && (@searched_revision != o.last_revision)
+        "#{o.name} (r#{@searched_revision.id})"
+      else
+        o.name
+      end
+    },
+    description: proc { |o|
+      unless @desc
+        # Set desc to an empty string if o.description is nil
+        @desc = o.description.nil? ? +'' : +o.description
+        @desc += ' / ' if o.description.present? && o.last_revision.comment.present?
+        @desc += o.last_revision.comment if o.last_revision.comment.present?
+      end
+      @desc
+    },
+    url: proc { |o|
+      if @searched_revision
+        { controller: 'dmsf_files', action: 'view', id: o.id, download: @searched_revision.id,
+          filename: o.name }
+      else
+        { controller: 'dmsf_files', action: 'view', id: o.id, filename: o.name }
+      end
+    },
+    datetime: proc { |o|
+      if @searched_revision
+        @searched_revision.updated_at
+      else
+        o.updated_at
+      end
+    },
+    author: proc { |o|
+      if @searched_revision
+        @searched_revision.user
+      else
+        o.last_revision.user
+      end
+    }
+  )
   acts_as_watchable
   acts_as_searchable(
     columns: [
@@ -415,20 +449,21 @@ class DmsfFile < ApplicationRecord
           filename = dochash['url']
           next unless filename
 
-          dmsf_attrs = filename.scan(%r{^([^/]+/[^_]+)_(\d+)_(.*)$})
+          dmsf_attrs = filename.scan(%r{^\d{4}/\d{2}/(\d{12}_(\d+)_.*)$})
           id_attribute = 0
           id_attribute = dmsf_attrs[0][1] if dmsf_attrs.length.positive?
           next if dmsf_attrs.empty? || id_attribute.to_i.zero?
-          next unless results.none? { |f| f.id.to_s == id_attribute }
 
           dmsf_file = DmsfFile.visible.where(limit_options).find_by(id: id_attribute)
-
           next unless dmsf_file && DmsfFolder.permissions?(dmsf_file.dmsf_folder) &&
                       user.allowed_to?(:view_dmsf_files, dmsf_file.project) &&
                       (project_ids.blank? || project_ids.include?(dmsf_file.project_id))
 
+          rev_id = DmsfFileRevision.where(dmsf_file_id: dmsf_file.id, disk_filename: dmsf_attrs[0][0])
+                                   .pick(:id)
           if dochash['sample']
-            Redmine::Search.cache_store.write("DmsfFile-#{dmsf_file.id}", dochash['sample'].force_encoding('UTF-8'))
+            Redmine::Search.cache_store.write("DmsfFile-#{dmsf_file.id}-#{rev_id}",
+                                              dochash['sample'].force_encoding('UTF-8'))
           end
           break if options[:limit].present? && results.count >= options[:limit]
 

@@ -324,12 +324,10 @@
 </div>
 
 <hr>
-
-<p>
 <em class="info">
-  <%= l(:text_fulltext_search, cmd1: 'libreoffice', cmd2: 'pdftotext') %>
+  <%= l(:label_full_text) %>
 </em>
-</p>
+
 <% if RedmineDmsf::Plugin.lib_available?('xapian') %>
   <p>
     <%= content_tag :label, l(:label_index_database) %>

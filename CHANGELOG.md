@@ -1,6 +1,17 @@
 Changelog for Redmine DMSF
 ==========================
 
+4.2.1 *2025-07-10*
+------------------
+
+    Searching in multiple revisions
+
+IMPORTANT: Issue tracking numbering has been restarted after the movement to the new repository
+
+* Bug: #1 - Can't install 3.2.4 on redmine 5.0
+* Bug: #3 - Download CSV file leads to 404
+* New: #4 - Searching in multiple revisions
+
 4.2.0 *2025-07-04*
 ------------------
 
@@ -92,15 +103,10 @@ NOTE: These issues are still from the original danmunn's repository
 ------------------
 
     Multiple file upload fix
+    Uploaded file size fix
 
 * Bug: #1559 - Multiple files upload
 * Bug: #1558 - Deleting of uploaded files
-
-3.2.3 *2024-10-18*
-------------------
-
-    Uploaded file size fix
-
 * Bug: 1556 - Wrong file size when uploading documents
 
 3.2.2 *2024-10-09*
