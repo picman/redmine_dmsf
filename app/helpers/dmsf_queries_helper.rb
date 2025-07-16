@@ -30,7 +30,7 @@ module DmsfQueriesHelper
       case item.type
       when 'file'
         file = DmsfFile.find_by(id: item.id)
-        if !item.deleted && file&.locked?
+        if !item.deleted? && file&.locked?
           return content_tag(:span, val) +
                  link_to(sprite_icon('unlock', nil, icon_only: true, size: '12'),
                          unlock_dmsf_files_path(id: file,
@@ -40,7 +40,7 @@ module DmsfQueriesHelper
         end
       when 'folder'
         folder = DmsfFolder.find_by(id: item.id)
-        if !item.deleted && folder&.locked?
+        if !item.deleted? && folder&.locked?
           return content_tag(:span, val) +
                  link_to(sprite_icon('unlock', nil, icon_only: true, size: '12'),
                          unlock_dmsf_path(id: folder.project,
@@ -54,37 +54,37 @@ module DmsfQueriesHelper
     when :id
       case item.type
       when 'file'
-        if item&.deleted&.positive?
+        if item.deleted?
           h(value)
         else
           link_to h(value), dmsf_file_path(id: item.id)
         end
       when 'file-link'
-        if item&.deleted&.positive?
+        if item.deleted?
           h(item.revision_id)
         else
           link_to h(item.revision_id), dmsf_file_path(id: item.revision_id)
         end
       when 'folder'
         if item.id
-          if item&.deleted&.positive?
+          if item.deleted?
             h(value)
           else
             link_to h(value), edit_dmsf_path(id: item.project_id, folder_id: item.id)
           end
-        elsif item&.deleted&.positive?
+        elsif item.deleted?
           h(item.project_id)
         else
           link_to h(item.project_id), edit_root_dmsf_path(id: item.project_id)
         end
       when 'folder-link'
         if item.id
-          if item&.deleted&.positive?
+          if item.deleted?
             h(item.revision_id)
           else
             link_to h(item.revision_id), edit_dmsf_path(id: item.project_id, folder_id: item.revision_id)
           end
-        elsif item&.deleted&.positive?
+        elsif item.deleted?
           h(item.project_id)
         else
           link_to h(item.project_id), edit_root_dmsf_path(id: item.project_id)
