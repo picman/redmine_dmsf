@@ -4,12 +4,11 @@ Changelog for Redmine DMSF
 4.2.3 *????-??-??*
 ------------------
 
-4.2.2 *2025-07-23*
+4.2.2 *2025-07-22*
 ------------------
-
     Missing lock icons
 
-* Bug: #3 - Missing lock icons by locked objects
+* Bug: #5 - Missing lock icons by locked objects
 
 4.2.1 *2025-07-10*
 ------------------
