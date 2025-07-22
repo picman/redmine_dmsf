@@ -290,6 +290,14 @@ class DmsfControllerTest < RedmineDmsf::Test::TestCase
     assert @response.media_type.include?('text/csv')
   end
 
+  def test_show_locked
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    get "/projects/#{@project2.id}/dmsf"
+    assert_response :success
+    # An unlock icon next to a locked file
+    assert_select 'a.icon-unlock', count: 1
+  end
+
   def test_show_folder_doesnt_correspond_the_project
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
     assert @project1 != @folder3.project
