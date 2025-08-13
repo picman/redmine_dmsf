@@ -316,4 +316,27 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     assert h.is_a?(Hash)
     assert_nil h['90']
   end
+
+  def test_set_workflow
+    @revision2.set_workflow @wf1.id, 'assign'
+    assert_equal DmsfWorkflow::STATE_ASSIGNED, @revision2.workflow
+    assert_equal User.current, @revision2.dmsf_workflow_assigned_by_user
+    assert @revision2.dmsf_workflow_assigned_at
+    @revision2.set_workflow @wf1.id, 'start'
+    assert_equal DmsfWorkflow::STATE_WAITING_FOR_APPROVAL, @revision2.workflow
+    assert_equal User.current, @revision2.dmsf_workflow_started_by_user
+    assert @revision2.dmsf_workflow_started_at
+  end
+
+  def test_reset_workflow
+    @revision2.set_workflow @wf1.id, 'assign'
+    @revision2.set_workflow @wf1.id, 'start'
+    @revision2.reset_workflow
+    assert_nil @revision2.workflow
+    assert_nil @revision2.dmsf_workflow_id
+    assert_nil @revision2.dmsf_workflow_assigned_by_user_id
+    assert_nil @revision2.dmsf_workflow_assigned_at
+    assert_nil @revision2.dmsf_workflow_started_by_user_id
+    assert_nil @revision2.dmsf_workflow_started_at
+  end
 end

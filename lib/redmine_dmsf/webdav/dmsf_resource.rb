@@ -562,6 +562,7 @@ module RedmineDmsf
           else
             if last_revision
               new_revision = last_revision.dup
+              new_revision.reset_workflow
               new_revision.source_revision = last_revision
             else
               new_revision = DmsfFileRevision.new

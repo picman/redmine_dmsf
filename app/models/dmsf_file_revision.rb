@@ -265,6 +265,15 @@ class DmsfFileRevision < ApplicationRecord
     wf.assign(id) if wf && id
   end
 
+  def reset_workflow
+    self.workflow = nil
+    self.dmsf_workflow_id = nil
+    self.dmsf_workflow_assigned_by_user_id = nil
+    self.dmsf_workflow_assigned_at = nil
+    self.dmsf_workflow_started_by_user_id = nil
+    self.dmsf_workflow_started_at = nil
+  end
+
   def increase_version(version_to_increase)
     # Patch version
     self.patch_version = case version_to_increase
