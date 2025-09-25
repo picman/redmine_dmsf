@@ -105,7 +105,9 @@ module Dav4rack
     # path must be valid UTF-8 and will be url encoded by this method
     def url_for(rel_path, collection: false)
       path = path_for rel_path, collection: collection
-      "#{scheme}://#{host}:#{port}#{path}"
+      # do not include the port when it's the standard http(s) port
+      skip_port = (port == 80 && scheme == 'http') || (port == 443 && scheme == 'https')
+      "#{scheme}://#{host}#{":#{port}" unless skip_port}#{path}"
     end
 
     # returns an url encoded, absolute path for the given relative path
