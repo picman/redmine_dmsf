@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # project tests
 class ProjectPatchTest < RedmineDmsf::Test::UnitTest
-  fixtures :dmsf_links, :dmsf_workflows, :dmsf_locks, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def test_project_has_dmsf_files
     assert @project1.respond_to?(:dmsf_files)
   end

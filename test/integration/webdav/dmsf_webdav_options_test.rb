@@ -21,8 +21,6 @@ require File.expand_path('../../../test_helper', __FILE__)
 
 # WebDAV OPTIONS tests
 class DmsfWebdavOptionsTest < RedmineDmsf::Test::IntegrationTest
-  fixtures :dmsf_folders
-
   def test_options_requires_no_authentication_for_root_level
     process :options, '/dmsf/webdav'
     assert_response :success

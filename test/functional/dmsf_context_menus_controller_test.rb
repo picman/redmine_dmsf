@@ -23,8 +23,6 @@ require File.expand_path('../../test_helper', __FILE__)
 class DmsfContextMenusControllerTest < RedmineDmsf::Test::TestCase
   include Redmine::I18n
 
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :dmsf_links, :dmsf_locks
-
   def setup
     super
     @file_link2 = DmsfLink.find 2

@@ -23,8 +23,6 @@ require File.expand_path('../../test_helper', __FILE__)
 class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
   include Redmine::I18n
 
-  fixtures :dmsf_locks, :dmsf_workflows, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     @revision1 = DmsfFileRevision.find 1

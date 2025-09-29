@@ -22,7 +22,6 @@ require File.expand_path('../../../../../lib/redmine_dmsf/dmsf_zip', __FILE__)
 
 # Plugin tests
 class DmsfZipTest < RedmineDmsf::Test::HelperTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :attachments
   def setup
     @zip = RedmineDmsf::DmsfZip::Zip.new
 

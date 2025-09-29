@@ -21,8 +21,6 @@ require File.expand_path('../../../test_helper', __FILE__)
 
 # WebDAV GET test
 class DmsfWebdavGetTest < RedmineDmsf::Test::IntegrationTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def test_should_deny_anonymous
     get '/dmsf/webdav'
     assert_response :unauthorized

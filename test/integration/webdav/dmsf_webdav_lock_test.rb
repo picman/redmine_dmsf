@@ -22,7 +22,6 @@ require 'fileutils'
 
 # WebDAV LOCK test
 class DmsfWebdavLockTest < RedmineDmsf::Test::IntegrationTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :dmsf_locks
 
   def setup
     super

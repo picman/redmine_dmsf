@@ -140,7 +140,9 @@ jobs:
       - name: Helpers tests
         run: |
           cd /opt/redmine
+          ruby plugins/redmine_dmsf/test/helpers/dmsf_files_helper_test.rb
           ruby plugins/redmine_dmsf/test/helpers/dmsf_helper_test.rb
+          ruby plugins/redmine_dmsf/test/helpers/dmsf_links_helper_test.rb
           ruby plugins/redmine_dmsf/test/helpers/dmsf_queries_helper_test.rb
       - name: Rubocop
         # Run the Rubocop tests

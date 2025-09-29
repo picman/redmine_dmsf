@@ -21,10 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Issues controller
 class IssuesControllerTest < RedmineDmsf::Test::TestCase
-  fixtures :user_preferences, :issues, :versions, :trackers, :projects_trackers, :issue_statuses,
-           :enabled_modules, :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :enumerations,
-           :issue_categories
-
   def setup
     super
     @issue1 = Issue.find 1

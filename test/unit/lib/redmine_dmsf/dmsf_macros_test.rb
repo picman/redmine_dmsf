@@ -21,8 +21,6 @@ require File.expand_path('../../../../test_helper', __FILE__)
 
 # Macros tests
 class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   # Mock view context for macros
   class DmsfView
     include ApplicationHelper

@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Folder permissions tests
 class DmsfFolderPermissionTest < RedmineDmsf::Test::UnitTest
-  fixtures :dmsf_folder_permissions, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     @permission1 = DmsfFolderPermission.find 1

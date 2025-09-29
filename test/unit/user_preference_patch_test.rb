@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # User preference tests
 class UserPreferencePatchTest < RedmineDmsf::Test::UnitTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def test_user_preference_has_dmsf_attachments_upload_choice
     assert @jsmith.pref.respond_to?(:dmsf_attachments_upload_choice)
   end

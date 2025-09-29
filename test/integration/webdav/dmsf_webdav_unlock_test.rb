@@ -22,8 +22,6 @@ require 'fileutils'
 
 # WebDAV UNLOCK tests
 class DmsfWebdavUnlockTest < RedmineDmsf::Test::IntegrationTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :dmsf_locks
-
   def test_unlock_file
     log_user 'admin', 'admin'
     l = @file2.locks.first

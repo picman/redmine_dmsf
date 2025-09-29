@@ -22,8 +22,6 @@ require 'fileutils'
 
 # WebDAV PUT tests
 class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :custom_fields, :custom_values
-
   def setup
     super
     @cv22 = CustomValue.find(22)

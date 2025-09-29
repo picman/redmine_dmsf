@@ -21,7 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # File revision tests
 class CustomFieldDmsfFileFormatTest < RedmineDmsf::Test::UnitTest
-  fixtures :custom_fields, :projects, :issues, :trackers
   def setup
     super
     User.current = @jsmith

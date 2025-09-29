@@ -21,7 +21,16 @@ module RedmineDmsf
   module Test
     # Unit test
     class UnitTest < ActiveSupport::TestCase
-      fixtures :users, :email_addresses, :projects, :roles, :members, :member_roles
+      def initialize(name)
+        super(name)
+        # Load all plugin's fixtures
+        dir = File.join(File.dirname(__FILE__), 'fixtures')
+        ext = '.yml'
+        Dir.glob("#{dir}/**/*#{ext}").each do |file|
+          fixture = File.basename(file, ext)
+          ActiveRecord::FixtureSet.create_fixtures dir, fixture
+        end
+      end
 
       def setup
         @admin = User.find_by(login: 'admin')
@@ -69,22 +78,6 @@ module RedmineDmsf
         FileUtils.rm_rf DmsfFile.storage_path
       rescue StandardError => e
         Rails.logger.error e.message
-      end
-
-      # Allow us to override the fixtures method to implement fixtures for our plugin.
-      # Ultimately it allows for better integration without blowing redmine fixtures up,
-      # and allowing us to suppliment redmine fixtures if we need to.
-      def self.fixtures(*table_names)
-        dir = File.join(File.dirname(__FILE__), 'fixtures')
-        redmine_table_names = []
-        table_names.each do |x|
-          if File.exist?(File.join(dir, "#{x}.yml"))
-            ActiveRecord::FixtureSet.create_fixtures(dir, x)
-          else
-            redmine_table_names << x
-          end
-        end
-        super(redmine_table_names) if redmine_table_names.any?
       end
 
       protected

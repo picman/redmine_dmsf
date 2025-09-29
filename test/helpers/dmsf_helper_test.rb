@@ -23,8 +23,6 @@ require File.expand_path('../../test_helper', __FILE__)
 class DmsfHelperTest < RedmineDmsf::Test::HelperTest
   include DmsfHelper
 
-  fixtures :dmsf_folders
-
   def setup
     super
     @folder1 = DmsfFolder.find 1

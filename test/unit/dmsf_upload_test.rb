@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Upload tests
 class DmsfUploadTest < RedmineDmsf::Test::UnitTest
-  fixtures :projects
-
   def setup
     super
     @uploaded = {

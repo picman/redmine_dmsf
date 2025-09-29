@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # DmsfFiles controller
 class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :dmsf_locks
-
   def teardown
     super
     DmsfFile.clear_previews

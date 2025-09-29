@@ -21,9 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # File tests
 class DmsfFileTest < RedmineDmsf::Test::UnitTest
-  fixtures :dmsf_locks, :issues, :dmsf_links, :dmsf_workflows, :dmsf_workflow_steps,
-           :dmsf_workflow_step_assignments, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     @issue1 = Issue.find 1

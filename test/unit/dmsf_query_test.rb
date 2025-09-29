@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Query tests
 class DmsfQueryTest < RedmineDmsf::Test::UnitTest
-  fixtures :queries, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     @query401 = Query.find 401

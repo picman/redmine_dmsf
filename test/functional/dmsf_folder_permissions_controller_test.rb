@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Folder permissions controller
 class DmsfFolderPermissionsControllerTest < RedmineDmsf::Test::TestCase
-  fixtures :dmsf_folder_permissions, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     post '/login', params: { username: 'jsmith', password: 'jsmith' }

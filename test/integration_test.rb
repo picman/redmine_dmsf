@@ -21,7 +21,16 @@ module RedmineDmsf
   module Test
     # Integration test
     class IntegrationTest < Redmine::IntegrationTest
-      fixtures :users, :email_addresses, :projects, :roles, :members, :member_roles
+      def initialize(name)
+        super(name)
+        # Load all plugin's fixtures
+        dir = File.join(File.dirname(__FILE__), 'fixtures')
+        ext = '.yml'
+        Dir.glob("#{dir}/**/*#{ext}").each do |file|
+          fixture = File.basename(file, ext)
+          ActiveRecord::FixtureSet.create_fixtures dir, fixture
+        end
+      end
 
       def setup
         @admin = credentials('admin', 'admin')
@@ -69,19 +78,6 @@ module RedmineDmsf
         FileUtils.rm_rf DmsfFile.storage_path
       rescue StandardError => e
         Rails.logger.error e.message
-      end
-
-      def self.fixtures(*table_names)
-        dir = File.join(File.dirname(__FILE__), 'fixtures')
-        redmine_table_names = []
-        table_names.each do |x|
-          if File.exist?(File.join(dir, "#{x}.yml"))
-            ActiveRecord::FixtureSet.create_fixtures(dir, x)
-          else
-            redmine_table_names << x
-          end
-        end
-        super(redmine_table_names) if redmine_table_names.any?
       end
 
       protected

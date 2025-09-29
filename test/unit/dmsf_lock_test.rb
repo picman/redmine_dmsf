@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper.rb', __FILE__)
 
 # Lock tests
 class DmsfLockTest < RedmineDmsf::Test::UnitTest
-  fixtures :dmsf_locks, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     @lock = DmsfLock.find 1

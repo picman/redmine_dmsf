@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Public URL tests
 class DmsfPublicUrlsTest < RedmineDmsf::Test::UnitTest
-  fixtures :dmsf_public_urls, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def setup
     super
     @dmsf_public_url1 = DmsfPublicUrl.find 1

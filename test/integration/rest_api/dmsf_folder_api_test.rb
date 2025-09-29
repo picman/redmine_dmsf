@@ -23,9 +23,6 @@ require File.expand_path('../../../test_helper', __FILE__)
 class DmsfFolderApiTest < RedmineDmsf::Test::IntegrationTest
   include Redmine::I18n
 
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :dmsf_locks, :dmsf_links, :custom_fields,
-           :custom_values
-
   def setup
     super
     Setting.rest_api_enabled = '1'

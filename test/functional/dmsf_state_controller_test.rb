@@ -23,8 +23,6 @@ require File.expand_path('../../test_helper', __FILE__)
 class DmsfStateControllerTest < RedmineDmsf::Test::TestCase
   include Redmine::I18n
 
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :queries
-
   def setup
     super
     @query401 = Query.find 401

@@ -23,9 +23,6 @@ require File.expand_path('../../test_helper', __FILE__)
 class DmsfWorkflowsControllerTest < RedmineDmsf::Test::TestCase
   include Redmine::I18n
 
-  fixtures :dmsf_workflows, :dmsf_workflow_steps, :dmsf_workflow_step_assignments,
-           :dmsf_folders, :dmsf_files, :dmsf_file_revisions, :dmsf_locks
-
   def setup
     super
     @wfs1 = DmsfWorkflowStep.find 1 # step 1

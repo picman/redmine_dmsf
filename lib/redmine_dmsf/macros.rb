@@ -117,6 +117,7 @@ module RedmineDmsf
 
         file = DmsfFile.visible.find_by(id: args[0])
         return "{{dmsfversion(#{args[0]})}}" unless file
+
         unless User.current&.allowed_to?(:view_dmsf_files, file.project, { id: file.id })
           raise ::I18n.t(:notice_not_authorized)
         end
@@ -127,7 +128,7 @@ module RedmineDmsf
           revision = DmsfFileRevision.find_by(id: args[1], dmsf_file_id: args[0])
           return "{{dmsfversion(#{args[0]}, #{args[1]})}}" unless revision
         end
-        textilizable revision.version
+        revision.version
       end
 
       # dmsflastupdate - text referring to the document's last update date

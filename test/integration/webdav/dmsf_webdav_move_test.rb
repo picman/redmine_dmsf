@@ -22,8 +22,6 @@ require 'fileutils'
 
 # WebDAV MOVE tests
 class DmsfWebdavMoveTest < RedmineDmsf::Test::IntegrationTest
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def test_move_denied_for_anonymous
     new_name = "#{@file1.name}.moved"
     assert_no_difference '@file1.dmsf_file_revisions.count' do

@@ -21,8 +21,6 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Help controller
 class DmsfHelpControllerTest < RedmineDmsf::Test::TestCase
-  fixtures :dmsf_folders, :dmsf_files, :dmsf_file_revisions
-
   def test_wiki_syntax
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
     get '/dmsf/help/wiki_syntax'
