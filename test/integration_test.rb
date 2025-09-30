@@ -22,7 +22,7 @@ module RedmineDmsf
     # Integration test
     class IntegrationTest < Redmine::IntegrationTest
       def initialize(name)
-        super(name)
+        super
         # Load all plugin's fixtures
         dir = File.join(File.dirname(__FILE__), 'fixtures')
         ext = '.yml'

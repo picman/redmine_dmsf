@@ -25,10 +25,9 @@ class DmsfFolderParentValidator < ActiveModel::EachValidator
     while folder
       if folder == record
         record.errors.add attribute, :invalid
-        return false
+        return
       end
       folder = folder.dmsf_folder
     end
-    true
   end
 end

@@ -22,14 +22,11 @@ class DmsfMaxFileSizeValidator < ActiveModel::EachValidator
   include Redmine::I18n
 
   def validate_each(record, attribute, value)
-    if value && (value > Setting.attachment_max_size.to_i.kilobytes)
-      record.errors.add attribute,
-                        l(:error_attachment_too_big, max_size: ActiveSupport::NumberHelper.number_to_human_size(
-                          Setting.attachment_max_size.to_i.kilobytes
-                        ))
-      false
-    else
-      true
-    end
+    return unless value && (value > Setting.attachment_max_size.to_i.kilobytes)
+
+    record.errors.add attribute,
+                      l(:error_attachment_too_big, max_size: ActiveSupport::NumberHelper.number_to_human_size(
+                        Setting.attachment_max_size.to_i.kilobytes
+                      ))
   end
 end

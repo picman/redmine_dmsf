@@ -22,7 +22,6 @@ require 'fileutils'
 
 # WebDAV LOCK test
 class DmsfWebdavLockTest < RedmineDmsf::Test::IntegrationTest
-
   def setup
     super
     @xml = %(<?xml version="1.0" encoding="utf-8" ?>

@@ -22,10 +22,10 @@ class DmsfFileExtensionValidator < ActiveModel::EachValidator
   include Redmine::I18n
 
   def validate_each(record, attribute, value)
-    return true unless attribute.to_s == 'name'
+    return unless attribute.to_s == 'name'
 
     extension = File.extname(value)
-    return true if Attachment.valid_extension?(extension)
+    return if Attachment.valid_extension?(extension)
 
     record.errors.add(:base, l(:error_attachment_extension_not_allowed, extension: extension))
   end

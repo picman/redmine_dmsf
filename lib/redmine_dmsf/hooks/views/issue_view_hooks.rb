@@ -34,7 +34,7 @@ module RedmineDmsf
           html = +''
           container = context[:container]
           # Radio buttons
-          if allowed_to_attach_documents(container)
+          if allowed_to_attach_documents?(container)
             html << '<p>'
             classes = +'inline'
             html << "<label class=\"#{classes}\">"
@@ -64,7 +64,7 @@ module RedmineDmsf
             end
           end
           # Upload form
-          html << attach_documents_form(context, label: false) if allowed_to_attach_documents(container)
+          html << attach_documents_form(context, label: false) if allowed_to_attach_documents?(container)
           html
         end
 
@@ -94,7 +94,7 @@ module RedmineDmsf
 
         def view_issues_edit_notes_bottom_style(context = {})
           if User.current.pref.dmsf_attachments_upload_choice == 'Attachments' ||
-             !allowed_to_attach_documents(context[:container])
+             !allowed_to_attach_documents?(context[:container])
             ''
           else
             'display: none'
@@ -103,7 +103,7 @@ module RedmineDmsf
 
         private
 
-        def allowed_to_attach_documents(container)
+        def allowed_to_attach_documents?(container)
           return false unless container.respond_to?(:project) && container.respond_to?(:saved_dmsf_attachments) &&
                               RedmineDmsf.dmsf_act_as_attachable?
 
@@ -147,7 +147,7 @@ module RedmineDmsf
 
           # Add Dmsf upload form
           container = context[:container]
-          return unless allowed_to_attach_documents(container)
+          return unless allowed_to_attach_documents?(container)
 
           html = +'<p'
           html << ' style="display: none;"' if User.current.pref.dmsf_attachments_upload_choice == 'Attachments'

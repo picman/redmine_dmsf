@@ -18,17 +18,12 @@
 AllCops:
   TargetRubyVersion: 3.2
   TargetRailsVersion: 7.1
-
   SuggestExtensions: false
 
   NewCops: enable
 
   Exclude:
     - '**/vendor/**/*'
-
-plugins:
-  - rubocop-performance
-  - rubocop-rails
 
 # Rules for DMSF
 Layout/LineLength:
@@ -81,7 +76,7 @@ Naming/AccessorMethodName:
   Exclude:
     - lib/dav4rack/resource.rb
 
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Exclude:
     - patches/attachable_patch.rb
 

@@ -21,7 +21,6 @@ require File.expand_path('../../../test_helper', __FILE__)
 
 # WebDAV HEAD tests
 class DmsfWebdavHeadTest < RedmineDmsf::Test::IntegrationTest
-
   def test_head_requires_authentication
     head "/dmsf/webdav/#{@project1.identifier}"
     assert_response :unauthorized
