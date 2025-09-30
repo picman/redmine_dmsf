@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/>.
 
 plugins:
-  rubocop-rails
+  - rubocop-rails
 
 AllCops:
   TargetRubyVersion: 3.2
