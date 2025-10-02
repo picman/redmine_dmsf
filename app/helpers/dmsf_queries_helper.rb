@@ -133,7 +133,7 @@ module DmsfQueriesHelper
         end
         tag += content_tag('div', item.filename, class: 'dmsf-filename')
         if item.project.watched_by?(User.current)
-          tag += link_to(sprite_icon('fav', nil, icon_only: true, size: '12'),
+          tag += link_to(sprite_icon('unwatch', nil, icon_only: true, size: '12'),
                          watch_path(object_type: 'project', object_id: item.project.id),
                          title: l(:button_unwatch),
                          method: 'delete',
@@ -167,7 +167,7 @@ module DmsfQueriesHelper
         end
         tag += content_tag('div', item.filename, class: 'dmsf-filename', title: l(:title_filename_for_download))
         if !item&.deleted? && item.watched_by?(User.current)
-          tag += link_to(sprite_icon('fav', nil, icon_only: true, size: '12'),
+          tag += link_to(sprite_icon('unwatch', nil, icon_only: true, size: '12'),
                          watch_path(object_type: 'dmsf_folder', object_id: item.id),
                          title: l(:button_unwatch),
                          method: 'delete',
@@ -218,7 +218,7 @@ module DmsfQueriesHelper
         filename = revision ? revision.formatted_name(member) : item.filename
         tag += content_tag('div', filename, class: 'dmsf-filename', title: l(:title_filename_for_download))
         if (item.type == 'file') && !item&.deleted? && revision.dmsf_file&.watched_by?(User.current)
-          tag += link_to(sprite_icon('fav', nil, icon_only: true, size: '12'),
+          tag += link_to(sprite_icon('unwatch', nil, icon_only: true, size: '12'),
                          watch_path(object_type: 'dmsf_file', object_id: item.id),
                          title: l(:button_unwatch),
                          method: 'delete',
