@@ -1,8 +1,13 @@
 Changelog for Redmine DMSF
 ==========================
 
-4.2.3 *????-??-??*
+4.2.3 *2025-10-06*
 ------------------
+
+    Redmine 6.1 compatibility
+
+* Bug: #11 - DMSF json API wrong pagination handling
+* Bug: #7 - Document edit via WebDAV sets workflow into undefined state
 
 4.2.2 *2025-07-22*
 ------------------
