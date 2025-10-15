@@ -19,10 +19,13 @@
 
 # Migrate documents to/from Active Storage
 class ActiveStorageMigration < ActiveRecord::Migration[7.0]
-
   # File system -> Active Storage
   def up
-    $stdout.puts "It could be a very long process. Be patient...\n"
+    $stdout.puts 'It could be a very long process. Be patient...'
+    # Remove the Xapian database as it will be rebuilt from scratch during the migration
+    if xapian_database_removed?
+      $stdout.puts 'The Xapian database has been removed as it will be rebuilt from scratch during the migration'
+    end
     Dir.glob(DmsfFile.storage_path.join('**/*')).each do |path|
       # Print out the currently processed directory
       unless File.file?(path)
@@ -32,11 +35,9 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
       # Process a file
       disk_filename = File.basename(path)
       DmsfFileRevision.where(disk_filename: disk_filename)
-                       .order(source_dmsf_file_revision_id: :asc)
-                       .find_each
-                       .with_index do |r, i|
-        next if r.dmsf_file.project.id != 3886 # Dry run
-
+                      .order(source_dmsf_file_revision_id: :asc)
+                      .find_each
+                      .with_index do |r, i|
         if i.zero?
           r.shared_file.attach(
             io: File.open(path),
@@ -50,9 +51,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
           $stdout.puts "#{path} => #{File.join(key[0..1], key[2..3], key)} (#{r.shared_file.blob.filename})"
         else
           # The other revisions should have set the source revision
-          unless r.source_dmsf_file_revision_id
-            warn "r#{r.id}.source_dmsf_file_revision_id is null"
-          end
+          warn("r#{r.id}.source_dmsf_file_revision_id is null") unless r.source_dmsf_file_revision_id
         end
       end
     end
@@ -61,22 +60,36 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
 
   # Active Storage -> File system
   def down
-    n = DmsfFileRevision.all.size
-    $stdout.puts "#{n} revisions found. It could be a very long process. Be patient...\n"
-    DmsfFileRevision.find_each.with_index do |r, i|
-      $stdout.print "\r#{i * 100 / n}%"
-      next unless r.shared_file.attached?
-      next if r.dmsf_file.project.id != 3886 # Dry run
-
+    $stdout.puts 'It could be a very long process. Be patient...'
+    ActiveStorage::Attachment.find_each do |a|
+      r = a.record
       new_path = r.disk_file(search_if_not_exists: false)
       unless File.exist?(new_path)
-        r.shared_file.open do |f|
+        a.blob.open do |f|
           FileUtils.mv f.path, new_path
         end
+        key = a.blob.key
+        $stdout.puts "#{File.join(key[0..1], key[2..3], key)} (#{a.blob.filename}) => #{new_path}"
       end
       # Remove the original file
-      r.shared_file.purge
+      a.blob.purge
+    end
+    # Remove the Xapian database as it is useless now and has to be rebuilt with xapian_indexer.rb
+    if xapian_database_removed?
+      $stdout.puts 'Xapian database have been removed as it is useless now and has to be rebuilt with xapian_indexer.rb'
     end
     $stdout.puts 'Done'
+  end
+
+  private
+
+  # Delete Xapian database
+  def xapian_database_removed?
+    if RedmineDmsf::Plugin.lib_available?('xapian')
+      FileUtils.rm_rf File.join(RedmineDmsf.dmsf_index_database, RedmineDmsf.dmsf_stemming_lang)
+      true
+    else
+      false
+    end
   end
 end
