@@ -52,7 +52,7 @@ class DmsfFilesController < ApplicationController
     end
 
     check_project @revision.dmsf_file
-    raise ActionController::MissingFile if @file.deleted?
+    raise ActionController::MissingFile if @file.deleted? || !@revision.file.attached?
 
     # Action
     access = DmsfFileRevisionAccess.new
@@ -82,12 +82,12 @@ class DmsfFilesController < ApplicationController
     # Text preview
     elsif !api_request? && params[:download].blank? && (@file.size <= Setting.file_max_size_displayed.to_i.kilobyte) &&
           (@file.text? || @file.markdown? || @file.textile?) && !@file.html? && formats.include?(:html)
-      @content = File.read(@revision.disk_file, mode: 'rb')
+      @content = @revision.file.download
       render action: 'document'
     # Offer the file for download
     else
       params[:disposition] = 'attachment' if params[:filename].present?
-      send_file @revision.disk_file,
+      send_data @revision.file.download,
                 filename: filename,
                 type: @revision.detect_content_type,
                 disposition: params[:disposition].presence || @revision.dmsf_file.disposition
@@ -142,6 +142,11 @@ class DmsfFilesController < ApplicationController
           revision.disk_filename = revision.new_storage_filename
           revision.mime_type = upload.mime_type
           revision.digest = upload.digest
+          revision.file.attach(
+            io: File.open(upload.tempfile_path),
+            filename: revision.disk_filename,
+            content_type: revision.mime_type
+          )
         end
       else
         revision.size = last_revision.size
@@ -155,17 +160,7 @@ class DmsfFilesController < ApplicationController
       ok = true
       if revision.save
         revision.assign_workflow params[:dmsf_workflow_id]
-        if upload
-          begin
-            FileUtils.mv upload.tempfile_path, revision.disk_file(search_if_not_exists: false)
-          rescue StandardError => e
-            Rails.logger.error e.message
-            flash[:error] = e.message
-            revision.destroy
-            ok = false
-          end
-        end
-        if ok && @file.locked? && !@file.locks.empty?
+        if @file.locked? && !@file.locks.empty?
           begin
             @file.unlock!
             flash[:notice] = "#{l(:notice_file_unlocked)}, "

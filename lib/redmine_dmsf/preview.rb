@@ -46,6 +46,8 @@ module RedmineDmsf
       office_bin = RedmineDmsf.office_bin.presence || 'libreoffice'
       cmd = "#{shell_quote(office_bin)} --convert-to pdf --headless --outdir #{shell_quote(dir)} #{shell_quote(source)}"
       if system(cmd)
+        filename = "#{File.basename(source, '.*')}.pdf"
+        FileUtils.mv File.join(dir, filename), target
         target
       else
         Rails.logger.error "Creating preview failed (#{$CHILD_STATUS}):\nCommand: #{cmd}"

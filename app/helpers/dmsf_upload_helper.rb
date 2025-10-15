@@ -96,8 +96,11 @@ module DmsfUploadHelper
               a = Attachment.find_by_token(committed_file[:token])
               committed_file[:tempfile_path] = a.diskfile if a
             end
-            FileUtils.mv committed_file[:tempfile_path], new_revision.disk_file(search_if_not_exists: false)
-            FileUtils.chmod 'u=wr,g=r', new_revision.disk_file(search_if_not_exists: false)
+            new_revision.file.attach(
+              io: File.open(committed_file[:tempfile_path]),
+              filename: new_revision.name,
+              content_type: new_revision.mime_type
+            )
             file.last_revision = new_revision
             files.push file
             container.dmsf_file_added file if container && !new_object

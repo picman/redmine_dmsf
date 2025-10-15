@@ -51,32 +51,6 @@ class DmsfZipTest < RedmineDmsf::Test::HelperTest
     end
   end
 
-  def test_add_attachment
-    assert File.exist?(@attachment6.diskfile), @attachment6.diskfile
-    @zip.add_attachment @attachment6, @attachment6.filename
-    assert_equal 0, @zip.dmsf_files.size
-    zip_file = @zip.finish
-    Zip::File.open(zip_file) do |file|
-      file.each do |entry|
-        assert_equal @attachment6.filename, entry.name
-      end
-    end
-  end
-
-  def test_add_raw_file
-    filename = 'data.txt'
-    content = '1,2,3'
-    @zip.add_raw_file filename, content
-    assert_equal 0, @zip.dmsf_files.size
-    zip_file = @zip.finish
-    Zip::File.open(zip_file) do |file|
-      file.each do |entry|
-        assert_equal filename, entry.name
-        assert_equal content, entry.get_input_stream.read
-      end
-    end
-  end
-
   def test_read
     @zip.add_dmsf_file @dmsf_file1
     assert_not_empty @zip.read

@@ -47,7 +47,9 @@ module RedmineDmsf
       end
 
       def add_dmsf_file(dmsf_file, member = nil, root_path = nil, path = nil)
-        raise DmsfFileNotFoundError unless dmsf_file&.last_revision && File.exist?(dmsf_file.last_revision.disk_file)
+        raise DmsfFileNotFoundError unless dmsf_file&.last_revision
+
+        raise DmsfFileNotFoundError unless dmsf_file.last_revision.file.attached?
 
         if path
           string_path = path
@@ -62,38 +64,13 @@ module RedmineDmsf
         zip_entry = ::Zip::Entry.new(@zip_file, string_path, nil, nil, nil, nil, nil, nil,
                                      ::Zip::DOSTime.at(dmsf_file.last_revision.updated_at))
         @zip_file.put_next_entry zip_entry
-        File.open(dmsf_file.last_revision.disk_file, 'rb') do |f|
+        dmsf_file.last_revision.file.open do |f|
           while (buffer = f.read(8192))
             @zip_file.write buffer
           end
         end
         @files << string_path
         @dmsf_files << dmsf_file
-      end
-
-      def add_attachment(attachment, path)
-        return if @files.include?(path)
-
-        raise DmsfFileNotFoundError unless File.exist?(attachment.diskfile)
-
-        zip_entry = ::Zip::Entry.new(@zip_file, path, nil, nil, nil, nil, nil, nil,
-                                     ::Zip::DOSTime.at(attachment.created_on))
-        @zip_file.put_next_entry zip_entry
-        File.open(attachment.diskfile, 'rb') do |f|
-          while (buffer = f.read(8192))
-            @zip_file.write buffer
-          end
-        end
-        @files << path
-      end
-
-      def add_raw_file(filename, data)
-        return if @files.include?(filename)
-
-        zip_entry = ::Zip::Entry.new(@zip_file, filename, nil, nil, nil, nil, nil, nil, ::Zip::DOSTime.now)
-        @zip_file.put_next_entry zip_entry
-        @zip_file.write data
-        @files << filename
       end
 
       def add_dmsf_folder(dmsf_folder, member, root_path = nil)

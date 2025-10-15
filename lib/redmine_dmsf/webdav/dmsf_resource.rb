@@ -697,10 +697,7 @@ module RedmineDmsf
       # implementation of service for request, which allows for us to pipe a single file through
       # also best-utilising Dav4rack's implementation.
       def download
-        raise NotFound unless file&.last_revision
-
-        disk_file = file.last_revision.disk_file
-        raise NotFound unless disk_file && File.exist?(disk_file)
+        raise NotFound unless file.last_revision&.file&.attached?
         raise Forbidden unless !parent.exist? || !parent.folder || DmsfFolder.permissions?(parent.folder)
 
         # If there is no range (start of ranged download, or direct download) then we log the
@@ -719,7 +716,9 @@ module RedmineDmsf
             Rails.logger.error "Could not send email notifications: #{e.message}"
           end
         end
-        File.new disk_file
+        file.last_revision.file.open do |f|
+          File.new f.path
+        end
       end
 
       def reuse_version_for_locked_file?(file)

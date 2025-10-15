@@ -177,21 +177,21 @@ class DmsfFile < ApplicationRecord
     if locked_for_user? && !User.current.allowed_to?(:force_file_unlock, project)
       Rails.logger.info l(:error_file_is_locked)
       if lock.reverse[0].user
-        errors.add(:base, l(:title_locked_by_user, user: lock.reverse[0].user))
+        errors.add :base, l(:title_locked_by_user, user: lock.reverse[0].user)
       else
-        errors.add(:base, l(:error_file_is_locked))
+        errors.add :base, l(:error_file_is_locked)
       end
       return false
     end
     begin
-      # Revisions and links of a deleted file SHOULD be deleted too
-      dmsf_file_revisions.each { |r| r.delete(commit: commit, force: true) }
       if commit
         destroy
       else
         self.deleted = STATUS_DELETED
         self.deleted_by_user = User.current
         save
+        # Associated revisions should be marked as deleted too
+        dmsf_file_revisions.each { |r| r.delete(commit: commit, force: true) }
       end
     rescue StandardError => e
       Rails.logger.error e.message
@@ -444,25 +444,24 @@ class DmsfFile < ApplicationRecord
         matchset = enquire.mset(0, 1000)
 
         matchset&.matches&.each do |m|
-          docdata = m.document.data { url }
+          docdata = m.document.data
           dochash = Hash[*docdata.scan(%r{(url|sample|modtime|author|type|size)=/?([^\n\]]+)}).flatten]
-          filename = dochash['url']
-          next unless filename
+          next unless dochash['url'] =~ %r{^\w{2}/\w{2}/(\w+)$} # /76/df/76dfsp2ubbgq4yvq90zrfoyxt012
 
-          dmsf_attrs = filename.scan(%r{^\d{4}/\d{2}/(\d{12}_(\d+)_.*)$})
-          id_attribute = 0
-          id_attribute = dmsf_attrs[0][1] if dmsf_attrs.length.positive?
-          next if dmsf_attrs.empty? || id_attribute.to_i.zero?
+          key = Regexp.last_match(1)
+          blob = ActiveStorage::Blob.find_by(key: key)
+          attachment = blob&.attachments&.first
+          dmsf_file_revision = attachment&.record
 
-          dmsf_file = DmsfFile.visible.where(limit_options).find_by(id: id_attribute)
+          next unless dmsf_file_revision
+
+          dmsf_file = dmsf_file_revision.dmsf_file
           next unless dmsf_file && DmsfFolder.permissions?(dmsf_file.dmsf_folder) &&
                       user.allowed_to?(:view_dmsf_files, dmsf_file.project) &&
                       (project_ids.blank? || project_ids.include?(dmsf_file.project_id))
 
-          rev_id = DmsfFileRevision.where(dmsf_file_id: dmsf_file.id, disk_filename: dmsf_attrs[0][0])
-                                   .pick(:id)
           if dochash['sample']
-            Redmine::Search.cache_store.write("DmsfFile-#{dmsf_file.id}-#{rev_id}",
+            Redmine::Search.cache_store.write("DmsfFile-#{dmsf_file.id}-#{dmsf_file_revision.id}",
                                               dochash['sample'].force_encoding('UTF-8'))
           end
           break if options[:limit].present? && results.count >= options[:limit]
@@ -551,12 +550,14 @@ class DmsfFile < ApplicationRecord
   def pdf_preview
     return '' unless previewable?
 
-    target = File.join(DmsfFile.previews_storage_path, "#{File.basename(last_revision&.disk_file.to_s, '.*')}.pdf")
+    target = File.join(DmsfFile.previews_storage_path, "#{last_revision.file.blob.key}.pdf")
     begin
-      RedmineDmsf::Preview.generate last_revision&.disk_file.to_s, target
+      last_revision.file.open do |f|
+        RedmineDmsf::Preview.generate f.path, target
+      end
     rescue StandardError => e
       Rails.logger.error do
-        %(An error occurred while generating preview for #{last_revision&.disk_file} to #{target}\n
+        %(An error occurred while generating preview for #{last_revision.file.name} to #{target}\n
           Exception was: #{e.message})
       end
       ''
@@ -567,15 +568,16 @@ class DmsfFile < ApplicationRecord
     result = +'No preview available'
     if text?
       begin
-        f = File.new(last_revision.disk_file)
-        f.each_line do |line|
-          case f.lineno
-          when 1
-            result = line
-          when limit.to_i + 1
-            break
-          else
-            result << line
+        last_revision.file.open do |f|
+          f.each_line do |line|
+            case f.lineno
+            when 1
+              result = line
+            when limit.to_i + 1
+              break
+            else
+              result << line
+            end
           end
         end
       rescue StandardError => e

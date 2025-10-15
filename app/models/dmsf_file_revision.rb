@@ -30,6 +30,8 @@ class DmsfFileRevision < ApplicationRecord
   belongs_to :dmsf_workflow_assigned_by_user, class_name: 'User'
   belongs_to :dmsf_workflow
 
+  has_one_attached :shared_file
+
   has_many :dmsf_file_revision_access, dependent: :destroy
   has_many :dmsf_workflow_step_assignment, dependent: :destroy
 
@@ -97,6 +99,20 @@ class DmsfFileRevision < ApplicationRecord
   validates :name, dmsf_file_extension: true
   validates :description, length: { maximum: 1.kilobyte }
   validates :size, dmsf_max_file_size: true
+
+  def file
+    unless shared_file.attached?
+      # If no file is attached, look at the source revision
+      # This way we prevent the same file from being attached to multiple revisions
+      sr = source_revision
+      while sr
+        return sr.shared_file if sr.shared_file.attached?
+
+        sr = sr.source_revision
+      end
+    end
+    shared_file
+  end
 
   def visible?(_user = nil)
     deleted == STATUS_ACTIVE
@@ -300,19 +316,8 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def copy_file_content(open_file)
-    sha = Digest::SHA256.new
-    File.open(disk_file(search_if_not_exists: false), 'wb') do |f|
-      if open_file.respond_to?(:read)
-        while (buffer = open_file.read(8192))
-          f.write buffer
-          sha.update buffer
-        end
-      else
-        f.write open_file
-        sha.update open_file
-      end
-    end
-    self.digest = sha.hexdigest
+    file.attach io: open_file, filename: dmsf_file.name
+    self.digest = file.blob.checksum
   end
 
   # Overrides Redmine::Acts::Customizable::InstanceMethods#available_custom_fields
@@ -400,14 +405,27 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def delete_source_revision
+    derived_revisions = []
     DmsfFileRevision.where(source_dmsf_file_revision_id: id).find_each do |d|
+      # Derived revision without its own file
+      derived_revisions << d unless d.shared_file.attached?
+      # Replace the source revision
       d.source_revision = source_revision
       d.save!
     end
-    return unless RedmineDmsf.physical_file_delete?
+    return unless shared_file.attached?
 
-    dependencies = DmsfFileRevision.where(disk_filename: disk_filename).all.size
-    FileUtils.rm_f(disk_file) if dependencies <= 1
+    if derived_revisions.empty?
+      # Remove the file from Xapian index
+      RemoveFromIndexJob.schedule file.blob.key if RedmineDmsf::Plugin.lib_available?('xapian')
+      # Remove the file
+      shared_file.purge_later if RedmineDmsf.physical_file_delete?
+    else
+      # Move the shared file to an unattached derived revision
+      d = derived_revisions.first
+      d.shared_file.attach shared_file.blob
+      shared_file.detach
+    end
   end
 
   def copy_custom_field_values(values, source_revision = nil)

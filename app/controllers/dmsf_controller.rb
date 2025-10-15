@@ -510,7 +510,7 @@ class DmsfController < ApplicationController
     raise DmsfAccessError unless User.current.allowed_to?(:email_documents, @project)
 
     zip = Zip.new
-    zip_entries(zip, selected_folders, selected_files)
+    zip_entries zip, selected_folders, selected_files
     zipped_content = zip.finish
 
     max_filesize = RedmineDmsf.dmsf_max_email_filesize
@@ -548,7 +548,7 @@ class DmsfController < ApplicationController
 
   def download_entries(selected_folders, selected_files)
     zip = Zip.new
-    zip_entries(zip, selected_folders, selected_files)
+    zip_entries zip, selected_folders, selected_files
     zip.dmsf_files.each do |f|
       # Action
       audit = DmsfFileRevisionAccess.new

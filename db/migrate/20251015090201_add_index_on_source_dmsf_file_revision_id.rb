@@ -2,7 +2,7 @@
 
 # Redmine plugin for Document Management System "Features"
 #
-# Vít Jonáš <vit.jonas@gmail.com>, Daniel Munn <dan.munn@munnster.co.uk>, Karel Pičman <karel.picman@kontron.com>
+# Karel Pičman <karel.picman@kontron.com>
 #
 # This file is part of Redmine DMSF plugin.
 #
@@ -17,21 +17,9 @@
 # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
 # <https://www.gnu.org/licenses/>.
 
-source 'https://rubygems.org' do
-  gem 'active_record_union'
-  gem 'activestorage'
-  gem 'ox' # Dav4Rack
-  gem 'rake' unless Dir.exist?(File.expand_path('../../redmine_dashboard', __FILE__))
-  gem 'simple_enum'
-  gem 'uuidtools'
-  gem 'zip-zip' unless Dir.exist?(File.expand_path('../../vault', __FILE__))
-  group :xapian do
-    gem 'xapian-ruby'
-  end
-  unless %w[easy_gantt custom_tables]
-         .any? { |plugin| Dir.exist?(File.expand_path("../../#{plugin}", __FILE__)) }
-    group :test do
-      gem 'rails-controller-testing'
-    end
+# Add index
+class AddIndexOnSourceDmsfFileRevisionId < ActiveRecord::Migration[7.0]
+  def change
+    add_index :dmsf_file_revisions, :source_dmsf_file_revision_id
   end
 end

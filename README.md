@@ -1,4 +1,4 @@
-# Redmine DMSF Plugin 4.2.4 devel
+# Redmine DMSF Plugin 5.0.0 devel
 
 [![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=devel)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
@@ -13,7 +13,7 @@ The development has been supported by [Kontron](https://www.kontron.com) and has
 Project home: <https://github.com/picman/redmine_dmsf>
 
 Redmine Document Management System "Features" plugin is distributed under GNU General Public License v3 (GPL).
-33Redmine is a flexible project management web application, released under the terms of the GNU General Public License v2 (GPL) at <https://www.redmine.org/>
+Redmine is a flexible project management web application, released under the terms of the GNU General Public License v2 (GPL) at <https://www.redmine.org/>
 
 Further information about the GPL license can be found at
 <https://www.gnu.org/licenses/gpl-3.0.html>
@@ -296,12 +296,49 @@ instance is stopped.
 
 ### WebDAV
 
-In order to enable WebDAV module, it is necessary to put the following code into yor `config/additional_environment.rb`
+In order to enable WebDAV module, it is necessary to put the following code into your 
+`config/additional_environment.rb`:
 
 ```ruby
 # Redmine DMSF's WebDAV
 require Rails.root.join('plugins', 'redmine_dmsf', 'lib', 'redmine_dmsf', 'webdav', 'custom_middleware').to_s
 config.middleware.insert_before ActionDispatch::Cookies, RedmineDmsf::Webdav::CustomMiddleware
+```
+
+### Active Storage
+
+Documents are stored using Active Storage. It requires the following lines to be added into 
+`config/additional_environment.rb`:
+
+```ruby
+# Active storage
+require 'active_storage/engine'
+require Rails.root.join('plugins', 'redmine_dmsf', 'lib', 'redmine_dmsf', 'xapian_analyzer').to_s
+config.active_storage.service = :local  # Store files locally
+#config.active_storage.service = :amazon # Store files on Amazon S3
+config.active_storage.analyzers.append RedmineDmsf::XapianAnalyzer # Index uploaded files for Xapian full-text search
+```
+
+Then install Active Storage with the following commands:
+
+```shell
+bin/rails active_storage:install RAILS_ENV=production
+bin/rails db:migrate RAILS_ENV=production
+```
+
+Configure your DMS files storage in config/storage.yml:
+
+```yml
+local:
+  service: Disk
+  root: <%= Rails.root.join('dmsf_as') %>
+## Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
+#amazon:
+#  service: S3
+#  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
+#  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
+#  bucket: your_own_bucket-<%= Rails.env %>
+#  region: "" # e.g. 'us-east-1'
 ```
 
 ### Installation in a sub-uri
