@@ -142,10 +142,11 @@ class DmsfFilesController < ApplicationController
           revision.disk_filename = revision.new_storage_filename
           revision.mime_type = upload.mime_type
           revision.digest = upload.digest
-          revision.file.attach(
+          revision.shared_file.attach(
             io: File.open(upload.tempfile_path),
             filename: revision.disk_filename,
-            content_type: revision.mime_type
+            content_type: revision.mime_type,
+            identify: false
           )
         end
       else
