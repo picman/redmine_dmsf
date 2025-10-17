@@ -378,9 +378,7 @@ de:
 
   label_enable_cjk_ngrams: Aktiviere die Erstellung von n-grams aus Koreanischen Texten
   text_enable_cjk_ngrams: "Mit dieser Aktivierung werden Koreanische Zeichenfolgen in Monograms and Bigrams zerlegt.
-    Monograms enthalten Informationen zur Position. Nicht-Koreanische Zeichenfolgen werden in Wörter zerlegt. Die entsprechende
-    Option muss beim Indexieren verwendet werden,
-    z.B. XAPIAN_CJK_NGRAM=true ruby plugins/redmine_dmsf/extra/xapian_indexer.rb -fv"
+    Monograms enthalten Informationen zur Position. Nicht-Koreanische Zeichenfolgen werden in Wörter zerlegt."
 
   label_dmsf_fast_links: Schnelle Verknüpfung
   text_dmsf_fast_links_info: Ermöglicht durch Eingabe der Ordner-ID auf einfache Art und Weise eine Verknüpfung 
@@ -488,6 +486,10 @@ de:
     oberste Ebene.
   warning_folder_unlockable: Der Ordner kann nicht entsperrt werden
   redmine_dmsf: Redmine DMSF
+
+  label_maximum_xapian_filesize: Maximale Dateigröße für den Index
+  note_maximum_xapian_filesize: Begrenzt die maximale Dateigröße für die Indizierung. Größere Dateien werden nicht 
+    indiziert. Angabe in MB.
 
   activerecord:
     errors:

@@ -383,10 +383,7 @@ uk:
 
   label_enable_cjk_ngrams: Дозводити генерацію n-грам з тексту CJK
   text_enable_cjk_ngrams: "Якщо ввімкнено цю функцію, діапазони символів CJK розбиваються на уніграми і біграми, при 
-    цьому уніграми містять позиційну інформацію. Символи, відмінні від CJK, розбиваються на слова як зазвичай. 
-    Відповідна опція повинна бути використана під час індексування
-    Приклад: XAPIAN_CJK_NGRAM=true ruby plugins/redmine_dmsf/extra/xapian_indexer.rb -fv"
-
+    цьому уніграми містять позиційну інформацію. Символи, відмінні від CJK, розбиваються на слова як зазвичай."
   label_dmsf_fast_links: Швидкі посилання
   text_dmsf_fast_links_info: Ви зможете вручну ввести ідентифікатор кінцевої папки під час створення посилань або 
     переміщення файлів чи папок, щоб пришвидшити процес створення посилань.
@@ -493,6 +490,9 @@ uk:
   notice_search_in_subfolders: Searching in sub-folders is not recursive. For a recursive search go to the top level.
   warning_folder_unlockable: The folder can't be unlocked
   redmine_dmsf: Redmine DMSF
+
+  label_maximum_xapian_filesize: Maximum Xapian file size
+  note_maximum_xapian_filesize: Limits maximum filesize for indexing. Larger files won't be indexed. Number is in MB.
 
   activerecord:
     errors:

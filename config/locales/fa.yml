@@ -471,6 +471,9 @@ fa:
   warning_folder_unlockable: The folder can't be unlocked
   redmine_dmsf: Redmine DMSF
 
+  label_maximum_xapian_filesize: Maximum Xapian file size
+  note_maximum_xapian_filesize: Limits maximum filesize for indexing. Larger files won't be indexed. Number is in MB.
+
   activerecord:
     errors:
       messages:

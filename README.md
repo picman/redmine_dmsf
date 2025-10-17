@@ -224,26 +224,28 @@ instance is stopped.
         bundle config set --local without 'xapian'
         bundle install
 
-5. Initialize/Update database:
+5. Install Active Storage => [Active Storage](#active-storage)
+6. Enable WebDAV => [WebDAV](#webdav)
+7. Initialize/Update database
 
    `RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=redmine_dmsf`
 
-6. Install assets
+8. Install assets
 
    `RAILS_ENV="production" bundle exec rake assets:precompile`
 
-7. The access rights must be set for web server, e.g.:
+9. The access rights must be set for web server, e.g.:
 
     `chown -R www-data:www-data plugins/redmine_dmsf`
 
-8. Restart the web server, e.g.:
+10. Restart the web server, e.g.:
 
     `systemctl restart apache2`
 
-9. You should configure the plugin via Redmine interface: Administration -> Plugins -> DMSF -> Configure. (You should check and then save the plugin's configuration after each upgrade.)
-10. Don't forget to grant permissions for DMSF in Administration -> Roles and permissions
-11. Assign DMSF permissions to appropriate roles.
-12. There are a few rake tasks:
+11. You should configure the plugin via Redmine interface: Administration -> Plugins -> DMSF -> Configure. (You should check and then save the plugin's configuration after each upgrade.)
+12. Don't forget to grant permissions for DMSF in Administration -> Roles and permissions
+13. Assign DMSF permissions to appropriate roles.
+14. There are a few handy rake tasks:
 
     I) To convert documents from the standard Redmine document module
 
@@ -318,7 +320,6 @@ config.active_storage.service = :local  # Store files locally
 #config.active_storage.service = :amazon # Store files on Amazon S3
 config.active_storage.analyzers.append RedmineDmsf::XapianAnalyzer # Index uploaded files for Xapian full-text search
 ```
-
 Then install Active Storage with the following commands:
 
 ```shell

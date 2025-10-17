@@ -382,9 +382,7 @@ pt-BR:
 
   label_enable_cjk_ngrams: Enable generation of n-grams from CJK text
   text_enable_cjk_ngrams: "With this enabled, spans of CJK characters are split into unigrams and bigrams, with the
-    unigrams carrying positional information. Non-CJK characters are split into words as normal. The corresponding
-    option needs to have been used at index time.
-    e.g: XAPIAN_CJK_NGRAM=true ruby plugins/redmine_dmsf/extra/xapian_indexer.rb -fv"
+    unigrams carrying positional information. Non-CJK characters are split into words as normal."
 
   label_dmsf_fast_links: Fast links
   text_dmsf_fast_links_info: You will be able to manually enter a target folder's ID when creating links or moving files
@@ -491,6 +489,9 @@ pt-BR:
   notice_search_in_subfolders: Searching in sub-folders is not recursive. For a recursive search go to the top level.
   warning_folder_unlockable: The folder can't be unlocked
   redmine_dmsf: Redmine DMSF
+
+  label_maximum_xapian_filesize: Maximum Xapian file size
+  note_maximum_xapian_filesize: Limits maximum filesize for indexing. Larger files won't be indexed. Number is in MB.
 
   activerecord:
     errors:

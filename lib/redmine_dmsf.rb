@@ -19,6 +19,18 @@
 
 # Main module
 module RedmineDmsf
+  # Return true if the given gem is installed
+  def self.lib_available?(path)
+    require path
+    true
+  rescue LoadError => e
+    Rails.logger.debug e.message
+    false
+  end
+
+  mattr_accessor :xapian_available, instance_writer: false
+  @@xapian_available = RedmineDmsf.lib_available?('xapian')
+
   # Settings
   class << self
     def dmsf_max_file_download
@@ -210,6 +222,14 @@ module RedmineDmsf
     def dmsf_default_notifications?
       value = Setting.plugin_redmine_dmsf['dmsf_default_notifications']
       value.to_i.positive? || value == 'true'
+    end
+
+    def dmsf_max_xapian_filesize
+      if Setting.plugin_redmine_dmsf['dmsf_max_xapian_filesize'].present?
+        Setting.plugin_redmine_dmsf['dmsf_max_xapian_filesize'].to_i
+      else
+        3
+      end
     end
   end
 end

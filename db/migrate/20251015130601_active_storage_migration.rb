@@ -24,8 +24,8 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     $stdout.puts 'It could be a very long process. Be patient...'
     # We need to keep updated_at column unchanged and due to the asynchronous file analysis there is probably no better
     # way how to achieve that.
-    add_column :dmsf_file_revisions, :temp_updated_at, :datetime, default: nil,
-               null: true, if_not_exists: true
+    add_column :dmsf_file_revisions, :temp_updated_at, :datetime,
+               default: nil, null: true, if_not_exists: true
     DmsfFileRevision.update_all 'temp_updated_at = updated_at'
     # Remove the Xapian database as it will be rebuilt from scratch during the migration
     if xapian_database_removed?
@@ -93,7 +93,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
 
   # Delete Xapian database
   def xapian_database_removed?
-    if RedmineDmsf::Plugin.lib_available?('xapian')
+    if RedmineDmsf::Plugin.xapian_available
       FileUtils.rm_rf File.join(RedmineDmsf.dmsf_index_database, RedmineDmsf.dmsf_stemming_lang)
       true
     else

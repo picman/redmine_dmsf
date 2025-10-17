@@ -21,7 +21,8 @@ module RedmineDmsf
   # ActiveRecord Analyzer for Xapian
   class XapianAnalyzer < ActiveStorage::Analyzer
     def self.accept?(blob)
-      return false unless RedmineDmsf::Plugin.lib_available?('xapian') && blob.byte_size < 1_024 * 1_024 * 3 # 3MB
+      return false unless RedmineDmsf.xapian_available &&
+                          blob.byte_size < 1_024 * 1_024 * RedmineDmsf.dmsf_max_xapian_filesize # MB
 
       @blob = blob
       true
@@ -38,10 +39,11 @@ module RedmineDmsf
       db_path = File.join RedmineDmsf.dmsf_index_database, stem_lang
       url = File.join(@blob.key[0..1], @blob.key[2..3])
       dir = File.join(Dir.tmpdir, @blob.key)
+      env = 'XAPIAN_CJK_NGRAM=true ' if RedmineDmsf.dmsf_enable_cjk_ngrams?
       FileUtils.mkdir dir
       @blob.open do |file|
         FileUtils.mv file.path, File.join(dir, @blob.key)
-        system "omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
+        system "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
       end
       true
     rescue StandardError => e

@@ -417,7 +417,7 @@ class DmsfFileRevision < ApplicationRecord
 
     if derived_revisions.empty?
       # Remove the file from Xapian index
-      RemoveFromIndexJob.schedule file.blob.key if RedmineDmsf::Plugin.lib_available?('xapian')
+      RemoveFromIndexJob.schedule file.blob.key if RedmineDmsf.xapian_available
       # Remove the file
       shared_file.purge_later if RedmineDmsf.physical_file_delete?
     else

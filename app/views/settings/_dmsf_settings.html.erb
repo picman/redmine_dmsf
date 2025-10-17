@@ -328,7 +328,7 @@
   <%= l(:label_full_text) %>
 </em>
 
-<% if RedmineDmsf::Plugin.lib_available?('xapian') %>
+<% if RedmineDmsf.xapian_available %>
   <p>
     <%= content_tag :label, l(:label_index_database) %>
     <%= text_field_tag 'settings[dmsf_index_database]', RedmineDmsf.dmsf_index_database, size: 50 %>
@@ -371,6 +371,14 @@
     <em class="info">
       <%= l(:text_enable_cjk_ngrams) %><br>
       <%= l(:label_default)%>: <%= l(:general_text_No) %>
+    </em>
+  </p>
+  <p>
+    <%= content_tag :label, l(:label_maximum_xapian_filesize) %>
+    <%= text_field_tag 'settings[dmsf_max_xapian_filesize]', RedmineDmsf.dmsf_max_xapian_filesize, size: 10 %>
+    <em class="info">
+      <%= l(:note_maximum_xapian_filesize) %><br>
+      <%= l(:label_default) %>: 3
     </em>
   </p>
 <% else %>

@@ -381,10 +381,8 @@ ko:
   label_email_reply_to: 회신
 
   label_enable_cjk_ngrams: CJK 텍스트로부터 n-gram 생성을 활성화
-  text_enable_cjk_ngrams: "이 기능을 사용하면 CJK 문자 범위가 유니그램과 바이그램으로 분할되고, 유니그램은 위치 정보를 전달합니다. CJK 범위 외의 문자는 일반적인 단어로 분할됩니다. 해당 옵션은 색인 시점에 사용됩니다. 예: XAPIAN_CJK_NGRAM=true ruby plugins/redmine_dmsf/extra/xapian_indexer.rb -fv"
-
-
-
+  text_enable_cjk_ngrams: "이 기능을 사용하면 CJK 문자 범위가 유니그램과 바이그램으로 분할되고, 유니그램은 위치 정보를 전달합니다. 
+    CJK 범위 외의 문자는 일반적인 단어로 분할됩니다."
 
   label_dmsf_fast_links: 빠른 링크
   text_dmsf_fast_links_info: You will be able to manually enter a target folder's ID when creating links or moving files
@@ -491,6 +489,9 @@ ko:
   notice_search_in_subfolders: Searching in sub-folders is not recursive. For a recursive search go to the top level.
   warning_folder_unlockable: The folder can't be unlocked
   redmine_dmsf: Redmine DMSF
+
+  label_maximum_xapian_filesize: Maximum Xapian file size
+  note_maximum_xapian_filesize: Limits maximum filesize for indexing. Larger files won't be indexed. Number is in MB.
 
   activerecord:
     errors:

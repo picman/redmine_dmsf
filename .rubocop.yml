@@ -118,6 +118,8 @@ Rails/SkipsModelValidations:
     - db/migrate/20140519133201_trash_bin.rb
     - db/migrate/07_dmsf_1_4_4.rb
     - db/migrate/20240829093801_rename_dmsf_digest_token.rb
+    - db/migrate/20251015130601_active_storage_migration.rb
+    - db/migrate/20251017101001_restore_updated_at.rb
 
 Rails/ThreeStateBooleanColumn:
   Exclude:
@@ -129,6 +131,10 @@ Rails/UniqueValidationWithoutIndex:
     - app/models/dmsf_folder.rb # TODO: Create a case insensitive index in DB migrations
     - app/models/dmsf_file.rb
     - app/models/dmsf_workflow_step.rb # Impossible due to steps sorting
+
+Style/ClassVars:
+  Exclude:
+    - lib/redmine_dmsf.rb # @@xapian_available
 
 Style/ExpandPathArguments:
   Enabled: false

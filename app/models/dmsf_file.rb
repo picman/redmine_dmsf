@@ -397,7 +397,7 @@ class DmsfFile < ApplicationRecord
     results = scope.where(find_options).uniq.to_a
     results.delete_if { |x| !DmsfFolder.permissions?(x.dmsf_folder) }
 
-    if !options[:titles_only] && RedmineDmsf::Plugin.lib_available?('xapian')
+    if !options[:titles_only] && RedmineDmsf.xapian_available
       database = nil
       begin
         lang = RedmineDmsf.dmsf_stemming_lang

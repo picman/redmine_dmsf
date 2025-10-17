@@ -36,14 +36,5 @@ module RedmineDmsf
       end
       false
     end
-
-    # Return true if the given gem is installed
-    def self.lib_available?(path)
-      require path
-      true
-    rescue LoadError => e
-      Rails.logger.debug e.message
-      false
-    end
   end
 end

@@ -70,7 +70,7 @@ cs:
   link_modified: Změněno
   link_ver: Ver.
   link_author: Autor
-  title_check_for_zip_download_or_email: Vybrat pro stažení jako zip nebo emailem
+  title_check_for_zip_download_or_email: Vybrat pro stažení jako zip nebo e-mailem
   title_check_for_restore_or_delete: Vybrat pro obnovení nebo smazání
 
   title_notifications_active_deactivate: "Notifikace aktivní: Deaktivovat"
@@ -82,9 +82,9 @@ cs:
   title_unlock_file: Odemknout a umožnit změny ostatním uživatelům
   title_lock_file: Zamknout a zabránit změnám ostatních uživatelů
   title_download_checked: Stáhnout vybrané jako Zip
-  title_send_checked_by_email: Zaslat vybrané emailem
+  title_send_checked_by_email: Zaslat vybrané e-mailem
   link_user_preferences: Vaše nastavení
-  heading_send_documents_by_email: Odeslat dokumenty emailem
+  heading_send_documents_by_email: Odeslat dokumenty e-mailem
   label_email_from: Od
   label_email_to: Komu
   label_email_cc: Kopie
@@ -125,7 +125,7 @@ cs:
   option_version_custom: Vlastní
   label_new_content: Nový obsah
   label_maximum_files_download: Maximální počet najednou stažených souborů
-  note_maximum_number_of_files_downloaded: Maximální počet najednou stažených souborů jako Zip nebo odeslaných emailem.
+  note_maximum_number_of_files_downloaded: Maximální počet najednou stažených souborů jako Zip nebo odeslaných e-mailem.
     0 znamená bez omezení.
   label_file_storage_directory: Složka pro uložení souborů
   label_index_database: Index databáze
@@ -144,8 +144,8 @@ cs:
   label_default_notifications: Výchozí notifikace pro soubory
   heading_uploaded_files: Nahrané soubory
   link_documents: Dokumenty
-  permission_view_dmsf_file_revision_accesses: View downloads in Activity stream
-  permission_view_dmsf_file_revisions: View revisions in Activity stream
+  permission_view_dmsf_file_revision_accesses: Zobrazit stažení v aktivitách
+  permission_view_dmsf_file_revisions: Zobrazit revize v aktivitách
   permission_view_dmsf_folders: Procházet dokumenty
   permission_user_preferences: Nastavení uživatele
   permission_view_dmsf_files: Zobrazit dokumenty
@@ -155,8 +155,8 @@ cs:
   permission_manage_workflows: Spravovat schvalovací procesy
   permission_file_delete: Mazat dokumenty
   permission_display_system_folders: Zobrazit systémové složky
-  permission_file_approval: File approval
-  permission_email_documents: Email documents
+  permission_file_approval: Schvalovat dokumenty
+  permission_email_documents: Posílat dokumenty e-mailem
   label_file: Soubor
   field_folder: Složka
   error_file_commit_require_uploaded_file: Potvrzení vyžaduje nahraný soubor
@@ -182,7 +182,7 @@ cs:
   menu_dmsf: DMS  # Project tab title
   label_physical_file_delete: Fyzické smazání souboru
   user_is_not_project_member: Nejste členem projektu
-  heading_access_downloads_emails: Stažené/Emaily
+  heading_access_downloads_emails: Stažené/E-maily
   heading_access_first: První
   heading_access_last: Poslední
   label_dmsf_updated: Změněno
@@ -199,11 +199,11 @@ cs:
   error_target_folder_same: Cílový složka a projekt jsou stejné jako aktuální
   title_copy: Kopírovat
 
-  error_max_email_filesize_exceeded: "Přesáhli jste maximální velikost souboru, který lze poslat emailem.
+  error_max_email_filesize_exceeded: "Přesáhli jste maximální velikost souboru, který lze poslat e-mailem.
     (%{number} MB)"
-  note_maximum_email_filesize: Omezí se maximální velikost souboru, který může být poslán emailem. 0 znamená neomezený.
+  note_maximum_email_filesize: Omezí se maximální velikost souboru, který může být poslán e-mailem. 0 znamená neomezený.
     Číslo je v MB.
-  label_maximum_email_filesize: Maximální velikost souboru emailu
+  label_maximum_email_filesize: Maximální velikost souboru e-mailu
   header_minimum_filesize: Chyba souboru.
   error_minimum_filesize: "Soubor %{file} má nulovou velikost a nebude přiložen."
   parent_directory: Nadřazená složka
@@ -317,9 +317,9 @@ cs:
   label_links_only: pouze odkazy
 
   label_display_notified_recipients: Zobrazit příjemce notifikací
-  note_display_notified_recipients: Uživatel bude informován o příjemcích právě odeslané emailové notifikace.
+  note_display_notified_recipients: Uživatel bude informován o příjemcích právě odeslané e-mailové notifikace.
 
-  warning_email_notifications: "Notifikační email poslán na uživatele %{to}"
+  warning_email_notifications: "Notifikační e-mail poslán na uživatele %{to}"
 
   link_trash_bin: Koš
   title_restore: Obnovit
@@ -384,8 +384,7 @@ cs:
   label_enable_cjk_ngrams: Povolit generování n-gramů pro CJK texty
   text_enable_cjk_ngrams: "Pokud je povoleno, sekvence čínských nebo japonských znaků jsou rozděleny  do jednotlivých
     znaků nebo skupin znaků. Znaky si nesou informaci o své pozici. Znaky psané latinkou jsou rozděleny normálně do
-    slov. Odpovídající proměná prostředí musí být použita při indexaci.
-    např.: XAPIAN_CJK_NGRAM=true ruby plugins/redmine_dmsf/extra/xapian_indexer.rb -fv"
+    slov."
 
   label_dmsf_fast_links: Rychlé odkazy
   text_dmsf_fast_links_info: Při vytváření odkazů budete moci zadat přímo ID cílové složky za účelem zrychlení
@@ -492,6 +491,10 @@ cs:
   notice_search_in_subfolders: Vyhledávání v podsložkách není rekurzivní. Pro rekurzivní vyhledávání běžte do nejvyšší úrovně.
   warning_folder_unlockable: Složku nelze odemknout
   redmine_dmsf: Redmine DMSF
+
+  label_maximum_xapian_filesize: Maximální velikost souboru pro indexaci
+  note_maximum_xapian_filesize: Omezuje maximální velikost souboru pro indexaci. Větší soubory nebudou indexovány. 
+    Velikost je v MB.
 
   activerecord:
     errors:
