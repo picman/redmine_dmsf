@@ -22,6 +22,11 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
   # File system -> Active Storage
   def up
     $stdout.puts 'It could be a very long process. Be patient...'
+    # We need to keep updated_at column unchanged and due to the asynchronous file analysis there is probably no better
+    # way how to achieve that.
+    add_column :dmsf_file_revisions, :temp_updated_at, :datetime, default: nil,
+               null: true, if_not_exists: true
+    DmsfFileRevision.update_all 'temp_updated_at = updated_at'
     # Remove the Xapian database as it will be rebuilt from scratch during the migration
     if xapian_database_removed?
       $stdout.puts 'The Xapian database has been removed as it will be rebuilt from scratch during the migration'
@@ -72,7 +77,10 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
         $stdout.puts "#{File.join(key[0..1], key[2..3], key)} (#{a.blob.filename}) => #{new_path}"
       end
       # Remove the original file
-      a.blob.purge
+      r.record_timestamps = false # Do not modify updated_at column
+      DmsfFileRevision.no_touching do
+        a.purge
+      end
     end
     # Remove the Xapian database as it is useless now and has to be rebuilt with xapian_indexer.rb
     if xapian_database_removed?

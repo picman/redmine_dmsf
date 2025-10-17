@@ -28,13 +28,12 @@ module RedmineDmsf
     end
 
     def metadata
-      index
-      {}
+      { xapian: indexed? }
     end
 
     private
 
-    def index
+    def indexed?
       stem_lang = RedmineDmsf.dmsf_stemming_lang
       db_path = File.join RedmineDmsf.dmsf_index_database, stem_lang
       url = File.join(@blob.key[0..1], @blob.key[2..3])
@@ -44,8 +43,10 @@ module RedmineDmsf
         FileUtils.mv file.path, File.join(dir, @blob.key)
         system "omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
       end
+      true
     rescue StandardError => e
       Rails.logger.error e.message
+      false
     ensure
       FileUtils.rm_f dir
     end
