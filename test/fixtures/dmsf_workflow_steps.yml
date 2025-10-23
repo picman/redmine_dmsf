@@ -36,4 +36,12 @@ wfs5:
   step: 3
   name: '3rd step'
   user_id: 2
-  operator: 1 
+  operator: 1
+
+wfs6:
+  id: 6
+  dmsf_workflow_id: 2
+  step: 1
+  name: '1st step'
+  user_id: 2
+  operator: 1

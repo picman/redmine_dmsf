@@ -182,9 +182,9 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
   end
 
   def test_macro_dmsfdversion_revision
-    revision5 = DmsfFileRevision.find_by(id: 5)
-    text = textilizable("{{dmsfversion(#{@file1.id}, #{revision5.id})}}")
-    assert text.include?(revision5.version), text
+    revision1 = DmsfFileRevision.find_by(id: 1)
+    text = textilizable("{{dmsfversion(#{@file1.id}, #{revision1.id})}}")
+    assert text.include?(revision1.version), text
   end
 
   def test_macro_dmsfdversion_no_permissions

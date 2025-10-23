@@ -1,0 +1,104 @@
+---
+active_storage_attachment_1:
+  id:           1
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    1
+  blob_id:      1
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_2:
+  id:           2
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    2
+  blob_id:      2
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_3:
+  id:           3
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    3
+  blob_id:      3
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_4:
+  id:           4
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    4
+  blob_id:      4
+  created_at:   <%= Time.now %>
+
+#active_storage_attachment_5:
+#  id:           5
+#  name:         'shared_file'
+#  record_type:  'DmsfFileRevision'
+#  record_id:    5
+#  blob_id:      5
+#  created_at:   <%= Time.now %>
+
+active_storage_attachment_6:
+  id:           6
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    6
+  blob_id:      6
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_7:
+  id:           7
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    7
+  blob_id:      7
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_8:
+  id:           8
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    8
+  blob_id:      8
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_9:
+  id:           9
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    9
+  blob_id:      9
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_10:
+  id:           10
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    10
+  blob_id:      10
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_11:
+  id:           11
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    11
+  blob_id:      11
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_12:
+  id:           12
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    12
+  blob_id:      12
+  created_at:   <%= Time.now %>
+
+active_storage_attachment_13:
+  id:           13
+  name:         'shared_file'
+  record_type:  'DmsfFileRevision'
+  record_id:    13
+  blob_id:      13
+  created_at:   <%= Time.now %>

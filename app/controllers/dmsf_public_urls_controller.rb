@@ -29,8 +29,8 @@ class DmsfPublicUrlsController < ApplicationController
       revision = dmsf_public_url.dmsf_file.last_revision
       begin
         # IE has got a tendency to cache files
-        expires_in(0.years, 'must-revalidate' => true)
-        send_file(revision.disk_file,
+        expires_in 0.years, 'must-revalidate' => true
+        send_data(revision.file.download,
                   filename: filename_for_content_disposition(revision.name),
                   type: revision.detect_content_type,
                   disposition: dmsf_public_url.dmsf_file.disposition)

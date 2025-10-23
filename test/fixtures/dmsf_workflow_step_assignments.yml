@@ -52,3 +52,9 @@ wfsa9:
   dmsf_workflow_step_id: 5
   user_id: 2
   dmsf_file_revision_id: 1
+
+wfsa10:
+  id: 10
+  dmsf_workflow_step_id: 6
+  user_id: 2
+  dmsf_file_revision_id: 2

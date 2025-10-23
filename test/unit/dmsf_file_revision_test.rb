@@ -28,8 +28,8 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     @revision1 = DmsfFileRevision.find 1
     @revision2 = DmsfFileRevision.find 2
     @revision3 = DmsfFileRevision.find 3
-    @revision5 = DmsfFileRevision.find 5
     @revision8 = DmsfFileRevision.find 8
+    @revision13 = DmsfFileRevision.find 13
     @wf1 = DmsfWorkflow.find 1
   end
 
@@ -59,15 +59,15 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_delete_restore
-    @revision5.delete commit: false
-    assert @revision5.deleted?, "File revision #{@revision5.name} hasn't been deleted"
-    @revision5.restore
-    assert_not @revision5.deleted?, "File revision #{@revision5.name} hasn't been restored"
+    @revision13.delete commit: false
+    assert @revision13.deleted?, "File revision #{@revision13.name} hasn't been deleted"
+    @revision13.restore
+    assert_not @revision13.deleted?, "File revision #{@revision13.name} hasn't been restored"
   end
 
   def test_destroy
-    @revision5.delete commit: true
-    assert_nil DmsfFileRevision.find_by(id: @revision5.id)
+    @revision13.delete commit: true
+    assert_nil DmsfFileRevision.find_by(id: @revision13.id)
   end
 
   def test_digest_type

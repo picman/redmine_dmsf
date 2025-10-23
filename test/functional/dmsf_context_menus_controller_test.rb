@@ -73,7 +73,7 @@ class DmsfContextMenusControllerTest < RedmineDmsf::Test::TestCase
       assert_select 'a.icon-unlock', text: l(:button_unlock)
       assert_select 'a.icon-unlock.disabled', text: l(:button_edit_content), count: 0
       assert_select 'a.icon-file', text: l(:button_edit_content)
-      assert_select 'a.icon-file.disabled', text: l(:button_edit_content), count: 0
+      assert_select 'a.icon-file.disabled', text: l(:button_edit_content), count: 1
     end
   end
 

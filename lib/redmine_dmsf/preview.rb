@@ -34,8 +34,8 @@ module RedmineDmsf
         @office_available = $CHILD_STATUS.success?
       rescue StandardError
         @office_available = false
+        Rails.logger.warn l(:note_dmsf_office_bin_not_available, value: office_bin, locale: :en)
       end
-      Rails.logger.warn l(:note_dmsf_office_bin_not_available, value: office_bin, locale: :en) unless @office_available
       @office_available
     end
 

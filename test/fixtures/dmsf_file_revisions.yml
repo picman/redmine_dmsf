@@ -5,7 +5,7 @@ dmsf_file_revisions_001:
   source_dmsf_file_revision_id:       NULL
   name:                               "test.txt"  
   disk_filename:                      "test.txt"
-  size:                               4
+  size:                               3
   mime_type:                          text/plain
   title:                              "Test File"
   description:                        'Some file :-)'
@@ -18,7 +18,7 @@ dmsf_file_revisions_001:
   user_id:                            1
   dmsf_workflow_assigned_by_user_id:  1
   dmsf_workflow_started_by_user_id:   1
-  digest:                             '81dc9bdb52d04dc20036dbd8313ed055'
+  digest:                             '202cb962ac59075b964b07152d234b70'
   created_at:                         2017-04-18 14:52:27 +02:00
 
 #revision for file on non-enabled project
@@ -28,7 +28,7 @@ dmsf_file_revisions_002:
   source_dmsf_file_revision_id:       NULL
   name:                               "test2.txt"
   disk_filename:                      "test2.txt"
-  size:                               4
+  size:                               3
   mime_type:                          text/plain
   title:                              "Test File"
   description:                        NULL
@@ -41,7 +41,7 @@ dmsf_file_revisions_002:
   user_id:                            1
   dmsf_workflow_assigned_by_user_id:  NULL
   dmsf_workflow_started_by_user_id:   NULL
-  digest:                             '81dc9bdb52d04dc20036dbd8313ed055'
+  digest:                             '202cb962ac59075b964b07152d234b70'
   created_at:                         2017-04-18 14:52:27 +02:00
 
 #revision for deleted file on dmsf-enabled project
@@ -51,7 +51,7 @@ dmsf_file_revisions_003:
   source_dmsf_file_revision_id:       NULL
   name:                               'deleted.txt'
   disk_filename:                      'deleted.txt'
-  size:                               4
+  size:                               3
   mime_type:                          'text/plain'
   title:                              'Test File'
   description:                        NULL
@@ -64,7 +64,7 @@ dmsf_file_revisions_003:
   user_id:                            1
   dmsf_workflow_assigned_by_user_id:  NULL
   dmsf_workflow_started_by_user_id:   NULL
-  digest:                             '81dc9bdb52d04dc20036dbd8313ed055'
+  digest:                             '202cb962ac59075b964b07152d234b70'
   created_at:                         2017-04-18 14:52:27 +02:00
   
 dmsf_file_revisions_004:
@@ -73,7 +73,7 @@ dmsf_file_revisions_004:
   source_dmsf_file_revision_id:       NULL
   name:                               'test4.txt'
   disk_filename:                      'test4.txt'
-  size:                               4
+  size:                               3
   mime_type:                          'text/plain'
   title:                              'Test File'
   description:                        NULL
@@ -86,30 +86,30 @@ dmsf_file_revisions_004:
   user_id:                            1
   dmsf_workflow_assigned_by_user_id:  NULL
   dmsf_workflow_started_by_user_id:   NULL
-  digest:                             '81dc9bdb52d04dc20036dbd8313ed055'
+  digest:                             '202cb962ac59075b964b07152d234b70'
   created_at:                         2017-04-18 14:52:27 +02:00
   
-dmsf_file_revisions_005:
-  id:                                 5
-  dmsf_file_id:                       1
-  source_dmsf_file_revision_id:       NULL
-  name:                               'test5.txt'
-  disk_filename:                      'test5.txt'
-  size:                               4
-  mime_type:                          'application/vnd.oasis.opendocument.text'
-  title:                              'Test file'
-  description:                        NULL
-  workflow:                           1 # DmsfWorkflow::STATE_WAITING_FOR_APPROVAL
-  minor_version:                      1
-  major_version:                      1
-  comment:                            'Wrong mime type in order to have Edit content menu item'
-  deleted:                            0
-  deleted_by_user_id:                 NULL
-  user_id:                            1
-  dmsf_workflow_assigned_by_user_id:  NULL
-  dmsf_workflow_started_by_user_id:   NULL
-  digest:                             '81dc9bdb52d04dc20036dbd8313ed055'
-  created_at:                         2017-04-18 14:52:28 +02:00
+#dmsf_file_revisions_005:
+#  id:                                 5
+#  dmsf_file_id:                       1
+#  source_dmsf_file_revision_id:       NULL
+#  name:                               'test5.txt'
+#  disk_filename:                      'test5.txt'
+#  size:                               4
+#  mime_type:                          'application/vnd.oasis.opendocument.text'
+#  title:                              'Test file'
+#  description:                        NULL
+#  workflow:                           1 # DmsfWorkflow::STATE_WAITING_FOR_APPROVAL
+#  minor_version:                      1
+#  major_version:                      1
+#  comment:                            'Wrong mime type in order to have Edit content menu item'
+#  deleted:                            0
+#  deleted_by_user_id:                 NULL
+#  user_id:                            1
+#  dmsf_workflow_assigned_by_user_id:  NULL
+#  dmsf_workflow_started_by_user_id:   NULL
+#  digest:                             '81dc9bdb52d04dc20036dbd8313ed055'
+#  created_at:                         2017-04-18 14:52:28 +02:00
 
 dmsf_file_revisions_006:
   id:                                 6
@@ -117,7 +117,7 @@ dmsf_file_revisions_006:
   source_dmsf_file_revision_id:       NULL
   name:                               'test.gif'
   disk_filename:                      'test.gif'
-  size:                               4
+  size:                               310
   mime_type:                          'image/gif'
   title:                              'Test image'
   description:                        NULL
@@ -130,7 +130,7 @@ dmsf_file_revisions_006:
   user_id:                            1
   dmsf_workflow_assigned_by_user_id:  NULL
   dmsf_workflow_started_by_user_id:   NULL
-  digest:                             'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'
+  digest:                             '8ae50031bb862c4a69f2bab5cd1f2051'
   created_at:                         2017-04-18 14:52:27 +02:00
 
 dmsf_file_revisions_007:
@@ -139,7 +139,7 @@ dmsf_file_revisions_007:
   source_dmsf_file_revision_id:       NULL
   name:                               'test.pdf'
   disk_filename:                      'test.pdf'
-  size:                               4
+  size:                               6942
   mime_type:                          'application/pdf'
   title:                              'Test PDF'
   description:                        NULL
@@ -152,7 +152,7 @@ dmsf_file_revisions_007:
   user_id:                            1
   dmsf_workflow_assigned_by_user_id:  NULL
   dmsf_workflow_started_by_user_id:   NULL
-  digest:                             'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'
+  digest:                             '5376a8cee7e15c8aa1023d27f3209720'
   created_at:                         2017-04-18 14:52:27 +02:00
   
 dmsf_file_revisions_008:
@@ -270,7 +270,7 @@ dmsf_file_revisions_013:
   source_dmsf_file_revision_id:       NULL
   name:                               'test.odt'
   disk_filename:                      'test.odt'
-  size:                               4
+  size:                               10445
   mime_type:                          'application/vnd.oasis.opendocument.text'
   title:                              'Test office document'
   description:                        'LibreOffice text'

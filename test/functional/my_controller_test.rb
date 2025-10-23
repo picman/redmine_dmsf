@@ -36,9 +36,9 @@ class MyControllerTest < RedmineDmsf::Test::TestCase
   end
 
   def test_page_with_open_approvals_no_approval
-    post '/login', params: { username: 'jsmith', password: 'jsmith' }
-    @jsmith.pref[:my_page_layout] = { 'top' => ['open_approvals'] }
-    @jsmith.pref.save!
+    post '/login', params: { username: 'admin', password: 'admin' }
+    @admin.pref[:my_page_layout] = { 'top' => ['open_approvals'] }
+    @admin.pref.save!
     get '/my/page'
     assert_response :success
     assert_select 'div#list-top' do

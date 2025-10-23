@@ -23,21 +23,12 @@ require File.expand_path('../../../../../lib/redmine_dmsf/dmsf_zip', __FILE__)
 # Plugin tests
 class DmsfZipTest < RedmineDmsf::Test::HelperTest
   def setup
+    super
     @zip = RedmineDmsf::DmsfZip::Zip.new
-
-    Setting.plugin_redmine_dmsf['dmsf_storage_directory'] = File.join('files', 'dmsf')
-    FileUtils.cp_r File.join(File.expand_path('../../../../fixtures/files', __FILE__), '.'), DmsfFile.storage_path
     @dmsf_file1 = DmsfFile.find(1)
     @dmsf_folder2 = DmsfFolder.find(2)
     set_fixtures_attachments_directory
     @attachment6 = Attachment.find(6)
-  end
-
-  def teardown
-    # Delete our tmp folder
-    FileUtils.rm_rf DmsfFile.storage_path
-  rescue StandardError => e
-    Rails.logger.error e.message
   end
 
   def test_add_dmsf_file

@@ -268,7 +268,7 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
   def test_involved
     assert @file1.involved?(@file1.last_revision.user)
     assert_not @file1.involved?(@jsmith)
-    @file1.dmsf_file_revisions[1].user = @jsmith
+    @file1.dmsf_file_revisions[0].user = @jsmith
     assert @file1.involved?(@jsmith)
   end
 

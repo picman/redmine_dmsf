@@ -31,6 +31,7 @@ class DmsfWorkflowsControllerTest < RedmineDmsf::Test::TestCase
     @wfs4 = DmsfWorkflowStep.find 4 # step 2
     @wfs5 = DmsfWorkflowStep.find 5 # step 3
     @wf1 = DmsfWorkflow.find 1
+    @wf2 = DmsfWorkflow.find 2
     @wf3 = DmsfWorkflow.find 3
     @wfsa2 = DmsfWorkflowStepAssignment.find 2
     @revision1 = DmsfFileRevision.find 1
@@ -429,8 +430,8 @@ class DmsfWorkflowsControllerTest < RedmineDmsf::Test::TestCase
 
   def test_log_member_global_wf
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
-    get "/dmsf_workflows/#{@wf3.id}/log",
-        params: { project_id: @project1.id, dmsf_file_id: @file1.id, format: 'js' },
+    get "/dmsf_workflows/#{@wf2.id}/log",
+        params: { project_id: @project1.id, dmsf_file_id: @file2.id, format: 'js' },
         xhr: true
     assert_response :success
     assert_template :log

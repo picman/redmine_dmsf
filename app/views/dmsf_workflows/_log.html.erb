@@ -86,7 +86,7 @@
                 <td><%= link_to_user User.find_by(id: row['author_id'].present? ? row['author_id'] : row['user_id']) %></td>
                 <td><%= DmsfWorkflowStepAction.action_str(row['action']) %></td>
                 <td>
-                  <% if (row['step'].to_i == @dmsf_workflow.dmsf_workflow_steps.last.step) && (revision.workflow == DmsfWorkflow::STATE_APPROVED) && (row['action'] != DmsfWorkflowStepAction::ACTION_DELEGATE) %>
+                  <% if (row['step'].to_i == @dmsf_workflow.dmsf_workflow_steps.last&.step) && (revision.workflow == DmsfWorkflow::STATE_APPROVED) && (row['action'] != DmsfWorkflowStepAction::ACTION_DELEGATE) %>
                     <%= l(:title_approved) if row['created_at'].present? %>
                   <% else %>
                     <%= DmsfWorkflowStepAction.workflow_str(row['action']) %>

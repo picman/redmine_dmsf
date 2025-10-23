@@ -583,7 +583,7 @@ class DmsfController < ApplicationController
     end
     selected_files.each do |selected_file_id|
       file = DmsfFile.visible.find_by(id: selected_file_id)
-      raise DmsfFileNotFoundError unless file&.last_revision && File.exist?(file.last_revision&.disk_file)
+      raise DmsfFileNotFoundError unless file.last_revision&.file&.attached?
 
       unless (file.project == @project) || User.current.allowed_to?(:view_dmsf_files, file.project)
         raise DmsfAccessError

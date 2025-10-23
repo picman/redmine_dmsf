@@ -1,0 +1,143 @@
+---
+active_storage_blob_1:
+  id:           1
+  key:          '5lge4yv88jwzt7xl76vri2be1v01'
+  filename:     'test.txt'
+  content_type: 'tect/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_2:
+  id:           2
+  key:          '5lge4yv88jwzt7xl76vri2be1v02'
+  filename:     'test2.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_3:
+  id:           3
+  key:          '5lge4yv88jwzt7xl76vri2be1v03'
+  filename:     'deleted.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_4:
+  id:           4
+  key:          '5lge4yv88jwzt7xl76vri2be1v04'
+  filename:     'test4.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+#active_storage_blob_5:
+#  id:           5
+#  key:          '5lge4yv88jwzt7xl76vri2be1v05'
+#  filename:     'test5.txt'
+#  content_type: 'application/vnd.oasis.opendocument.text' # Wrong mime type in order to have Edit content menu item
+#  metadata:     '{"identified":true,"analyzed":true}'
+#  service_name: 'local'
+#  byte_size:    3
+#  checksum :    '81dc9bdb52d04dc20036dbd8313ed055'
+#  created_at:   <%= Time.now %>
+
+active_storage_blob_6:
+  id:           6
+  key:          '5lge4yv88jwzt7xl76vri2be1v06'
+  filename:     'test.gif'
+  content_type: 'image/gif'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    310
+  checksum :    'iuUAMbuGLEpp8rq1zR8gUQ=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_7:
+  id:           7
+  key:          '5lge4yv88jwzt7xl76vri2be1v07'
+  filename:     'test.pdf'
+  content_type: 'application/pdf'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    6942
+  checksum :    'U3aozufhXIqhAj0n8yCXIA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_8:  # File is not physically present
+  id:           8
+  key:          '5lge4yv88jwzt7xl76vri2be1v08'
+  filename:     'myfile.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_9:
+  id:           9
+  key:          '5lge4yv88jwzt7xl76vri2be1v09'
+  filename:     'zero.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    0
+  checksum :    '1B2M2Y8AsgTpgAmY7PhCfg=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_10:
+  id:           10
+  key:          '5lge4yv88jwzt7xl76vri2be1v10'
+  filename:     'test.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_11:
+  id:           11
+  key:          '5lge4yv88jwzt7xl76vri2be1v11'
+  filename:     'test.txt'
+  content_type: 'text/plain'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    3
+  checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_12:
+  id:           12
+  key:          '5lge4yv88jwzt7xl76vri2be1v12'
+  filename:     'test.mp4'
+  content_type: 'video/mp4'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    2037627
+  checksum :    'rqqmDUGlB3dKOB6bUVPV+g=='
+  created_at:   <%= Time.now %>
+
+active_storage_blob_13:
+  id:           13
+  key:          '5lge4yv88jwzt7xl76vri2be1v13'
+  filename:     'test.odt'
+  content_type: 'application/vnd.oasis.opendocument.text'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'local'
+  byte_size:    10179
+  checksum :    'k08HeKksIVI7PXr1aEVbjg=='
+  created_at:   <%= Time.now %>
