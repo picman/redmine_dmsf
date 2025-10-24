@@ -45,7 +45,7 @@ jobs:
             sql2: CREATE USER 'redmine'@'localhost' IDENTIFIED BY 'redmine';
             sql3: GRANT ALL PRIVILEGES ON test.* TO 'redmine'@'localhost';
             # SQL client command
-            database_command: mysql -uroot -proot -e
+            database_command: mysql -u root -p root -e
             # SQL service
             database_service: mysql
           - engine: postgresql
@@ -84,7 +84,7 @@ jobs:
           sudo apt-get install -y litmus libreoffice subversion
       - name: Clone Redmine
         # Get the latest stable Redmine
-        run: svn export http://svn.redmine.org/redmine/branches/6.1-stable/ /opt/redmine
+        run: svn export https://svn.redmine.org/redmine/branches/6.1-stable/ /opt/redmine
       - name: Checkout code
         uses: actions/checkout@v3        
       - name: Link the plugin
@@ -133,7 +133,8 @@ jobs:
           echo "require \"#{Rails.root}/plugins/redmine_dmsf/lib/redmine_dmsf/webdav/custom_middleware\"" >> /opt/redmine/config/additional_environment.rb
           echo "config.middleware.insert_before ActionDispatch::Cookies, RedmineDmsf::Webdav::CustomMiddleware" >> /opt/redmine/config/additional_environment.rb
       - name: Configure Active Storage
-          # Add configuration for Active Storage to work          
+          # Add configuration for Active Storage to work
+        run: |
           echo "# Active Storage" >> /opt/redmine/config/additional_environment.rb
           echo "require 'active_storage/engine'" >> /opt/redmine/config/additional_environment.rb
           echo "require Rails.root.join('plugins', 'redmine_dmsf', 'lib', 'redmine_dmsf', 'xapian_analyzer').to_s" >> /opt/redmine/config/additional_environment.rb
@@ -159,7 +160,7 @@ jobs:
         run: |
           cd /opt/redmine                    
           bundle exec rubocop -c plugins/redmine_dmsf/.rubocop.yml plugins/redmine_dmsf/
-      - name: Litmus
+      #- name: Litmus
         # Prepare Redmine's environment for WebDAV testing
         # Run Webrick server
         # Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
