@@ -128,7 +128,7 @@ jobs:
           echo "# Active Storage" > /opt/redmine/config/storage.yml
           echo "test:" >> /opt/redmine/config/storage.yml
           echo "  service: Disk" >> /opt/redmine/config/storage.yml
-          echo "  root: <%= Rails.root.join('dmsf') %>" >> /opt/redmine/config/storage.yml
+          echo "  root: <%= Rails.root.join('files', 'dmsf') %>" >> /opt/redmine/config/storage.yml
       - name: Install Redmine
         # Install Redmine
         run: |

@@ -35,6 +35,7 @@ class DmsfWorkflowTest < RedmineDmsf::Test::UnitTest
     @wfsac1 = DmsfWorkflowStepAction.find 1
     @revision1 = DmsfFileRevision.find 1
     @revision2 = DmsfFileRevision.find 2
+    @revision3 = DmsfFileRevision.find 3
   end
 
   def test_create
@@ -132,9 +133,9 @@ class DmsfWorkflowTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_assign
-    @wf2.assign @revision2.id
+    @wf2.assign @revision3.id
     @wf2.dmsf_workflow_steps.each do |step|
-      assert DmsfWorkflowStepAssignment.exists?(dmsf_workflow_step_id: step.id, dmsf_file_revision_id: @revision2.id)
+      assert DmsfWorkflowStepAssignment.exists?(dmsf_workflow_step_id: step.id, dmsf_file_revision_id: @revision3.id)
     end
   end
 
