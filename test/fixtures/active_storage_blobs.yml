@@ -5,7 +5,7 @@ active_storage_blob_1:
   filename:     'test.txt'
   content_type: 'tect/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
@@ -16,7 +16,7 @@ active_storage_blob_2:
   filename:     'test2.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
@@ -27,7 +27,7 @@ active_storage_blob_3:
   filename:     'deleted.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
@@ -38,21 +38,10 @@ active_storage_blob_4:
   filename:     'test4.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
-
-#active_storage_blob_5:
-#  id:           5
-#  key:          '5lge4yv88jwzt7xl76vri2be1v05'
-#  filename:     'test5.txt'
-#  content_type: 'application/vnd.oasis.opendocument.text' # Wrong mime type in order to have Edit content menu item
-#  metadata:     '{"identified":true,"analyzed":true}'
-#  service_name: 'local'
-#  byte_size:    3
-#  checksum :    '81dc9bdb52d04dc20036dbd8313ed055'
-#  created_at:   <%= Time.now %>
 
 active_storage_blob_6:
   id:           6
@@ -60,7 +49,7 @@ active_storage_blob_6:
   filename:     'test.gif'
   content_type: 'image/gif'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    310
   checksum :    'iuUAMbuGLEpp8rq1zR8gUQ=='
   created_at:   <%= Time.now %>
@@ -71,7 +60,7 @@ active_storage_blob_7:
   filename:     'test.pdf'
   content_type: 'application/pdf'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    6942
   checksum :    'U3aozufhXIqhAj0n8yCXIA=='
   created_at:   <%= Time.now %>
@@ -82,7 +71,7 @@ active_storage_blob_8:  # File is not physically present
   filename:     'myfile.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
@@ -93,7 +82,7 @@ active_storage_blob_9:
   filename:     'zero.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    0
   checksum :    '1B2M2Y8AsgTpgAmY7PhCfg=='
   created_at:   <%= Time.now %>
@@ -104,7 +93,7 @@ active_storage_blob_10:
   filename:     'test.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
@@ -115,7 +104,7 @@ active_storage_blob_11:
   filename:     'test.txt'
   content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    3
   checksum :    'ICy5YqxZB1uWSwcVLSNLcA=='
   created_at:   <%= Time.now %>
@@ -126,7 +115,7 @@ active_storage_blob_12:
   filename:     'test.mp4'
   content_type: 'video/mp4'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    2037627
   checksum :    'rqqmDUGlB3dKOB6bUVPV+g=='
   created_at:   <%= Time.now %>
@@ -137,7 +126,7 @@ active_storage_blob_13:
   filename:     'test.odt'
   content_type: 'application/vnd.oasis.opendocument.text'
   metadata:     '{"identified":true,"analyzed":true}'
-  service_name: 'local'
+  service_name: 'test'
   byte_size:    10179
   checksum :    'k08HeKksIVI7PXr1aEVbjg=='
   created_at:   <%= Time.now %>
