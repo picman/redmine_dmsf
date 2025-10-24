@@ -93,7 +93,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
 
   # Delete Xapian database
   def xapian_database_removed?
-    if RedmineDmsf::Plugin.xapian_available
+    if RedmineDmsf.xapian_available
       FileUtils.rm_rf File.join(RedmineDmsf.dmsf_index_database, RedmineDmsf.dmsf_stemming_lang)
       true
     else
