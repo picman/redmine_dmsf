@@ -108,21 +108,6 @@ jobs:
             ${{matrix.database_command}} "${{matrix.sql2}}"
             ${{matrix.database_command}} "${{matrix.sql3}}"
           fi
-      - name: Install Redmine
-        # Install Redmine
-        run: |
-          cd /opt/redmine
-          echo "gem \"webrick\"" > Gemfile.local          
-          bundle config set --local without 'development'
-          bundle install
-          bundle exec rake generate_secret_token
-          bundle exec rake active_storage:install
-          bundle exec rake db:migrate
-          bundle exec rake redmine:plugins:migrate
-          bundle exec rake redmine:load_default_data
-          bundle exec rake assets:precompile
-        env:
-          REDMINE_LANG: en
       - name: Configure WebDAV
         # Add configuration for WebDAV to work
         run: |
@@ -140,6 +125,25 @@ jobs:
           echo "require Rails.root.join('plugins', 'redmine_dmsf', 'lib', 'redmine_dmsf', 'xapian_analyzer').to_s" >> /opt/redmine/config/additional_environment.rb
           echo "config.active_storage.service = :test" >> /opt/redmine/config/additional_environment.rb
           echo "config.active_storage.analyzers.append RedmineDmsf::XapianAnalyzer" >> /opt/redmine/config/additional_environment.rb
+          echo "# Active Storage" > /opt/redmine/config/storage.yml
+          echo "test:" >> /opt/redmine/config/storage.yml
+          echo "  service: Disk" >> /opt/redmine/config/storage.yml
+          echo "  root: <%= Rails.root.join('dmsf') %>" >> /opt/redmine/config/storage.yml
+      - name: Install Redmine
+        # Install Redmine
+        run: |
+          cd /opt/redmine
+          echo "gem \"webrick\"" > Gemfile.local          
+          bundle config set --local without 'development'
+          bundle install
+          bundle exec rake generate_secret_token
+          bin/rails active_storage:install
+          bundle exec rake db:migrate
+          bundle exec rake redmine:plugins:migrate
+          bundle exec rake redmine:load_default_data
+          bundle exec rake assets:precompile
+        env:
+          REDMINE_LANG: en
       - name: Standard tests
         # Run the tests
         run: |
