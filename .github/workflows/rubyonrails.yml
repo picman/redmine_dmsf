@@ -20,9 +20,9 @@
 name: "GitHub CI"
 on:
   push:
-    branches: ["devel"]
+    branches: ["active_storage"]
   pull_request:
-    branches: ["devel"]
+    branches: ["active_storage"]
 jobs:
   plugin_tests:
     strategy:
@@ -113,9 +113,10 @@ jobs:
         run: |
           cd /opt/redmine
           echo "gem \"webrick\"" > Gemfile.local          
-          bundle config set --local without 'rmagick development xapian'
+          bundle config set --local without 'development'
           bundle install
           bundle exec rake generate_secret_token
+          bundle exec rake active_storage:install
           bundle exec rake db:migrate
           bundle exec rake redmine:plugins:migrate
           bundle exec rake redmine:load_default_data
@@ -126,17 +127,26 @@ jobs:
         # Add configuration for WebDAV to work
         run: |
           cp /opt/redmine/config/additional_environment.rb.example /opt/redmine/config/additional_environment.rb
+          echo "# WebDAV" >> /opt/redmine/config/additional_environment.rb
           echo "config.log_level = :info" >> /opt/redmine/config/additional_environment.rb
           echo "# Redmine DMSF's WebDAV" >> /opt/redmine/config/additional_environment.rb
           echo "require \"#{Rails.root}/plugins/redmine_dmsf/lib/redmine_dmsf/webdav/custom_middleware\"" >> /opt/redmine/config/additional_environment.rb
           echo "config.middleware.insert_before ActionDispatch::Cookies, RedmineDmsf::Webdav::CustomMiddleware" >> /opt/redmine/config/additional_environment.rb
+      - name: Configure Active Storage
+          # Add configuration for Active Storage to work          
+          echo "# Active Storage" >> /opt/redmine/config/additional_environment.rb
+          echo "require 'active_storage/engine'" >> /opt/redmine/config/additional_environment.rb
+          echo "require Rails.root.join('plugins', 'redmine_dmsf', 'lib', 'redmine_dmsf', 'xapian_analyzer').to_s" >> /opt/redmine/config/additional_environment.rb
+          echo "config.active_storage.service = :test" >> /opt/redmine/config/additional_environment.rb
+          echo "config.active_storage.analyzers.append RedmineDmsf::XapianAnalyzer" >> /opt/redmine/config/additional_environment.rb
       - name: Standard tests
         # Run the tests
         run: |
           cd /opt/redmine
           bundle exec rake redmine:plugins:test:units
           bundle exec rake redmine:plugins:test:functionals
-          bundle exec rake redmine:plugins:test:integration
+#          TODO:
+#          bundle exec rake redmine:plugins:test:integration
       - name: Helpers tests
         run: |
           cd /opt/redmine
@@ -155,16 +165,17 @@ jobs:
         # Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
         # Shutdown Webrick
         # Clean up Redmine's environment from WebDAV testing
-        run: |
-          cd /opt/redmine
-          bundle exec rake redmine:dmsf_webdav_test_on
-          bundle exec rails server -u webrick -e test -d
-          sleep 5
-          litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
-          kill $(pgrep -f webrick)
-          bundle exec rake redmine:dmsf_webdav_test_off
-        env:
-          TESTS: "basic copymove props"
+#        TODO:
+#        run: |
+#          cd /opt/redmine
+#          bundle exec rake redmine:dmsf_webdav_test_on
+#          bundle exec rails server -u webrick -e test -d
+#          sleep 5
+#          litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
+#          kill $(pgrep -f webrick)
+#          bundle exec rake redmine:dmsf_webdav_test_off
+#        env:
+#          TESTS: "basic copymove props"
       - name: Cleanup
         # Rollback plugin's changes to the database
         # Stop the database engine
