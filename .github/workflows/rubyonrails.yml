@@ -45,7 +45,7 @@ jobs:
             sql2: CREATE USER 'redmine'@'localhost' IDENTIFIED BY 'redmine';
             sql3: GRANT ALL PRIVILEGES ON test.* TO 'redmine'@'localhost';
             # SQL client command
-            database_command: mysql -u root -p root -e
+            database_command: mysql -uroot -proot -e
             # SQL service
             database_service: mysql
           - engine: postgresql
