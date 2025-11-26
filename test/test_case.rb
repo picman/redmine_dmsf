@@ -25,11 +25,24 @@ module RedmineDmsf
         super
         # Load all plugin's fixtures
         dir = File.join(File.dirname(__FILE__), 'fixtures')
-        ext = '.yml'
-        Dir.glob("#{dir}/**/*#{ext}").each do |file|
-          fixture = File.basename(file, ext)
-          ActiveRecord::FixtureSet.create_fixtures dir, fixture
-        end
+        # We can't simply read the whole dir as we need to be active_storage_blobs read before
+        # active_storage_attachments due to PG::ForeignKeyViolation
+        ActiveRecord::FixtureSet.create_fixtures dir, 'active_storage_blobs'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'active_storage_attachments'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'custom_fields'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'custom_values'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_file_revisions'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_files'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_folder_permissions'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_folders'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_links'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_locks'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_public_urls'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_workflow_step_actions'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_workflow_step_assignments'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_workflow_steps'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'dmsf_workflows'
+        ActiveRecord::FixtureSet.create_fixtures dir, 'queries'
       end
 
       def setup
