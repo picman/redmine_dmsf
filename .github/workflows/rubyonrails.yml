@@ -169,7 +169,6 @@ jobs:
          Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
          Shutdown Webrick
          Clean up Redmine's environment from WebDAV testing
-        TODO:
         run: |
           cd /opt/redmine
           bundle exec rake redmine:dmsf_webdav_test_on
