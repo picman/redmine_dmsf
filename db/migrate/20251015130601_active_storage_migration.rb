@@ -44,7 +44,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
                       .find_each
                       .with_index do |r, i|
         if i.zero?
-          r.shared_file.attach(
+          r.file.attach(
             io: File.open(path),
             filename: r.name,
             content_type: r.mime_type,
@@ -52,8 +52,8 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
           )
           # Remove the original file
           FileUtils.rm path
-          key = r.shared_file.blob.key
-          $stdout.puts "#{path} => #{File.join(key[0..1], key[2..3], key)} (#{r.shared_file.blob.filename})"
+          key = r.file.blob.key
+          $stdout.puts "#{path} => #{File.join(key[0..1], key[2..3], key)} (#{r.file.blob.filename})"
         else
           # The other revisions should have set the source revision
           warn("r#{r.id}.source_dmsf_file_revision_id is null") unless r.source_dmsf_file_revision_id

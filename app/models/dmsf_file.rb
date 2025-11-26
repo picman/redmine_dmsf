@@ -313,10 +313,15 @@ class DmsfFile < ApplicationRecord
     file = DmsfFile.new
     file.dmsf_folder_id = folder.id if folder
     file.project_id = project.id
-    if DmsfFile.exists?(project_id: file.project_id, dmsf_folder_id: file.dmsf_folder_id, name: filename)
+    title = last_revision&.title
+    if DmsfFile.visible.exists?(project_id: file.project_id, dmsf_folder_id: file.dmsf_folder_id, name: filename)
+      basename = File.basename(filename, '.*')
+      extname = File.extname(filename)
       1.step do |i|
-        gen_filename = " #{filename} #{l(:dmsf_copy, n: i)}"
-        unless DmsfFile.exists?(project_id: file.project_id, dmsf_folder_id: file.dmsf_folder_id, name: gen_filename)
+        title = "#{basename} (#{i})"
+        gen_filename = "#{title}#{extname}"
+        unless DmsfFile.visible.exists?(project_id: file.project_id, dmsf_folder_id: file.dmsf_folder_id,
+                                        name: gen_filename)
           filename = gen_filename
           break
         end
@@ -326,9 +331,11 @@ class DmsfFile < ApplicationRecord
     file.notification = RedmineDmsf.dmsf_default_notifications?
     if file.save && last_revision
       new_revision = last_revision.clone
+      new_revision.name = filename
+      new_revision.title = title
       new_revision.dmsf_file = file
       new_revision.disk_filename = new_revision.new_storage_filename
-      # Assign the same workflow if it's a global one or we are in the same project
+      # Assign the same workflow if it's a global one, or we are in the same project
       new_revision.workflow = nil
       new_revision.dmsf_workflow_id = nil
       new_revision.dmsf_workflow_assigned_by_user_id = nil
@@ -340,8 +347,17 @@ class DmsfFile < ApplicationRecord
         new_revision.set_workflow wf.id, nil
         new_revision.assign_workflow wf.id
       end
-      if File.exist? last_revision.disk_file
-        FileUtils.cp last_revision.disk_file, new_revision.disk_file(search_if_not_exists: false)
+      if last_revision.file.attached?
+        begin
+          new_revision.file.attach(
+            io: StringIO.new(last_revision.file.blob.download),
+            filename: filename,
+            content_type: new_revision.file.content_type,
+            identify: false
+          )
+        rescue ActiveStorage::FileNotFoundError => e
+          Rails.logger.error e
+        end
       end
       new_revision.comment = l(:comment_copied_from, source: "#{self.project.identifier}:#{dmsf_path_str}")
       new_revision.custom_values = []

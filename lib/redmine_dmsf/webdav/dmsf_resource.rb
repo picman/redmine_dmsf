@@ -276,9 +276,7 @@ module RedmineDmsf
             # Copy file.last_revision.disk_file to new_revision.disk_file
             new_revision.size = file.last_revision.size
             new_revision.disk_filename = new_revision.new_storage_filename
-            File.open(file.last_revision.disk_file, 'rb') do |f|
-              new_revision.copy_file_content f
-            end
+            new_revision.copy_file_content StringIO.new(file.last_revision.file.download)
             # Save
             new_revision.save && dest.resource.file.save
             # Delete (and destroy) the file that should have been renamed and return what should have been returned
@@ -340,7 +338,7 @@ module RedmineDmsf
 
           res = NoContent
         end
-        return PreconditionFailed unless parent.exist? && parent.folder
+        return PreconditionFailed unless parent.exist? && (parent.folder || parent.project)
 
         if collection?
           # Permission check if they can manipulate folders and view folders
@@ -376,15 +374,11 @@ module RedmineDmsf
           new_file = file.copy_to(dest.resource.project, parent&.folder)
           return InternalServerError unless new_file&.last_revision
 
-          # Update Revision and names of file (We can link to old physical resource, as it's not changed)
-          new_file.last_revision.name = dest.resource.basename
-          new_file.name = dest.resource.basename
-          # Save Changes
-          new_file.last_revision.save && new_file.save ? res : PreconditionFailed
+          res
         end
       end
 
-      # Lock Check
+      # Lock check
       # Check for the existence of locks
       def lock_check(args = {})
         entity = file || folder
@@ -626,7 +620,6 @@ module RedmineDmsf
         end
 
         new_revision.disk_filename = new_revision.new_storage_filename unless reuse_revision
-
         if new_revision.save
           new_revision.copy_file_content request.body
           new_revision.save
@@ -636,7 +629,6 @@ module RedmineDmsf
           Rails.logger.error new_revision.errors.full_messages.to_sentence
           raise InternalServerError
         end
-
         Created
       end
 

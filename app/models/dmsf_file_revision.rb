@@ -316,7 +316,12 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def copy_file_content(open_file)
-    file.attach io: open_file, filename: dmsf_file.name
+    file.attach(
+      io: open_file,
+      filename: dmsf_file.name,
+      content_type: mime_type,
+      identify: false
+    )
     self.digest = file.blob.checksum
   end
 

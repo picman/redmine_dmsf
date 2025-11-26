@@ -112,7 +112,7 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
     file = DmsfFile.find_file_by_name @project1, nil, 'test-1234.txt'
     assert file, 'File test-1234 was not found in projects dmsf folder.'
     assert file.last_revision
-    assert_equal 'SHA256', file.last_revision.digest_type
+    assert_equal 'MD5', file.last_revision.digest_type
 
     with_settings plugin_redmine_dmsf: { 'dmsf_webdav_use_project_names' => '1',
                                          'dmsf_webdav' => '1',
@@ -381,17 +381,18 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
           headers: @jsmith.merge!({ content_type: :text })
       assert_response :created
     end
-    sha = Digest::SHA256.file(@file1.last_revision.disk_file)
+    sha = @file1.last_revision.file.checksum
     assert_equal sha, @file1.last_revision.digest
   end
 
   def test_put_version
+    assert_equal '1.0', @file1.last_revision.version
     assert_difference '@file1.dmsf_file_revisions.count', +1 do
       put "/dmsf/webdav/#{@project1.identifier}/#{@file1.name}",
           params: '1234',
           headers: @jsmith.merge!({ content_type: :text })
       assert_response :created
     end
-    assert_equal '1.2', @file1.last_revision.version
+    assert_equal '1.1', @file1.dmsf_file_revisions.visible.first.version
   end
 end

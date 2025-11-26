@@ -72,23 +72,23 @@ class ProjectPatchTest < RedmineDmsf::Test::UnitTest
 
     assert_equal 5, @project1.dmsf_files.visible.all.size
     assert_equal 3, @project1.dmsf_folders.visible.all.size
-    assert_equal 2, @project1.file_links.visible.all.size
-    assert_equal 1, @project1.folder_links.visible.all.size
-    assert_equal 0, @project1.url_links.visible.all.size
+    assert_equal 2, @project1.file_links.all.size
+    assert_equal 1, @project1.folder_links.all.size
+    assert_equal 0, @project1.url_links.all.size
 
-    assert_equal 1, @project5.dmsf_files.visible.all.size
-    assert_equal 1, @project5.dmsf_folders.visible.all.size
-    assert_equal 0, @project5.file_links.visible.all.size
-    assert_equal 0, @project5.folder_links.visible.all.size
-    assert_equal 0, @project5.url_links.visible.all.size
+    assert_equal 1, @project5.dmsf_files.all.size
+    assert_equal 1, @project5.dmsf_folders.all.size
+    assert_equal 0, @project5.file_links.all.size
+    assert_equal 0, @project5.folder_links.all.size
+    assert_equal 0, @project5.url_links.all.size
 
     @project5.copy_dmsf @project1
 
-    assert_equal 6, @project5.dmsf_files.visible.all.size
-    assert_equal 4, @project5.dmsf_folders.visible.all.size
-    assert_equal 2, @project5.file_links.visible.all.size
-    assert_equal 1, @project5.folder_links.visible.all.size
-    assert_equal 0, @project5.url_links.visible.all.size
+    assert_equal 6, @project5.dmsf_files.all.size
+    assert_equal 4, @project5.dmsf_folders.all.size
+    assert_equal 2, @project5.file_links.all.size
+    assert_equal 1, @project5.folder_links.all.size
+    assert_equal 0, @project5.url_links.all.size
   end
 
   def test_dmsf_avaliable

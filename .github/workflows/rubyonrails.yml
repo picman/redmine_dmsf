@@ -150,8 +150,7 @@ jobs:
           cd /opt/redmine
           bundle exec rake redmine:plugins:test:units
           bundle exec rake redmine:plugins:test:functionals
-#          TODO:
-#          bundle exec rake redmine:plugins:test:integration
+          bundle exec rake redmine:plugins:test:integration
       - name: Helpers tests
         run: |
           cd /opt/redmine
@@ -164,23 +163,23 @@ jobs:
         run: |
           cd /opt/redmine                    
           bundle exec rubocop -c plugins/redmine_dmsf/.rubocop.yml plugins/redmine_dmsf/
-      #- name: Litmus
-        # Prepare Redmine's environment for WebDAV testing
-        # Run Webrick server
-        # Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
-        # Shutdown Webrick
-        # Clean up Redmine's environment from WebDAV testing
-#        TODO:
-#        run: |
-#          cd /opt/redmine
-#          bundle exec rake redmine:dmsf_webdav_test_on
-#          bundle exec rails server -u webrick -e test -d
-#          sleep 5
-#          litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
-#          kill $(pgrep -f webrick)
-#          bundle exec rake redmine:dmsf_webdav_test_off
-#        env:
-#          TESTS: "basic copymove props"
+      - name: Litmus
+         Prepare Redmine's environment for WebDAV testing
+         Run Webrick server
+         Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
+         Shutdown Webrick
+         Clean up Redmine's environment from WebDAV testing
+        TODO:
+        run: |
+          cd /opt/redmine
+          bundle exec rake redmine:dmsf_webdav_test_on
+          bundle exec rails server -u webrick -e test -d
+          sleep 5
+          litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
+          kill $(pgrep -f webrick)
+          bundle exec rake redmine:dmsf_webdav_test_off
+        env:
+          TESTS: "basic copymove props"
       - name: Cleanup
         # Rollback plugin's changes to the database
         # Stop the database engine
