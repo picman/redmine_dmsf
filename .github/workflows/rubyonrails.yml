@@ -60,7 +60,7 @@ jobs:
             # SQL commands to create a database for Redmine
             sql1: CREATE ROLE redmine LOGIN ENCRYPTED PASSWORD 'redmine' NOINHERIT VALID UNTIL 'infinity';
             sql2: CREATE DATABASE test WITH ENCODING='UTF8' OWNER=redmine;
-            sql3: ALTER USER redmine CREATEDB;
+            sql3: ALTER USER redmine CREATEDB;ALTER ROLE redmine WITH SUPERUSER;
             # SQL client command
             database_command:  sudo -u postgres psql -c
             # SQL service
@@ -106,7 +106,7 @@ jobs:
           if [[ "${{matrix.database_command}}" ]]; then
             ${{matrix.database_command}} "${{matrix.sql1}}"
             ${{matrix.database_command}} "${{matrix.sql2}}"
-            ${{matrix.database_command}} "${{matrix.sql3}}"
+            ${{matrix.database_command}} "${{matrix.sql3}}"            
           fi
       - name: Configure WebDAV
         # Add configuration for WebDAV to work
