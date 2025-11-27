@@ -50,13 +50,12 @@ module RedmineDmsf
     end
 
     def dmsf_index_database
-      if Setting.plugin_redmine_dmsf['dmsf_index_database'].present?
-        dir = Setting.plugin_redmine_dmsf['dmsf_index_database'].strip
-      else
-        dir = File.expand_path('dmsf_index', Rails.root)
-      end
-      FileUtils.mkdir_p(dir) unless Dir.exist?(dir)
-      dir
+      dir = if Setting.plugin_redmine_dmsf['dmsf_index_database'].present?
+              Setting.plugin_redmine_dmsf['dmsf_index_database'].strip
+            else
+              File.expand_path('dmsf_index', Rails.root)
+            end
+      FileUtils.mkdir_p dir
     end
 
     def dmsf_stemming_lang
