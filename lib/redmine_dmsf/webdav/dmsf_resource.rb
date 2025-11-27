@@ -630,8 +630,17 @@ module RedmineDmsf
 
         new_revision.disk_filename = new_revision.new_storage_filename unless reuse_revision
         if new_revision.save
-          Rails.logger.info ">>> #{request.body.class.name}: #{request.body.respond_to?(:rewind)}"
-          new_revision.copy_file_content request.body
+          if request.body.respond_to?(:rewind)
+            new_revision.copy_file_content request.body
+          else # A workaround for Webrick that doesn't support rewind
+            stream = StringIO.new
+            while (buffer = request.body.read(8_192))
+              stream.write buffer
+            end
+            stream.rewind
+            new_revision.copy_file_content stream
+            stream.close
+          end
           new_revision.save
           # Notifications
           DmsfMailer.deliver_files_updated project, [f]
