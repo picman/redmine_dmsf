@@ -633,6 +633,7 @@ module RedmineDmsf
           if request.body.respond_to?(:rewind)
             new_revision.copy_file_content request.body
           else # A workaround for Webrick that doesn't support rewind
+            Rails.logger.info ">>> A workaround for Webrick that doesn't support rewind"
             stream = StringIO.new
             while (buffer = request.body.read(8_192))
               stream.write buffer
