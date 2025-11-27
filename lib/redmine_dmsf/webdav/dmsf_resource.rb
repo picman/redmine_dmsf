@@ -374,6 +374,15 @@ module RedmineDmsf
           new_file = file.copy_to(dest.resource.project, parent&.folder)
           return InternalServerError unless new_file&.last_revision
 
+          # Update Revision and names of file (We can link to old physical resource, as it's not changed)
+          new_file.last_revision.name = dest.resource.basename
+          new_file.name = dest.resource.basename
+          # Save Changes
+          unless new_file.last_revision.save && new_file.save
+            new_file.delete commit: true
+            return PreconditionFailed
+          end
+
           res
         end
       end
