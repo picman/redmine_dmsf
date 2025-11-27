@@ -132,8 +132,7 @@ jobs:
       - name: Install Redmine
         # Install Redmine
         run: |
-          cd /opt/redmine
-          echo "gem \"webrick\"" > Gemfile.local          
+          cd /opt/redmine                    
           bundle config set --local without 'development'
           bundle install
           bundle exec rake generate_secret_token
@@ -165,17 +164,17 @@ jobs:
           bundle exec rubocop -c plugins/redmine_dmsf/.rubocop.yml plugins/redmine_dmsf/
       - name: Litmus
          Prepare Redmine's environment for WebDAV testing
-         Run Webrick server
+         Run Puma server
          Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
-         Shutdown Webrick
+         Shutdown Puma
          Clean up Redmine's environment from WebDAV testing
         run: |
           cd /opt/redmine
           bundle exec rake redmine:dmsf_webdav_test_on
-          bundle exec rails server -u webrick -e test -d
+          bundle exec rails server -u Puma -e test -d
           sleep 5
           litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
-          kill $(pgrep -f webrick)
+          kill $(pgrep -f puma)
           bundle exec rake redmine:dmsf_webdav_test_off
         env:
           TESTS: "basic copymove props"
