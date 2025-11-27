@@ -630,6 +630,7 @@ module RedmineDmsf
 
         new_revision.disk_filename = new_revision.new_storage_filename unless reuse_revision
         if new_revision.save
+          Rails.logger.info ">>> #{request.body.class.name}: #{request.body.respond_to?(:rewind)}"
           new_revision.copy_file_content request.body
           new_revision.save
           # Notifications
