@@ -18,12 +18,13 @@
 # <https://www.gnu.org/licenses/>.
 
 # Add column
-class AddDigestToRevision < ActiveRecord::Migration[4.2]
+class RemoveDigestFromRevision < ActiveRecord::Migration[7.0]
   def up
-    add_column :dmsf_file_revisions, :digest, :string, limit: 40, default: '', null: false
+    remove_column :dmsf_file_revisions, :digest
   end
 
   def down
-    remove_column :dmsf_file_revisions, :digest
+    add_column :dmsf_file_revisions, :digest, :string, limit: 64, default: '', null: false
+    # Recalculation of checksums for all revisions is technically possible but costs are too high.
   end
 end

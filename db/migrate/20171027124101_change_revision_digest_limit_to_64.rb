@@ -25,7 +25,7 @@ class ChangeRevisionDigestLimitTo64 < ActiveRecord::Migration[4.2]
 
   def down
     # Mysql2::Error: Data too long for column 'digest'
-    # Recalculation of checksums for all revisions is technically possible but costs are to high.
+    # Recalculation of checksums for all revisions is technically possible but costs are too high.
     # change_column :dmsf_file_revisions, :digest, :string, limit: 40
   end
 end

@@ -20,7 +20,7 @@
 # Upload
 class DmsfUpload
   attr_accessor :name, :disk_filename, :mime_type, :title, :description, :comment, :major_version, :minor_version,
-                :patch_version, :locked, :workflow, :custom_values, :tempfile_path, :digest, :token
+                :patch_version, :locked, :workflow, :custom_values, :tempfile_path, :token
   attr_reader   :size
 
   def disk_file
@@ -36,8 +36,7 @@ class DmsfUpload
         original_filename: a.filename,
         comment: uploaded_file[:description],
         tempfile_path: a.diskfile,
-        token: uploaded_file[:token],
-        digest: a.digest
+        token: uploaded_file[:token]
       }
       DmsfUpload.new project, folder, uploaded
     else

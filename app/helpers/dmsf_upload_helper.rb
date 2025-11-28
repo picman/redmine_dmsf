@@ -70,7 +70,6 @@ module DmsfUploadHelper
                                      end
         new_revision.mime_type = committed_file[:mime_type]
         new_revision.size = committed_file[:size]
-        new_revision.digest = committed_file[:digest]
         # Custom fields
         new_revision.copy_custom_field_values(committed_file[:custom_field_values])
         # Need to save file first to generate id for it in case of creation.

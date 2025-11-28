@@ -114,6 +114,10 @@ class DmsfFileRevision < ApplicationRecord
     shared_file
   end
 
+  def checksum
+    file.blob.checksum
+  end
+
   def visible?(_user = nil)
     deleted == STATUS_ACTIVE
   end
@@ -237,7 +241,6 @@ class DmsfFileRevision < ApplicationRecord
     new_revision.source_revision = self
     new_revision.user = User.current
     new_revision.name = name
-    new_revision.digest = digest
     new_revision
   end
 
@@ -322,7 +325,6 @@ class DmsfFileRevision < ApplicationRecord
       content_type: mime_type,
       identify: false
     )
-    self.digest = file.blob.checksum
   end
 
   # Overrides Redmine::Acts::Customizable::InstanceMethods#available_custom_fields
@@ -358,20 +360,6 @@ class DmsfFileRevision < ApplicationRecord
     format2 = format2.sub('%r', id.to_s)
     format2 += ext if ext
     format2
-  end
-
-  def create_digest
-    self.digest = Digest::SHA256.file(path).hexdigest
-  rescue StandardError => e
-    Rails.logger.error e.message
-    self.digest = 0
-  end
-
-  # Returns either MD5 or SHA256 depending on the way self.digest was computed
-  def digest_type
-    return nil if digest.blank?
-
-    digest.size < 64 ? 'MD5' : 'SHA256'
   end
 
   def tooltip

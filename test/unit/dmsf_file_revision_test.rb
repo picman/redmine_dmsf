@@ -70,11 +70,6 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     assert_nil DmsfFileRevision.find_by(id: @revision13.id)
   end
 
-  def test_digest_type
-    # Old type MD5
-    assert_equal 'MD5', @revision1.digest_type
-  end
-
   def test_new_storage_filename
     # Create a file.
     f = DmsfFile.new
@@ -336,5 +331,9 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     assert_nil @revision2.dmsf_workflow_assigned_at
     assert_nil @revision2.dmsf_workflow_started_by_user_id
     assert_nil @revision2.dmsf_workflow_started_at
+  end
+
+  def test_checksum
+    assert_equal @revision1.checksum, @revision1.file.blob.checksum
   end
 end

@@ -135,10 +135,10 @@
             <%= content_tag :div, l(:label_mime), class: 'label' %>
             <%= content_tag :div, revision.mime_type, class: 'value' %>
           </div>
-          <% if revision.digest.present? %>
+          <% if revision.checksum.present? %>
             <div class="status attribute">
               <%= content_tag :div, l(:field_digest), class: 'label' %>
-              <%= content_tag :div, "#{revision.digest_type}: #{revision.digest}", class: 'value wiki' %>
+              <%= content_tag :div, revision.checksum, class: 'value wiki' %>
             </div>
           <% end %>
           <%= render 'dmsf/custom_fields', object: revision %>

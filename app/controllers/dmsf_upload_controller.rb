@@ -49,7 +49,6 @@ class DmsfUploadController < ApplicationController
 
         @uploads.push upload
         params[:committed_files][key][:disk_filename] = upload.disk_filename
-        params[:committed_files][key][:digest] = upload.digest
         params[:committed_files][key][:tempfile_path] = upload.tempfile_path
       end
       commit_files if params[:committed_files].present?
