@@ -6,7 +6,6 @@ dmsf_file_revisions_001:
   name:                               "test.txt"  
   disk_filename:                      "test.txt"
   size:                               3
-  mime_type:                          text/plain
   title:                              "Test File"
   description:                        'Some file :-)'
   workflow:                           1 # DmsfWorkflow::STATE_WAITING_FOR_APPROVAL
@@ -28,7 +27,6 @@ dmsf_file_revisions_002:
   name:                               "test2.txt"
   disk_filename:                      "test2.txt"
   size:                               3
-  mime_type:                          text/plain
   title:                              "Test File"
   description:                        NULL
   workflow:                           NULL
@@ -50,7 +48,6 @@ dmsf_file_revisions_003:
   name:                               'deleted.txt'
   disk_filename:                      'deleted.txt'
   size:                               3
-  mime_type:                          'text/plain'
   title:                              'Test File'
   description:                        NULL
   workflow:                           NULL
@@ -71,7 +68,6 @@ dmsf_file_revisions_004:
   name:                               'test4.txt'
   disk_filename:                      'test4.txt'
   size:                               3
-  mime_type:                          'text/plain'
   title:                              'Test File'
   description:                        NULL
   workflow:                           NULL
@@ -92,7 +88,6 @@ dmsf_file_revisions_006:
   name:                               'test.gif'
   disk_filename:                      'test.gif'
   size:                               310
-  mime_type:                          'image/gif'
   title:                              'Test image'
   description:                        NULL
   workflow:                           NULL
@@ -113,7 +108,6 @@ dmsf_file_revisions_007:
   name:                               'test.pdf'
   disk_filename:                      'test.pdf'
   size:                               6942
-  mime_type:                          'application/pdf'
   title:                              'Test PDF'
   description:                        NULL
   workflow:                           NULL
@@ -134,7 +128,6 @@ dmsf_file_revisions_008:
   name:                               'myfile.txt'
   disk_filename:                      'myfile.txt' # The file is not physically present
   size:                               0
-  mime_type:                          'text/plain'
   title:                              'My File'
   description:                        NULL
   workflow:                           NULL
@@ -155,7 +148,6 @@ dmsf_file_revisions_009:
   name:                               'zero.txt'
   disk_filename:                      'zero.txt'
   size:                               0
-  mime_type:                          'text/plain'
   title:                              'Zero Size File'
   description:                        NULL
   workflow:                           NULL
@@ -176,7 +168,6 @@ dmsf_file_revisions_010:
   name:                               'test.txt'
   disk_filename:                      'test.txt'
   size:                               4
-  mime_type:                          'text/plain'
   title:                              'Test File'
   description:                        'Some file :-)'
   workflow:                           1 # DmsfWorkflow::STATE_WAITING_FOR_APPROVAL
@@ -197,7 +188,6 @@ dmsf_file_revisions_011:
   name:                               'test.txt'
   disk_filename:                      'test.txt'
   size:                               4
-  mime_type:                          'text/plain'
   title:                              'Test File'
   description:                        'Some file :-)'
   workflow:                           0
@@ -218,7 +208,6 @@ dmsf_file_revisions_012:
   name:                               'test.mp4'
   disk_filename:                      'test.mp4'
   size:                               4
-  mime_type:                          'video/mp4'
   title:                              'test video'
   description:                        'A video :-)'
   workflow:                           0
@@ -239,7 +228,6 @@ dmsf_file_revisions_013:
   name:                               'test.odt'
   disk_filename:                      'test.odt'
   size:                               10445
-  mime_type:                          'application/vnd.oasis.opendocument.text'
   title:                              'Test office document'
   description:                        'LibreOffice text'
   workflow:                           0
