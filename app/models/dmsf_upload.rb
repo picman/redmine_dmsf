@@ -32,7 +32,7 @@ class DmsfUpload
     if a
       uploaded = {
         disk_filename: DmsfHelper.temp_filename(a.filename),
-        content_type: a.content_type,
+        content_type: a.content_type.presence || 'application/octet-stream',
         original_filename: a.filename,
         comment: uploaded_file[:description],
         tempfile_path: a.diskfile,
@@ -53,7 +53,6 @@ class DmsfUpload
       @size = 0
       @tempfile_path = ''
       @token = ''
-      @digest = ''
       if RedmineDmsf.empty_minor_version_by_default?
         @major_version = 1
         @minor_version = nil
@@ -85,7 +84,6 @@ class DmsfUpload
     end
     @tempfile_path = uploaded[:tempfile_path]
     @token = uploaded[:token]
-    @digest = uploaded[:digest]
 
     if file.nil? || file.last_revision.nil?
       @title = DmsfFileRevision.filename_to_title(@name)

@@ -18,13 +18,17 @@
 # <https://www.gnu.org/licenses/>.
 
 # Add column
-class RemoveDigestFromRevision < ActiveRecord::Migration[7.0]
+class RemoveDuplicitiesFromRevision < ActiveRecord::Migration[7.0]
   def up
     remove_column :dmsf_file_revisions, :digest
+    remove_column :dmsf_file_revisions, :mime_type
+    # We need to keep the size despite the fact that it's duplicated in active_storage_blobs to speed up the main
+    # document view
   end
 
   def down
     add_column :dmsf_file_revisions, :digest, :string, limit: 64, default: '', null: false
-    # Recalculation of checksums for all revisions is technically possible but costs are too high.
+    add_column :dmsf_file_revisions, :mime_type, :string
+    # Recalculation of these columns for all revisions is technically possible but costs are too high.
   end
 end

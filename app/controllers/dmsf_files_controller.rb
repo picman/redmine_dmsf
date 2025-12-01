@@ -140,7 +140,6 @@ class DmsfFilesController < ApplicationController
         if upload
           revision.size = upload.size
           revision.disk_filename = revision.new_storage_filename
-          revision.mime_type = upload.mime_type
           revision.file.attach(
             io: File.open(upload.tempfile_path),
             filename: revision.disk_filename,
@@ -151,7 +150,6 @@ class DmsfFilesController < ApplicationController
       else
         revision.size = last_revision.size
         revision.disk_filename = last_revision.disk_filename
-        revision.mime_type = last_revision.mime_type
       end
       # Custom fields
       revision.copy_custom_field_values(params[:dmsf_file_revision][:custom_field_values], last_revision)

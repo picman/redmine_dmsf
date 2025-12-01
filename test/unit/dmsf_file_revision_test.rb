@@ -89,7 +89,6 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     r1.title = DmsfFileRevision.filename_to_title(r1.name)
     r1.description = nil
     r1.comment = nil
-    r1.mime_type = nil
     r1.size = 4
 
     r2 = r1.clone
@@ -132,7 +131,6 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
       r1.title = DmsfFileRevision.filename_to_title(r1.name)
       r1.description = nil
       r1.comment = nil
-      r1.mime_type = nil
       r1.size = 4
       assert r1.invalid?
       message = ['Attachment extension .png is not allowed']
@@ -215,32 +213,32 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_protocol_doc
-    @revision1.mime_type = Redmine::MimeType.of('test.doc')
+    @revision1.file.blob.content_type = Redmine::MimeType.of('test.doc')
     assert_equal 'ms-word', @revision1.protocol
   end
 
   def test_protocol_docx
-    @revision1.mime_type = Redmine::MimeType.of('test.docx')
+    @revision1.file.blob.content_type = Redmine::MimeType.of('test.docx')
     assert_equal 'ms-word', @revision1.protocol
   end
 
   def test_protocol_odt
-    @revision1.mime_type = Redmine::MimeType.of('test.odt')
+    @revision1.file.blob.content_type = Redmine::MimeType.of('test.odt')
     assert_equal 'ms-word', @revision1.protocol
   end
 
   def test_protocol_xls
-    @revision1.mime_type = Redmine::MimeType.of('test.xls')
+    @revision1.file.blob.content_type = Redmine::MimeType.of('test.xls')
     assert_equal 'ms-excel', @revision1.protocol
   end
 
   def test_protocol_xlsx
-    @revision1.mime_type = Redmine::MimeType.of('test.xlsx')
+    @revision1.file.blob.content_type = Redmine::MimeType.of('test.xlsx')
     assert_equal 'ms-excel', @revision1.protocol
   end
 
   def test_protocol_ods
-    @revision1.mime_type = Redmine::MimeType.of('test.ods')
+    @revision1.file.blob.content_type = Redmine::MimeType.of('test.ods')
     assert_equal 'ms-excel', @revision1.protocol
   end
 

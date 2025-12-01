@@ -68,7 +68,6 @@ module DmsfUploadHelper
         new_revision.patch_version = if committed_file[:version_patch].present?
                                        DmsfUploadHelper.db_version committed_file[:version_patch]
                                      end
-        new_revision.mime_type = committed_file[:mime_type]
         new_revision.size = committed_file[:size]
         # Custom fields
         new_revision.copy_custom_field_values(committed_file[:custom_field_values])

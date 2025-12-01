@@ -599,7 +599,6 @@ module RedmineDmsf
         new_revision.dmsf_file = f
         new_revision.user = User.current
         new_revision.name = basename
-        new_revision.mime_type = Redmine::MimeType.of(new_revision.name)
 
         # Phusion passenger does not have a method "length" in its model
         # however, includes a size method - so we instead use reflection
@@ -786,9 +785,7 @@ module RedmineDmsf
           r.dmsf_file = f
           r.user = User.current
           r.name = basename
-          r.mime_type = Redmine::MimeType.of(r.name)
           r.size = 0
-          r.digest = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
           r.disk_filename = r.new_storage_filename
           r.available_custom_fields.each do |cf| # Add default value for CFs not existing
             next unless cf.default_value

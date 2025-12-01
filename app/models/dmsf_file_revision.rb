@@ -115,7 +115,11 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def checksum
-    file.blob.checksum
+    file.blob&.checksum
+  end
+
+  def mime_type
+    file.blob&.content_type
   end
 
   def visible?(_user = nil)
@@ -231,7 +235,6 @@ class DmsfFileRevision < ApplicationRecord
     new_revision.dmsf_file = dmsf_file
     new_revision.disk_filename = disk_filename
     new_revision.size = size
-    new_revision.mime_type = mime_type
     new_revision.title = title
     new_revision.description = description
     new_revision.workflow = workflow
@@ -322,7 +325,7 @@ class DmsfFileRevision < ApplicationRecord
     file.attach(
       io: open_file,
       filename: dmsf_file.name,
-      content_type: mime_type,
+      content_type: mime_type.presence || Redmine::MimeType.of(disk_filename),
       identify: false
     )
   end

@@ -3,7 +3,7 @@ active_storage_blob_1:
   id:           1
   key:          '5lge4yv88jwzt7xl76vri2be1v01'
   filename:     'test.txt'
-  content_type: 'tect/plain'
+  content_type: 'text/plain'
   metadata:     '{"identified":true,"analyzed":true}'
   service_name: 'test'
   byte_size:    3

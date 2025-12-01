@@ -150,6 +150,6 @@ class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
            }
     end
     assert_redirected_to dmsf_folder_path(id: @file1.project)
-    assert_not_nil @file1.last_revision.digest
+    assert_not_nil @file1.last_revision.checksum
   end
 end
