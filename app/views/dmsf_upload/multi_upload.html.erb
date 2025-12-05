@@ -31,9 +31,8 @@
                locals: { multiple: true, container: nil, description: true, awf: false } %>
   </span>
   <div class="form-actions">
-    <%= submit_tag l(:label_upload), data: { cy: 'button__submit--dmsf-upload--project' }, class: 'button-positive',
+    <%= submit_tag l(:label_upload), class: 'button-positive',
                    id: "dmsf-upload-button" %>
-    <%= submit_tag l(:label_dmsf_upload_commit), data: { cy: 'button__submit--dmsf-upload-commit--project' },
-                   class: 'button-positive' %>
+    <%= submit_tag l(:label_dmsf_upload_commit), class: 'button-positive' %>
   </div>
 <% end %>

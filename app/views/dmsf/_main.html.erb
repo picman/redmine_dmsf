@@ -23,12 +23,11 @@
     <% unless @locked || @system_folder %>
       <% if @file_manipulation_allowed %>
         <%= link_to sprite_icon('add', l(:label_document_new)),
-                    multi_dmsf_upload_path(id: @project, folder_id: @folder), class: 'icon icon-add',
-                    data: { cy: 'button__new-file--dmsf' } %>
+                    multi_dmsf_upload_path(id: @project, folder_id: @folder), class: 'icon icon-add' %>
       <% end %>
       <% if @folder_manipulation_allowed %>
         <%= link_to sprite_icon('add', l(:link_create_folder)), new_dmsf_path(id: @project, parent_id: @folder),
-                    class: 'icon icon-add', data: { cy: 'button__create-folder--dmsf' } %>
+                    class: 'icon icon-add' %>
       <% end %>
     <% end %>
     <%= actions_dropdown do %>

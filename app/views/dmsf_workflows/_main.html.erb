@@ -23,12 +23,12 @@
   <% @path = settings_project_path(@project, tab: 'dmsf_workflow') %>
   <p>
     <%= link_to sprite_icon('add', l(:label_dmsf_workflow_new)), new_dmsf_workflow_path(project_id: @project&.id),
-                class: 'icon icon-add', data: { cy: "button__new--dmsf-workflow" } %>
+                class: 'icon icon-add' %>
   </p>
 <% else %>
   <div class="contextual">
     <%= link_to sprite_icon('add', l(:label_dmsf_workflow_new)), new_dmsf_workflow_path(project_id: @project&.id),
-                class: 'icon icon-add', data: { cy: "button__new--dmsf-workflow" } %>
+                class: 'icon icon-add' %>
   </div>
   <h2><%= l(:label_dmsf_workflow_plural) %></h2>
 <% end %>
