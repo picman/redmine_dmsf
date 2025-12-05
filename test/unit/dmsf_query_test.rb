@@ -37,10 +37,14 @@ class DmsfQueryTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_dmsf_count
-    n = DmsfFolder.visible.where(project_id: @project1.id).where("title LIKE '%test%'").all.size +
-        DmsfFile.visible.where(project_id: @project1.id).where("name LIKE '%test%'").all.size +
-        DmsfLink.visible.where(project_id: @project1.id).where("name LIKE '%test%'").all.size
-    assert_equal n - 1, @query401.dmsf_count # One folder is not visible due to the permissions
+    n = DmsfFolder.where(project_id: @project1.id).where("title LIKE '%test%'").all.size +
+        DmsfLink.where(project_id: @project1.id).where("name LIKE '%test%'").all.size
+
+    DmsfFile.where(project_id: @project1.id).find_each do |file|
+      n += 1 if file.name.include?('test')
+    end
+
+    assert_equal n - 2, @query401.dmsf_count # Two file are not visible due to folder's permissions
   end
 
   def test_dmsf_nodes

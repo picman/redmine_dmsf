@@ -90,13 +90,9 @@ class DmsfFileRevision < ApplicationRecord
     }
   )
 
-  validates :title, presence: true
-  validates :title, length: { maximum: 255 }
+  validates :title, presence: true, dmsf_file_name: true, length: { maximum: 255 }
   validates :major_version, presence: true
-  validates :name, dmsf_file_name: true
-  validates :name, length: { maximum: 255 }
-  validates :disk_filename, length: { maximum: 255 }
-  validates :name, dmsf_file_extension: true
+  validates :name, presence: true, dmsf_file_name: true, length: { maximum: 255 }, dmsf_file_extension: true
   validates :description, length: { maximum: 1.kilobyte }
   validates :size, dmsf_max_file_size: true
 
@@ -118,8 +114,11 @@ class DmsfFileRevision < ApplicationRecord
     file.blob&.checksum
   end
 
-  def mime_type
-    file.blob&.content_type
+  def content_type
+    res = file.blob&.content_type
+    res = Redmine::MimeType.of(file.blob&.filename) if res.blank?
+    res = 'application/octet-stream' if res.blank?
+    res
   end
 
   def visible?(_user = nil)
@@ -191,49 +190,9 @@ class DmsfFileRevision < ApplicationRecord
     ver
   end
 
-  def storage_base_path
-    time = created_at || DateTime.current
-    DmsfFile.storage_path.join(time.strftime('%Y')).join time.strftime('%m')
-  end
-
-  def disk_file(search_if_not_exists: true)
-    path = storage_base_path
-    begin
-      FileUtils.mkdir_p(path)
-    rescue StandardError => e
-      Rails.logger.error e.message
-    end
-    filename = path.join(disk_filename)
-    if search_if_not_exists && !File.exist?(filename)
-      # Let's search for the physical file in source revisions
-      dmsf_file.dmsf_file_revisions.where(created_at: ...created_at).order(created_at: :desc).each do |rev|
-        filename = rev.disk_file
-        break if File.exist?(filename)
-      end
-    end
-    filename.to_s
-  end
-
-  def new_storage_filename
-    raise DmsfAccessError, 'File id is not set' unless dmsf_file&.id
-
-    filename = DmsfHelper.sanitize_filename(name)
-    timestamp = DateTime.current.strftime('%y%m%d%H%M%S')
-    timestamp.succ! while File.exist? storage_base_path.join("#{timestamp}_#{dmsf_file.id}_#{filename}")
-    "#{timestamp}_#{dmsf_file.id}_#{filename}"
-  end
-
-  def detect_content_type
-    content_type = mime_type
-    content_type = Redmine::MimeType.of(disk_filename) if content_type.blank?
-    content_type = 'application/octet-stream' if content_type.blank?
-    content_type
-  end
-
   def clone
     new_revision = DmsfFileRevision.new
     new_revision.dmsf_file = dmsf_file
-    new_revision.disk_filename = disk_filename
     new_revision.size = size
     new_revision.title = title
     new_revision.description = description
@@ -325,7 +284,7 @@ class DmsfFileRevision < ApplicationRecord
     file.attach(
       io: open_file,
       filename: dmsf_file.name,
-      content_type: mime_type.presence || Redmine::MimeType.of(disk_filename),
+      content_type: content_type,
       identify: false
     )
   end
@@ -396,7 +355,7 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def protocol
-    @protocol ||= PROTOCOLS[mime_type.downcase] if mime_type
+    @protocol ||= PROTOCOLS[content_type.downcase] if content_type.present?
     @protocol
   end
 

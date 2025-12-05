@@ -71,7 +71,7 @@
   <% member = Member.find_by(user_id: User.current.id, project_id: dmsf_file.project.id) %>
   <% filename = dmsf_file.last_revision&.formatted_name(member) %>
   <%= context_menu_link sprite_icon('download', l(:button_download)),
-                        static_dmsf_file_path(dmsf_file, filename: filename),
+                        static_dmsf_file_path(dmsf_file, filename: filename, download: dmsf_file.last_revision&.id),
                         class: 'icon icon-download', data: { cy: "icon__download--dmsf_file_#{dmsf_file.id}" },
                         disabled: false %>
 </li>

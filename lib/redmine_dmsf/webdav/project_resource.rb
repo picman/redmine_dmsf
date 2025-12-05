@@ -41,8 +41,8 @@ module RedmineDmsf
         end
         # Files
         if User.current.allowed_to?(:view_dmsf_files, project)
-          project.dmsf_files.visible.pluck(:name).each do |name|
-            @children.push child(name)
+          project.dmsf_files.visible.each do |file|
+            @children.push child(file.name)
           end
         end
         @children

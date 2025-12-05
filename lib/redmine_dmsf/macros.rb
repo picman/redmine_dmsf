@@ -49,7 +49,7 @@ module RedmineDmsf
                 target: '_blank',
                 rel: 'noopener',
                 title: h(revision.tooltip),
-                'data-downloadurl' => "#{file.last_revision.detect_content_type}:#{h(file.name)}:#{url}"
+                'data-downloadurl' => "#{file.last_revision.content_type}:#{h(file.name)}:#{url}"
       end
 
       # dmsff - link to a folder
@@ -278,7 +278,7 @@ module RedmineDmsf
                           target: '_blank',
                           rel: 'noopener',
                           title: h(file.last_revision.try(:tooltip)),
-                          'data-downloadurl' => "#{file.last_revision.detect_content_type}:#{h(file.name)}:#{url}")
+                          'data-downloadurl' => "#{file.last_revision.content_type}:#{h(file.name)}:#{url}")
         end
         safe_join html
       end

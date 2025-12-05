@@ -56,7 +56,7 @@ class ProjectPatchTest < RedmineDmsf::Test::UnitTest
   def test_dmsf_count
     User.current = @jsmith
     hash = @project1.dmsf_count
-    assert_equal 9, hash[:files]
+    assert_equal 10, hash[:files]
     assert_equal 5, hash[:folders]
   end
 
@@ -70,7 +70,7 @@ class ProjectPatchTest < RedmineDmsf::Test::UnitTest
   def test_copy_dmsf
     User.current = @jsmith
 
-    assert_equal 5, @project1.dmsf_files.visible.all.size
+    assert_equal 6, @project1.dmsf_files.visible.all.size
     assert_equal 3, @project1.dmsf_folders.visible.all.size
     assert_equal 2, @project1.file_links.all.size
     assert_equal 1, @project1.folder_links.all.size
@@ -84,7 +84,7 @@ class ProjectPatchTest < RedmineDmsf::Test::UnitTest
 
     @project5.copy_dmsf @project1
 
-    assert_equal 6, @project5.dmsf_files.all.size
+    assert_equal 7, @project5.dmsf_files.all.size
     assert_equal 4, @project5.dmsf_folders.all.size
     assert_equal 2, @project5.file_links.all.size
     assert_equal 1, @project5.folder_links.all.size

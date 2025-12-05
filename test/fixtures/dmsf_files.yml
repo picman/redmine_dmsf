@@ -3,7 +3,6 @@ dmsf_files_001:
   id:                 1
   project_id:         1
   dmsf_folder_id:     NULL
-  name:               'test.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -13,7 +12,6 @@ dmsf_files_002:
   id:                 2
   project_id:         2
   dmsf_folder_id:     NULL
-  name:               'test.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -23,7 +21,6 @@ dmsf_files_003:
   id:                 3
   project_id:         1
   dmsf_folder_id:     NULL
-  name:               'deleted.txt'
   notification:       false
   deleted:            1
   deleted_by_user_id: 1
@@ -32,7 +29,6 @@ dmsf_files_004:
   id:                 4
   project_id:         1
   dmsf_folder_id:     2
-  name:               'test.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -41,7 +37,6 @@ dmsf_files_005:
   id:                 5
   project_id:         1
   dmsf_folder_id:     5
-  name:               'test.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -50,7 +45,6 @@ dmsf_files_006:
   id:                 6
   project_id:         2
   dmsf_folder_id:     3
-  name:               'test.mp4'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -59,7 +53,6 @@ dmsf_files_007:
   id:                 7
   project_id:         1
   dmsf_folder_id:     8
-  name:               'test.gif'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -68,7 +61,6 @@ dmsf_files_008:
   id:                 8
   project_id:         1
   dmsf_folder_id:     NULL
-  name:               'test.pdf'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -77,7 +69,6 @@ dmsf_files_009:
   id:                 9
   project_id:         1
   dmsf_folder_id:     NULL
-  name:               'myfile.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -86,7 +77,6 @@ dmsf_files_010:
   id:                 10
   project_id:         1
   dmsf_folder_id:     NULL
-  name:               'zero.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -95,7 +85,6 @@ dmsf_files_011:
   id:                 11
   project_id:         1
   dmsf_folder_id:     9
-  name:               'zero.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -104,7 +93,6 @@ dmsf_files_012:
   id:                 12
   project_id:         5
   dmsf_folder_id:     NULL
-  name:               'test.txt'
   notification:       false
   deleted:            0
   deleted_by_user_id: NULL
@@ -113,6 +101,12 @@ dmsf_files_013:
   id:                 13
   project_id:         1
   dmsf_folder_id:     NULL
-  name:               'test.odt'
+  deleted:            0
+  deleted_by_user_id: NULL
+
+dmsf_files_014:
+  id:                 14
+  project_id:         1
+  dmsf_folder_id:     NULL
   deleted:            0
   deleted_by_user_id: NULL

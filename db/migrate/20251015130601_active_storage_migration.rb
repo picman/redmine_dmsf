@@ -47,7 +47,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
           r.file.attach(
             io: File.open(path),
             filename: r.name,
-            content_type: r.mime_type,
+            content_type: r.content_type,
             identify: false
           )
           # Remove the original file
@@ -60,18 +60,51 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
         end
       end
     end
+    # Remove columns duplicated in ActiveStorage
+    remove_column :dmsf_file_revisions, :digest
+    remove_column :dmsf_file_revisions, :mime_type
+    remove_column :dmsf_file_revisions, :disk_filename
+    remove_column :dmsf_files, :name
+    # We need to keep the size despite the fact that it's duplicated in active_storage_blobs to speed up the main
+    # document view
+    # Restore updated_at column
+    DmsfFileRevision.update_all 'updated_at = temp_updated_at'
+    remove_column :dmsf_file_revisions, :temp_updated_at
     $stdout.puts 'Done'
   end
 
   # Active Storage -> File system
   def down
     $stdout.puts 'It could be a very long process. Be patient...'
+    # Restore removed columns
+    add_column :dmsf_file_revisions, :digest, :string, limit: 64, default: '', null: false
+    add_column :dmsf_file_revisions, :mime_type, :string
+    add_column :dmsf_file_revisions, :disk_filename, :string, default: '', null: false
+    add_column :dmsf_files, :name, :string, default: '', null: false
+    # Migrate attachments
     ActiveStorage::Attachment.find_each do |a|
       r = a.record
-      new_path = r.disk_file(search_if_not_exists: false)
+      new_path = disk_file
       unless File.exist?(new_path)
         a.blob.open do |f|
+          # Move the attachment
           FileUtils.mv f.path, new_path
+          r.record_timestamps = false # Do not modify updated_at column
+          DmsfFileRevision.no_touching do
+            # Mime type
+            r.mime_type = f.content_type
+            # Disk filename
+            r.disk_filename = File.basename(new_path)
+            # Digest
+            # We leave the digest calculation to dmsf_create_digests.rake task
+            r.save
+          end
+          r.dmsf_file.record_timestamps = false # Do not modify updated_at column
+          DmsfFile.no_touching do
+            # Filename
+            r.dmsf_file.name = r.dmsf_file.last_revision.name
+            r.dmsf_file.save
+          end
         end
         key = a.blob.key
         $stdout.puts "#{File.join(key[0..1], key[2..3], key)} (#{a.blob.filename}) => #{new_path}"
@@ -99,5 +132,20 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     else
       false
     end
+  end
+
+  def storage_base_path(dmsf_file_revision)
+    time = dmsf_file_revision.created_at || DateTime.current
+    DmsfFile.storage_path.join(time.strftime('%Y')).join time.strftime('%m')
+  end
+
+  def disk_file(dmsf_file_revision)
+    path = storage_base_path
+    begin
+      FileUtils.mkdir_p path
+    rescue StandardError => e
+      Rails.logger.error e.message
+    end
+    path.join(dmsf_file_revision.disk_filename).to_s
   end
 end

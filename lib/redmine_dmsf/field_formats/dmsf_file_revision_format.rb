@@ -91,7 +91,7 @@ module RedmineDmsf
           rel: 'noopener',
           class: 'icon icon-file',
           title: h(revision.try(:tooltip)),
-          'data-downloadurl' => "#{revision.detect_content_type}:#{h(revision.dmsf_file.name)}:#{file_view_url}"
+          'data-downloadurl' => "#{revision.content_type}:#{h(revision.dmsf_file.name)}:#{file_view_url}"
         )
       end
     end

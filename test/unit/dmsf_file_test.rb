@@ -28,12 +28,6 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
     @wf2 = DmsfWorkflow.find 2
   end
 
-  def test_file_name_length_validation
-    file = DmsfFile.new(name: Array.new(256).map { 'a' }.join)
-    assert file.invalid?
-    assert_equal ['Name is too long (maximum is 255 characters)'], file.errors.full_messages
-  end
-
   def test_project_file_count_differs_from_project_visibility_count
     assert_not_same @project1.dmsf_files.all.size, @project1.dmsf_files.visible.all.size
   end
@@ -188,15 +182,13 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
     # Text
     assert_equal 'attachment', @file1.disposition
     # Image
-    assert_equal 'inline', @file7.disposition
+    assert_equal 'inline', @file6.disposition
     # PDF
-    assert_equal 'inline', @file8.disposition
+    assert_equal 'inline', @file7.disposition
     # Video
-    @file1.last_revision.disk_filename = 'test.mp4'
-    assert_equal 'inline', @file1.disposition
+    assert_equal 'inline', @file6.disposition
     # HTML
-    @file1.last_revision.disk_filename = 'test.html'
-    assert_equal 'inline', @file1.disposition
+    assert_equal 'inline', @file14.disposition
   end
 
   def test_image
@@ -209,8 +201,6 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
     assert @file1.text?
     assert_not @file7.text?
     assert_not @file8.text?
-    @file1.last_revision.disk_filename = 'test.c'
-    assert @file1.text?
   end
 
   def test_pdf
@@ -221,25 +211,28 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
 
   def test_video
     assert_not @file1.video?
-    @file1.last_revision.disk_filename = 'test.mp4'
-    assert @file1.video?
+    assert @file6.video?
   end
 
   def test_html
     assert_not @file1.html?
-    @file1.last_revision.disk_filename = 'test.html'
-    assert @file1.html?
+    assert @file14.html?
+  end
+
+  def test_office_doc
+    assert_not @file1.office_doc?
+    assert @file13.office_doc?
   end
 
   def test_markdown
     assert_not @file1.markdown?
-    @file1.last_revision.disk_filename = 'test.md'
+    @file1.last_revision.file.blob.content_type = 'text/markdown'
     assert @file1.markdown?
   end
 
   def test_textile
     assert_not @file1.textile?
-    @file1.last_revision.disk_filename = 'test.textile'
+    @file1.last_revision.file.blob.content_type = 'text/textile'
     assert @file1.textile?
   end
 
@@ -291,10 +284,6 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
   def test_watchable
     @file1.add_watcher @jsmith
     assert @file1.watched_by?(@jsmith)
-  end
-
-  def test_office_doc
-    assert @file13.office_doc?
   end
 
   def test_previewable

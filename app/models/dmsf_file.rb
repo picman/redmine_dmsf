@@ -42,15 +42,6 @@ class DmsfFile < ApplicationRecord
   scope :visible, -> { where(deleted: STATUS_ACTIVE) }
   scope :deleted, -> { where(deleted: STATUS_DELETED) }
 
-  validates :name, dmsf_file_name: true
-  validates :name, length: { maximum: 255 }
-  validates :name,
-            uniqueness: {
-              scope: %i[dmsf_folder_id project_id deleted],
-              conditions: -> { where(deleted: STATUS_ACTIVE) },
-              case_sensitive: true
-            }
-
   acts_as_event(
     title: proc { |o|
       @searched_revision = nil
@@ -81,7 +72,7 @@ class DmsfFile < ApplicationRecord
     url: proc { |o|
       if @searched_revision
         { controller: 'dmsf_files', action: 'view', id: o.id, download: @searched_revision.id,
-          filename: o.name }
+          filename: @searched_revision.name }
       else
         { controller: 'dmsf_files', action: 'view', id: o.id, filename: o.name }
       end
@@ -104,7 +95,7 @@ class DmsfFile < ApplicationRecord
   acts_as_watchable
   acts_as_searchable(
     columns: [
-      "#{table_name}.name",
+      "#{DmsfFileRevision.table_name}.name",
       "#{DmsfFileRevision.table_name}.title",
       "#{DmsfFileRevision.table_name}.description",
       "#{DmsfFileRevision.table_name}.comment"
@@ -143,11 +134,19 @@ class DmsfFile < ApplicationRecord
   end
 
   def self.find_file_by_name(project, folder, name)
-    findn_file_by_name project&.id, folder, name
+    dmsf_files = visible.where(dmsf_files: { project_id: project&.id, dmsf_folder_id: folder&.id })
+    dmsf_files.each do |file|
+      return file if file.name == name
+    end
+    nil
   end
 
-  def self.findn_file_by_name(project_id, folder, name)
-    visible.find_by project_id: project_id, dmsf_folder_id: folder&.id, name: name
+  def self.find_file_by_title(project, folder, name)
+    dmsf_files = visible.where(dmsf_files: { project_id: project&.id, dmsf_folder_id: folder&.id })
+    dmsf_files.each do |file|
+      return file if file.title == name
+    end
+    nil
   end
 
   def approval_allowed_zero_minor
@@ -155,10 +154,7 @@ class DmsfFile < ApplicationRecord
   end
 
   def last_revision
-    unless defined?(@last_revision)
-      @last_revision = deleted? ? dmsf_file_revisions.first : dmsf_file_revisions.visible.first
-    end
-    @last_revision
+    @last_revision ||= deleted? ? dmsf_file_revisions.first : dmsf_file_revisions.visible.first
   end
 
   def deleted?
@@ -211,16 +207,20 @@ class DmsfFile < ApplicationRecord
     save
   end
 
+  def name
+    last_revision&.name.to_s
+  end
+
   def title
-    last_revision ? last_revision.title : name
+    last_revision&.title.to_s
   end
 
   def description
-    last_revision ? last_revision.description : ''
+    last_revision&.description.to_s
   end
 
   def version
-    last_revision ? last_revision.version : '0'
+    last_revision&.version.to_s
   end
 
   def workflow
@@ -228,7 +228,7 @@ class DmsfFile < ApplicationRecord
   end
 
   def size
-    last_revision ? last_revision.size : 0
+    last_revision&.size.to_i
   end
 
   def dmsf_path
@@ -313,28 +313,12 @@ class DmsfFile < ApplicationRecord
     file = DmsfFile.new
     file.dmsf_folder_id = folder.id if folder
     file.project_id = project.id
-    title = last_revision&.title
-    if DmsfFile.visible.exists?(project_id: file.project_id, dmsf_folder_id: file.dmsf_folder_id, name: filename)
-      basename = File.basename(filename, '.*')
-      extname = File.extname(filename)
-      1.step do |i|
-        title = "#{basename} (#{i})"
-        gen_filename = "#{title}#{extname}"
-        unless DmsfFile.visible.exists?(project_id: file.project_id, dmsf_folder_id: file.dmsf_folder_id,
-                                        name: gen_filename)
-          filename = gen_filename
-          break
-        end
-      end
-    end
-    file.name = filename
     file.notification = RedmineDmsf.dmsf_default_notifications?
     if file.save && last_revision
       new_revision = last_revision.clone
       new_revision.name = filename
-      new_revision.title = title
+      new_revision.title = File.basename(filename, '.*')
       new_revision.dmsf_file = file
-      new_revision.disk_filename = new_revision.new_storage_filename
       # Assign the same workflow if it's a global one, or we are in the same project
       new_revision.workflow = nil
       new_revision.dmsf_workflow_id = nil
@@ -350,7 +334,7 @@ class DmsfFile < ApplicationRecord
       if last_revision.file.attached?
         begin
           new_revision.file.attach(
-            io: StringIO.new(last_revision.file.blob.download),
+            io: StringIO.new(last_revision.file.download),
             filename: filename,
             content_type: new_revision.file.content_type,
             identify: false
@@ -367,10 +351,18 @@ class DmsfFile < ApplicationRecord
         v.value = cv.value
         new_revision.custom_values << v
       end
+      # Check the name and title
+      basename = File.basename(filename, '.*')
+      extname = File.extname(filename)
+      i = 1
+      while new_revision.invalid? && i < 1_000
+        new_revision.title = "#{basename} (#{i})"
+        new_revision.name = "#{new_revision.title}#{extname}"
+        i += 1
+      end
       if new_revision.save
         file.last_revision = new_revision
       else
-        errors.add :base, new_revision.errors.full_messages.to_sentence
         Rails.logger.error new_revision.errors.full_messages.to_sentence
         file.delete commit: true
         file = nil
@@ -504,29 +496,34 @@ class DmsfFile < ApplicationRecord
   end
 
   def text?
-    filename = last_revision&.disk_filename
-    Redmine::MimeType.is_type?('text', filename) ||
-      Redmine::SyntaxHighlighting.filename_supported?(filename)
+    return false unless last_revision
+
+    filename = last_revision.file&.blob&.filename.to_s
+    last_revision.file&.blob&.text? || Redmine::SyntaxHighlighting.filename_supported?(filename)
   end
 
   def image?
-    Redmine::MimeType.is_type?('image', last_revision&.disk_filename)
+    last_revision && last_revision.file&.blob&.image?
   end
 
   def pdf?
-    Redmine::MimeType.of(last_revision&.disk_filename) == 'application/pdf'
+    last_revision&.content_type == 'application/pdf'
   end
 
   def video?
-    Redmine::MimeType.is_type?('video', last_revision&.disk_filename)
+    return false unless last_revision
+
+    Redmine::MimeType.is_type?('video', last_revision.file.blob&.filename&.to_s)
   end
 
   def html?
-    Redmine::MimeType.of(last_revision&.disk_filename) == 'text/html'
+    last_revision&.content_type == 'text/html'
   end
 
   def office_doc?
-    case File.extname(last_revision&.disk_filename)
+    return false unless last_revision
+
+    case File.extname(last_revision.file.blob&.filename&.to_s)
     when  '.odt', '.ods', '.odp', '.odg', # LibreOffice
           '.doc', '.docx', '.docm', '.xls', '.xlsx', '.xlsm', '.ppt', '.pptx', '.pptm', # MS Office
           '.rtf' # Universal
@@ -537,11 +534,11 @@ class DmsfFile < ApplicationRecord
   end
 
   def markdown?
-    Redmine::MimeType.of(last_revision&.disk_filename) == 'text/markdown'
+    last_revision&.content_type == 'text/markdown'
   end
 
   def textile?
-    Redmine::MimeType.of(last_revision&.disk_filename) == 'text/x-textile'
+    last_revision&.content_type == 'text/textile'
   end
 
   def disposition
@@ -573,8 +570,7 @@ class DmsfFile < ApplicationRecord
       end
     rescue StandardError => e
       Rails.logger.error do
-        %(An error occurred while generating preview for #{last_revision.file.name} to #{target}\n
-          Exception was: #{e.message})
+        %(An error occurred while generating preview for #{name} to #{target}\nException was: #{e.message})
       end
       ''
     end
@@ -604,11 +600,7 @@ class DmsfFile < ApplicationRecord
   end
 
   def formatted_name(member)
-    if last_revision
-      last_revision.formatted_name(member)
-    else
-      name
-    end
+    last_revision&.formatted_name(member)
   end
 
   def owner?(user)
@@ -640,10 +632,6 @@ class DmsfFile < ApplicationRecord
     nil
   end
 
-  def extension
-    File.extname(last_revision.disk_filename).strip.downcase[1..] if last_revision
-  end
-
   def thumbnail(options = {})
     size = options[:size].to_i
     if size.positive?
@@ -657,10 +645,10 @@ class DmsfFile < ApplicationRecord
     size = 100 unless size.positive?
     target = File.join(Attachment.thumbnails_storage_path, "#{id}_#{last_revision.digest}_#{size}.thumb")
     begin
-      Redmine::Thumbnail.generate last_revision.disk_file.to_s, target, size, pdf?
+      Redmine::Thumbnail.generate last_revision.file.download, target, size, pdf?
     rescue StandardError => e
       Rails.logger.error do
-        %(An error occured while generating thumbnail for #{last_revision.disk_file} to #{target}\n
+        %(An error occured while generating thumbnail for #{last_revision.file&.blob&.filename} to #{target}\n
           Exception was: #{e.message})
       end
       nil

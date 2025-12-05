@@ -28,34 +28,112 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     @revision1 = DmsfFileRevision.find 1
     @revision2 = DmsfFileRevision.find 2
     @revision3 = DmsfFileRevision.find 3
+    @revision7 = DmsfFileRevision.find 7
     @revision8 = DmsfFileRevision.find 8
     @revision13 = DmsfFileRevision.find 13
     @wf1 = DmsfWorkflow.find 1
   end
 
-  def test_file_title_length_validation
-    file = DmsfFileRevision.new(title: Array.new(256).map { 'a' }.join,
-                                name: 'Test Revision',
-                                major_version: 1)
-    assert file.invalid?
-    assert_equal ['Title is too long (maximum is 255 characters)'], file.errors.full_messages
+  def test_name_presence
+    @revision1.name = ''
+    assert @revision1.invalid?
+    assert_includes @revision1.errors.full_messages, 'Name cannot be blank'
   end
 
-  def test_file_name_length_validation
-    file = DmsfFileRevision.new(name: Array.new(256).map { 'a' }.join,
-                                title: 'Test Revision',
-                                major_version: 1)
-    assert file.invalid?
-    assert_equal ['Name is too long (maximum is 255 characters)'], file.errors.full_messages
+  def test_title_presence
+    @revision1.title = ''
+    assert @revision1.invalid?
+    assert_includes @revision1.errors.full_messages, 'Title cannot be blank'
   end
 
-  def test_file_disk_filename_length_validation
-    file = DmsfFileRevision.new(disk_filename: Array.new(256).map { 'a' }.join,
-                                title: 'Test Revision',
-                                name: 'Test Revision',
-                                major_version: 1)
-    assert file.invalid?
-    assert_equal ['Disk filename is too long (maximum is 255 characters)'], file.errors.full_messages
+  def test_title_length_validation
+    @revision1.title = String.new('a' * 256)
+    assert @revision1.invalid?
+    assert_includes @revision1.errors.full_messages, 'Title is too long (maximum is 255 characters)'
+  end
+
+  def test_name_length_validation
+    @revision1.name = String.new('a' * 256)
+    assert @revision1.invalid?
+    assert_includes @revision1.errors.full_messages, 'Name is too long (maximum is 255 characters)'
+  end
+
+  def test_name_uniqueness_validation
+    User.current = @admin
+
+    # Duplicity among files names
+    @revision7.name = @revision1.name
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
+
+    # Duplicity among invisible files is all right
+    @revision7.name = @revision3.name
+    assert_not @revision7.invalid?
+
+    # Duplicity among files titles
+    @revision7.name = @revision1.title
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
+
+    # Duplicity among folders
+    @revision7.name = @folder1.title
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
+
+    # Duplicity among links
+    @revision7.name = @folder_link1.name
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
+
+    # Name is all right
+    @revision7.name = 'xxx'
+    assert @revision7.valid?
+  end
+
+  def test_title_uniqueness_validation
+    User.current = @admin
+
+    # Duplicity among files names
+    @revision7.title = @revision1.name
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
+
+    # Duplicity among invisible files is all right
+    @revision7.title = @revision3.name
+    assert_not @revision7.invalid?
+
+    # Duplicity among files titles
+    @revision7.title = @revision1.title
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
+
+    # Duplicity among folders
+    @revision7.title = @folder1.title
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
+
+    # Duplicity among links
+    @revision7.title = @folder_link1.name
+    assert @revision7.invalid?
+    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
+
+    # Name is all right
+    @revision7.title = 'xxx'
+    assert @revision7.valid?
+  end
+
+  def test_name_invalid_characters_validation
+    @revision1.name << DmsfFolder::INVALID_CHARACTERS[0]
+    assert @revision1.invalid?
+    assert_includes @revision1.errors.full_messages,
+                    "Name #{l('activerecord.errors.messages.error_contains_invalid_character')}"
+  end
+
+  def test_title_invalid_characters_validation
+    @revision1.title << DmsfFolder::INVALID_CHARACTERS[0]
+    assert @revision1.invalid?
+    assert_includes @revision1.errors.full_messages,
+                    "Title #{l('activerecord.errors.messages.error_contains_invalid_character')}"
   end
 
   def test_delete_restore
@@ -68,56 +146,6 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
   def test_destroy
     @revision13.delete commit: true
     assert_nil DmsfFileRevision.find_by(id: @revision13.id)
-  end
-
-  def test_new_storage_filename
-    # Create a file.
-    f = DmsfFile.new
-    f.project_id = 1
-    f.name = 'Testfile.txt'
-    f.dmsf_folder = nil
-    f.notification = RedmineDmsf.dmsf_default_notifications?
-    f.save
-
-    # Create two new revisions, r1 and r2
-    r1 = DmsfFileRevision.new
-    r1.minor_version = 0
-    r1.major_version = 1
-    r1.dmsf_file = f
-    r1.user = User.current
-    r1.name = 'Testfile.txt'
-    r1.title = DmsfFileRevision.filename_to_title(r1.name)
-    r1.description = nil
-    r1.comment = nil
-    r1.size = 4
-
-    r2 = r1.clone
-    r2.minor_version = 1
-
-    assert r1.valid?
-    assert r2.valid?
-
-    # This is a very stupid since the generation and storing of files below must be done during the
-    # same second, so wait until the microsecond part of the DateTime is less than 10 ms, should be
-    # plenty of time to do the rest then.
-    wait_timeout = 2_000
-    while DateTime.current.usec > 10_000
-      wait_timeout -= 10
-      flunk 'Waited too long.' if wait_timeout <= 0
-      sleep 0.01
-    end
-
-    # First, generate the r1 storage filename and save the file
-    r1.disk_filename = r1.new_storage_filename
-    assert r1.save
-    # Just make sure the file exists
-    File.binwrite r1.disk_file, '1234'
-
-    # Directly after the file has been stored generate the r2 storage filename.
-    # Hopefully the seconds part of the DateTime.current has not changed and the generated filename will
-    # be on the same second but it should then be increased by 1.
-    r2.disk_filename = r2.new_storage_filename
-    assert_not_equal r1.disk_filename, r2.disk_filename, 'The disk filename should not be equal for two revisions.'
   end
 
   def test_invalid_filename_extension
@@ -333,5 +361,13 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
 
   def test_checksum
     assert_equal @revision1.checksum, @revision1.file.blob.checksum
+  end
+
+  def test_content_type
+    assert_equal 'text/plain', @revision1.content_type
+    @revision1.file.blob.content_type = ''
+    assert_equal 'text/plain', @revision1.content_type
+    @revision1.file.blob.filename = 'data'
+    assert_equal 'application/octet-stream', @revision1.content_type
   end
 end

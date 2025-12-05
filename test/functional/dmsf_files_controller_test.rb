@@ -142,9 +142,9 @@ class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
              version_major: @file1.last_revision.major_version,
              version_minor: @file1.last_revision.minor_version + 1,
              dmsf_file_revision: {
-               title: @file1.last_revision.title,
-               name: @file1.last_revision.name,
-               description: @file1.last_revision.description,
+               title: @file1.title,
+               name: @file1.name,
+               description: @file1.description,
                comment: 'New revision'
              }
            }

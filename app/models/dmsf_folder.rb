@@ -28,9 +28,9 @@ class DmsfFolder < ApplicationRecord
   belongs_to :deleted_by_user, class_name: 'User'
   belongs_to :user
 
-  has_many :dmsf_folders, -> { order :title }, dependent: :destroy, inverse_of: :dmsf_folder
+  has_many :dmsf_folders, dependent: :destroy, inverse_of: :dmsf_folder
   has_many :dmsf_files, dependent: :destroy
-  has_many :folder_links, -> { where(target_type: 'DmsfFolder').order(:name) },
+  has_many :folder_links, -> { where(target_type: 'DmsfFolder') },
            class_name: 'DmsfLink', foreign_key: 'dmsf_folder_id', dependent: :destroy, inverse_of: :dmsf_folder
   has_many :file_links, -> { where(target_type: 'DmsfFile') },
            class_name: 'DmsfLink', foreign_key: 'dmsf_folder_id', dependent: :destroy, inverse_of: :dmsf_folder
@@ -91,7 +91,7 @@ class DmsfFolder < ApplicationRecord
                 datetime: proc { |o| o.updated_at },
                 author: proc { |o| o.user }
 
-  validates :title, presence: true, dmsf_file_name: true
+  validates :title, presence: true, length: { maximum: 255 }, dmsf_folder_name: true
   validates :title, uniqueness: { scope: %i[dmsf_folder_id project_id deleted],
                                   conditions: -> { where(deleted: STATUS_ACTIVE) }, case_sensitive: true }
   validates :description, length: { maximum: 65_535 }

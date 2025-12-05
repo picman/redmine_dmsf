@@ -308,7 +308,7 @@ class DmsfWebdavMoveTest < RedmineDmsf::Test::IntegrationTest
     temp_file = DmsfFile.find_file_by_name @project1, nil, temp_file_name
     assert_not temp_file, "File '#{temp_file_name}' should not exist yet."
 
-    # Move the original file to AAAAAAAA.tmp. The original file should not changed but a new file should be created.
+    # Move the original file to AAAAAAAA.tmp. The original file should not be changed but a new file should be created.
     assert_no_difference '@file1.dmsf_file_revisions.count' do
       process :move,
               "/dmsf/webdav/#{@project1.identifier}/#{@file1.name}",

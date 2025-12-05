@@ -55,7 +55,7 @@ module RedmineDmsf
       end
 
       # Gather collection of objects that denote current entities child entities
-      # Used for listing directories etc, implemented basic caching because otherwise
+      # Used for listing directories etc., implemented basic caching because otherwise
       # Our already quite heavy usage of DB would just get silly every time we called
       # this method.
       def children
@@ -63,12 +63,12 @@ module RedmineDmsf
           @children = []
           if folder
             # Folders
-            folder.dmsf_folders.visible.each do |f|
-              @children.push child(f.title) if DmsfFolder.permissions?(f, allow_system: false)
+            folder.dmsf_folders.visible.each do |folder|
+              @children.push child(folder.title) if DmsfFolder.permissions?(folder, allow_system: false)
             end
             # Files
-            folder.dmsf_files.visible.pluck(:name).each do |name|
-              @children.push child(name)
+            folder.dmsf_files.visible.each do |file|
+              @children.push child(file.name)
             end
           end
         end
@@ -92,7 +92,7 @@ module RedmineDmsf
       def content_type
         if file
           if file.last_revision
-            file.last_revision.detect_content_type
+            file.last_revision.content_type
           else
             'application/octet-stream'
           end
@@ -126,13 +126,7 @@ module RedmineDmsf
       end
 
       def etag
-        ino = if file&.last_revision && File.exist?(file.last_revision.disk_file)
-                File.stat(file.last_revision.disk_file).ino
-              else
-                2
-              end
-        format '%<node>x-%<size>x-%<modified>x',
-               node: ino, size: content_length, modified: (last_modified ? last_modified.to_i : 0)
+        format '%<node>x-%<size>x-%<modified>x', node: 0, size: content_length, modified: last_modified.to_i
       end
 
       def content_length
@@ -272,10 +266,8 @@ module RedmineDmsf
               new_revision = dest.resource.file.last_revision.clone
               new_revision.increase_version DmsfFileRevision::PATCH_VERSION
             end
-            # The file on disk must be renamed from .tmp to the correct filetype or else Xapian won't know how to index.
-            # Copy file.last_revision.disk_file to new_revision.disk_file
+            # Copy the file
             new_revision.size = file.last_revision.size
-            new_revision.disk_filename = new_revision.new_storage_filename
             new_revision.copy_file_content StringIO.new(file.last_revision.file.download)
             # Save
             new_revision.save && dest.resource.file.save
@@ -304,7 +296,6 @@ module RedmineDmsf
                 file.last_revision.name = dest.resource.basename
                 file.last_revision.title = DmsfFileRevision.filename_to_title(dest.resource.basename)
               end
-              file.name = dest.resource.basename
               # Save Changes
               if file.last_revision.save && file.save
                 dest.exist? ? NoContent : Created
@@ -376,7 +367,6 @@ module RedmineDmsf
 
           # Update Revision and names of file (We can link to old physical resource, as it's not changed)
           new_file.last_revision.name = dest.resource.basename
-          new_file.name = dest.resource.basename
           # Save Changes
           unless new_file.last_revision.save && new_file.save
             new_file.delete commit: true
@@ -587,7 +577,6 @@ module RedmineDmsf
         else
           f = DmsfFile.new
           f.project_id = project.id
-          f.name = basename
           f.dmsf_folder = parent.folder
           f.notification = RedmineDmsf.dmsf_default_notifications?
           new_revision = DmsfFileRevision.new
@@ -627,7 +616,6 @@ module RedmineDmsf
           raise UnprocessableEntity
         end
 
-        new_revision.disk_filename = new_revision.new_storage_filename unless reuse_revision
         if new_revision.save
           if request.body.respond_to?(:rewind)
             new_revision.copy_file_content request.body
@@ -775,7 +763,6 @@ module RedmineDmsf
       def create_empty_file
         f = DmsfFile.new
         f.project_id = project.id
-        f.name = basename
         f.dmsf_folder = parent.folder
         if f.save(validate: false) # Skip validation due to invalid characters in the filename
           r = DmsfFileRevision.new
@@ -786,14 +773,18 @@ module RedmineDmsf
           r.user = User.current
           r.name = basename
           r.size = 0
-          r.disk_filename = r.new_storage_filename
           r.available_custom_fields.each do |cf| # Add default value for CFs not existing
             next unless cf.default_value
 
             r.custom_field_values << CustomValue.new({ custom_field: cf, value: cf.default_value })
           end
           if r.save(validate: false) # Skip validation due to invalid characters in the filename
-            FileUtils.touch r.disk_file(search_if_not_exists: false)
+            revision.file.attach(
+              io: File.new(upload.tempfile_path),
+              filename: file_upload.filename,
+              content_type: Redmine::MimeType.of(file_upload.filename),
+              identify: false
+            )
             return f
           end
         end

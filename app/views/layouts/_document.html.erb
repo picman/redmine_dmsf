@@ -19,7 +19,8 @@
 
 <div class="contextual">
   <%= link_to "#{l(:button_download)} (#{number_to_human_size(@file.size)})",
-              static_dmsf_file_path(@file, download: @file.last_revision, filename: @file.last_revision.disk_filename),
+              static_dmsf_file_path(@file, download: @file.last_revision,
+                                    filename: @file.last_revision.file&.blob&.filename),
               class: 'icon icon-download', disabled: false %>
 </div>
 

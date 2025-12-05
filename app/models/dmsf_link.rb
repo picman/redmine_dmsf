@@ -26,7 +26,9 @@ class DmsfLink < ApplicationRecord
   belongs_to :deleted_by_user, class_name: 'User'
   belongs_to :user
 
-  validates :name, presence: true, length: { maximum: 255 }
+  validates :name, presence: true, length: { maximum: 255 }, dmsf_link_name: true
+  validates :name, uniqueness: { scope: %i[dmsf_folder_id project_id deleted],
+                                 conditions: -> { where(deleted: STATUS_ACTIVE) }, case_sensitive: true }
   # There can be project_id = -1 when attaching links to an issue. The project_id is assigned later when saving the
   # issue.
   validates :external_url, length: { maximum: 255 }

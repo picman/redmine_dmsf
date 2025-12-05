@@ -133,7 +133,7 @@
           </div>
           <div class="status attribute">
             <%= content_tag :div, l(:label_mime), class: 'label' %>
-            <%= content_tag :div, revision.mime_type, class: 'value' %>
+            <%= content_tag :div, revision.content_type, class: 'value' %>
           </div>
           <% if revision.checksum.present? %>
             <div class="status attribute">

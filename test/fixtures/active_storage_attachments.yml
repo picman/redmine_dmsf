@@ -31,14 +31,6 @@ active_storage_attachment_4:
   blob_id:      4
   created_at:   <%= Time.now %>
 
-#active_storage_attachment_5:
-#  id:           5
-#  name:         'shared_file'
-#  record_type:  'DmsfFileRevision'
-#  record_id:    5
-#  blob_id:      5
-#  created_at:   <%= Time.now %>
-
 active_storage_attachment_6:
   id:           6
   name:         'shared_file'
@@ -102,3 +94,11 @@ active_storage_attachment_13:
   record_id:    13
   blob_id:      13
   created_at:   <%= Time.now %>
+
+active_storage_attachment_14:
+  id: 14
+  name: 'shared_file'
+  record_type: 'DmsfFileRevision'
+  record_id: 14
+  blob_id: 14
+  created_at: <%= Time.now %>

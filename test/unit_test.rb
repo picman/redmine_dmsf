@@ -56,10 +56,12 @@ module RedmineDmsf
         @file2 = DmsfFile.find 2
         @file4 = DmsfFile.find 4
         @file5 = DmsfFile.find 5
+        @file6 = DmsfFile.find 6
         @file7 = DmsfFile.find 7
         @file8 = DmsfFile.find 8
         @file11 = DmsfFile.find 11
         @file13 = DmsfFile.find 13
+        @file14 = DmsfFile.find 14
         @folder_link1 = DmsfLink.find 1
         @file_link2 = DmsfLink.find 2
         @file_link7 = DmsfLink.find 7

@@ -130,3 +130,14 @@ active_storage_blob_13:
   byte_size:    10179
   checksum :    'k08HeKksIVI7PXr1aEVbjg=='
   created_at:   <%= Time.now %>
+
+active_storage_blob_14:
+  id:           14
+  key:          '5lge4yv88jwzt7xl76vri2be1v14'
+  filename:     'test.html'
+  content_type: 'text/html'
+  metadata:     '{"identified":true,"analyzed":true}'
+  service_name: 'test'
+  byte_size:    10179
+  checksum :    'RV3RPuaIjvHzOXpvTLhI3w=='
+  created_at:   <%= Time.now %>

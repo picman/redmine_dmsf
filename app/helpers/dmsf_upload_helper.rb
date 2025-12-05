@@ -42,7 +42,6 @@ module DmsfUploadHelper
         else
           file = DmsfFile.new
           file.project_id = project.id
-          file.name = name
           file.dmsf_folder = folder
           file.notification = RedmineDmsf.dmsf_default_notifications?
         end
@@ -84,8 +83,6 @@ module DmsfUploadHelper
           next
         end
 
-        new_revision.disk_filename = new_revision.new_storage_filename
-
         if new_revision.save
           new_revision.assign_workflow committed_file[:dmsf_workflow_id]
           begin
@@ -97,7 +94,7 @@ module DmsfUploadHelper
             new_revision.file.attach(
               io: File.open(committed_file[:tempfile_path]),
               filename: new_revision.name,
-              content_type: new_revision.mime_type,
+              content_type: new_revision.content_type,
               identify: false
             )
             file.last_revision = new_revision

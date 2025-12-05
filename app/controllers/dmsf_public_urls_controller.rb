@@ -32,7 +32,7 @@ class DmsfPublicUrlsController < ApplicationController
         expires_in 0.years, 'must-revalidate' => true
         send_data(revision.file.download,
                   filename: filename_for_content_disposition(revision.name),
-                  type: revision.detect_content_type,
+                  type: revision.content_type,
                   disposition: dmsf_public_url.dmsf_file.disposition)
       rescue StandardError => e
         Rails.logger.error e.message

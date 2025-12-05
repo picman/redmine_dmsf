@@ -27,7 +27,7 @@
     target: '_blank',
     rel: 'noopener',
     title: h(dmsf_file.last_revision.try(:tooltip)),
-    'data-downloadurl' => "#{dmsf_file.last_revision.detect_content_type}:#{h(dmsf_file.name)}:#{file_view_url}" %>
+    'data-downloadurl' => "#{dmsf_file.last_revision.content_type}:#{h(dmsf_file.name)}:#{file_view_url}" %>
 </td>
 <td class="<%= cls %>">
   <span class="size">(<%= number_to_human_size dmsf_file.last_revision.size %>)</span>

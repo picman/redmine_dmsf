@@ -21,9 +21,64 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Folder tests
 class DmsfFolderTest < RedmineDmsf::Test::UnitTest
+  include Redmine::I18n
+
   def setup
     super
     @link2 = DmsfLink.find 2
+    @revision1 = DmsfFileRevision.find 1
+    @revision3 = DmsfFileRevision.find 3
+  end
+
+  def test_title_presence
+    @folder1.title = ''
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages, 'Title cannot be blank'
+  end
+
+  def test_title_length_validation
+    @folder1.title = String.new('a' * 256)
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages, 'Title is too long (maximum is 255 characters)'
+  end
+
+  def test_title_invalid_characters_validation
+    @folder1.title << DmsfFolder::INVALID_CHARACTERS[0]
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages,
+                    "Title #{l('activerecord.errors.messages.error_contains_invalid_character')}"
+  end
+
+  def test_title_uniqueness_validation
+    User.current = @admin
+
+    # Duplicity among files names
+    @folder1.title = @revision1.name
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
+
+    # Duplicity among invisible files is all right
+    @folder1.title = @revision3.name
+    assert_not @folder1.invalid?
+
+    # Duplicity among files titles
+    @folder1.title = @revision1.title
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
+
+    # Duplicity among folders
+    @folder1.title = @folder6.title
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
+
+    # Duplicity among links
+    @folder1.title = @folder_link1.name
+    assert @folder1.invalid?
+    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
+
+    # Name is all right
+    @folder1.title = 'xxx'
+    assert @folder1.valid?
   end
 
   def test_visibility

@@ -255,7 +255,7 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
 
     put "/dmsf/webdav/#{@project1.identifier}/file1.tmp", params: '1234', headers: credentials
     assert_response :success
-    file1 = DmsfFile.find_by(project_id: @project1.id, dmsf_folder: nil, name: 'file1.tmp')
+    file1 = DmsfFile.find_file_by_name(@project1, nil, 'file1.tmp')
     assert file1
     assert_difference 'file1.dmsf_file_revisions.count', 0 do
       put "/dmsf/webdav/#{@project1.identifier}/file1.tmp", params: '5678', headers: credentials
@@ -268,7 +268,7 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
 
     put "/dmsf/webdav/#{@project1.identifier}/~$file2.txt", params: '1234', headers: credentials
     assert_response :success
-    file2 = DmsfFile.find_by(project_id: @project1.id, dmsf_folder_id: nil, name: '~$file2.txt')
+    file2 = DmsfFile.find_file_by_name(@project1, nil, '~$file2.txt')
     assert file2
     assert_difference 'file2.dmsf_file_revisions.count', 0 do
       put "/dmsf/webdav/#{@project1.identifier}/~$file2.txt", params: '5678', headers: credentials
@@ -286,7 +286,7 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
                                          'dmsf_webdav_strategy' => 'WEBDAV_READ_WRITE' } do
       put "/dmsf/webdav/#{@project1.identifier}/file3.dump", params: '1234', headers: credentials
       assert_response :success
-      file3 = DmsfFile.find_by(project_id: @project1.id, dmsf_folder_id: nil, name: 'file3.dump')
+      file3 = DmsfFile.find_file_by_name(@project1, nil, 'file3.dump')
       assert file3
       assert_difference 'file3.dmsf_file_revisions.count', 0 do
         put "/dmsf/webdav/#{@project1.identifier}/file3.dump", params: '5678', headers: credentials
@@ -304,7 +304,7 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
         params: '1234',
         headers: @admin.merge!({ content_type: :text })
     assert_response :created
-    assert DmsfFile.find_by(project_id: @project5.id, dmsf_folder: nil, name: 'test-1234.txt')
+    assert DmsfFile.find_file_by_name(@project5, nil, 'test-1234.txt')
   end
 
   def test_put_keep_title

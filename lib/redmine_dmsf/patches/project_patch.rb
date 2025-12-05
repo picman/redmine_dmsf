@@ -49,9 +49,9 @@ module RedmineDmsf
       # New methods
       def self.prepended(base)
         base.class_eval do
-          has_many :dmsf_files, -> { where(dmsf_folder_id: nil).order(:name) },
+          has_many :dmsf_files, -> { where(dmsf_folder_id: nil) },
                    class_name: 'DmsfFile', foreign_key: 'project_id', dependent: :destroy
-          has_many :dmsf_folders, -> { where(dmsf_folder_id: nil).order(:title) },
+          has_many :dmsf_folders, -> { where(dmsf_folder_id: nil) },
                    class_name: 'DmsfFolder', foreign_key: 'project_id', dependent: :destroy
           has_many :dmsf_workflows, dependent: :destroy
           has_many :folder_links, -> { where dmsf_folder_id: nil, target_type: 'DmsfFolder' },

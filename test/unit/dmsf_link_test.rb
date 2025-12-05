@@ -21,6 +21,14 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Link tests
 class DmsfLinksTest < RedmineDmsf::Test::UnitTest
+  include Redmine::I18n
+
+  def setup
+    super
+    @revision1 = DmsfFileRevision.find 1
+    @revision3 = DmsfFileRevision.find 3
+  end
+
   def test_create_folder_link
     folder_link = DmsfLink.new
     folder_link.target_project_id = @project1.id
@@ -57,43 +65,77 @@ class DmsfLinksTest < RedmineDmsf::Test::UnitTest
     assert external_link.save, external_link.errors.full_messages.to_sentence
   end
 
-  def test_validate_name_length
-    @folder_link1.name = ('a' * 256)
-    assert_not @folder_link1.save, "Folder link #{@folder_link1.name} should have not been saved"
-    assert_equal 1, @folder_link1.errors.size
+  def test_name_length_validation
+    @folder_link1.name = String.new('a' * 256)
+    assert @folder_link1.invalid?
+    assert_includes @folder_link1.errors.full_messages, 'Name is too long (maximum is 255 characters)'
   end
 
   def test_validate_name_presence
     @folder_link1.name = ''
-    assert_not @folder_link1.save, "Folder link #{@folder_link1.name} should have not been saved"
-    assert_equal 1, @folder_link1.errors.size
+    assert @folder_link1.invalid?
+    assert_includes @folder_link1.errors.full_messages, 'Name cannot be blank'
+  end
+
+  def test_title_invalid_characters_validation
+    @folder_link1.name << DmsfFolder::INVALID_CHARACTERS[0]
+    assert @folder_link1.invalid?
+    assert_includes @folder_link1.errors.full_messages,
+                    "Name #{l('activerecord.errors.messages.error_contains_invalid_character')}"
+  end
+
+  def test_name_uniqueness_validation
+    User.current = @admin
+
+    # Duplicity among files names
+    @folder_link1.name = @revision1.name
+    assert @folder_link1.invalid?
+    assert_includes @folder_link1.errors.full_messages, 'Name has already been taken'
+
+    # Duplicity among invisible files is all right
+    @folder_link1.name = @revision3.name
+    assert_not @folder_link1.invalid?
+
+    # Duplicity among files titles
+    @folder_link1.name = @revision1.title
+    assert @folder_link1.invalid?
+    assert_includes @folder_link1.errors.full_messages, 'Name has already been taken'
+
+    # Duplicity among folders
+    @folder_link1.name = @folder6.title
+    assert @folder_link1.invalid?
+    assert_includes @folder_link1.errors.full_messages, 'Name has already been taken'
+
+    # Name is all right
+    @folder_link1.name = 'xxx'
+    assert @folder_link1.valid?
   end
 
   def test_validate_external_url_length
     @file_link2.target_type = 'DmsfUrl'
     @file_link2.external_url = "https://localhost/#{'a' * 256}"
-    assert_not @file_link2.save, "External URL link #{@file_link2.name} should have not been saved"
-    assert_equal 1, @file_link2.errors.size
+    assert @file_link2.invalid?
+    assert_includes @file_link2.errors.full_messages, 'URL is too long (maximum is 255 characters)'
   end
 
   def test_validate_external_url_presence
     @file_link2.target_type = 'DmsfUrl'
     @file_link2.external_url = ''
-    assert_not @file_link2.save, "External URL link #{@file_link2.name} should have not been saved"
-    assert_equal 1, @file_link2.errors.size
+    assert @file_link2.invalid?
+    assert_includes @file_link2.errors.full_messages, 'URL is invalid'
   end
 
   def test_validate_external_url_invalid
     @file_link2.target_type = 'DmsfUrl'
     @file_link2.external_url = 'htt ps://abc.xyz'
-    assert_not @file_link2.save, "External URL link #{@file_link2.name} should have not been saved"
-    assert_equal 1, @file_link2.errors.size
+    assert @file_link2.invalid?
+    assert_includes @file_link2.errors.full_messages, 'URL is invalid'
   end
 
   def test_validate_external_url_valid
     @file_link2.target_type = 'DmsfUrl'
     @file_link2.external_url = 'https://www.google.com/search?q=寿司'
-    assert @file_link2.save
+    assert @file_link2.valid?
   end
 
   def test_belongs_to_project
@@ -186,7 +228,7 @@ class DmsfLinksTest < RedmineDmsf::Test::UnitTest
   def test_copy_to_author
     assert_equal @admin.id, @file_link2.user_id
     User.current = @jsmith
-    l = @file_link2.copy_to(@project1, @folder1)
+    l = @file_link2.copy_to(@project1, @folder6)
     assert l
     assert_equal @jsmith.id, l.user_id, 'Author must be updated when copying'
   end

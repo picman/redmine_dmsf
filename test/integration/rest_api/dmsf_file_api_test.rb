@@ -48,7 +48,7 @@ class DmsfFileApiTest < RedmineDmsf::Test::IntegrationTest
     #       <name>test5.txt</name>
     #       <content_url>http://www.example.com/dmsf/files/1/view?download=5</content_url>
     #       <size>4</size>
-    #       <mime_type>text/plain</mime_type>
+    #       <content_type>text/plain</content_type>
     #       <title>Test File</title>
     #       <description/>
     #       <workflow>1</workflow>
@@ -71,7 +71,7 @@ class DmsfFileApiTest < RedmineDmsf::Test::IntegrationTest
     #       <name>test.txt</name>
     #       <content_url>http://www.example.com/dmsf/files/1/view?download=1</content_url>
     #       <size>4</size>
-    #       <mime_type>text/plain</mime_type>
+    #       <content_type>text/plain</content_type>
     #       <title>Test File</title>
     #       <description>Some file :-)</description>
     #       <workflow>1</workflow>
@@ -160,7 +160,7 @@ class DmsfFileApiTest < RedmineDmsf::Test::IntegrationTest
     assert_response :success
     revision = DmsfFileRevision.order(:created_at).last
     assert revision.present?
-    assert_equal 'text/plain', revision.mime_type
+    assert_equal 'text/plain', revision.content_type
   end
 
   def test_upload_document_exceeded_attachment_max_size

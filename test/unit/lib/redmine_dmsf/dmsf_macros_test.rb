@@ -350,7 +350,7 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
-                   'data-downloadurl' => "#{@file7.last_revision.detect_content_type}:#{h(@file7.name)}:#{url}")
+                   'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
     assert text.include?(link), text
   end
 
@@ -379,7 +379,7 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
-                   'data-downloadurl' => "#{@file7.last_revision.detect_content_type}:#{h(@file7.name)}:#{url}")
+                   'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
     assert text.include?(link), text
     # TODO: arguments src and with and height are swapped
     # size = '640x480'
@@ -390,7 +390,7 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
     #                target: '_blank',
     #                rel: 'noopener',
     #                title: h(@file7.last_revision.try(:tooltip)),
-    #                'data-downloadurl' => "#{@file7.last_revision.detect_content_type}:#{h(@file7.name)}:#{url}")
+    #                'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
     # assert text.include?(link), text
     height = '480'
     text = textilizable("{{dmsftn(#{@file7.id}, height=#{height})}}")
@@ -410,7 +410,7 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
-                   'data-downloadurl' => "#{@file7.last_revision.detect_content_type}:#{h(@file7.name)}:#{url}")
+                   'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
     assert text.include?(link), text
   end
 

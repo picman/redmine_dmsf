@@ -18,7 +18,7 @@
 # <https://www.gnu.org/licenses/>.
 
 # File name validator
-class DmsfFileNameValidator < ActiveModel::EachValidator
+class DmsfFolderNameValidator < ActiveModel::EachValidator
   ALL_INVALID_CHARACTERS = /\A[^#{DmsfFolder::INVALID_CHARACTERS}]*\z/
 
   def validate_each(record, attribute, value)
@@ -26,30 +26,15 @@ class DmsfFileNameValidator < ActiveModel::EachValidator
     record.errors.add attribute, :error_contains_invalid_character unless ALL_INVALID_CHARACTERS.match?(value)
 
     # Check name uniqueness among files
-    project_id = record.dmsf_file.project_id
-    dmsf_folder_id = record.dmsf_file.dmsf_folder_id
-    id = record.dmsf_file_id
-    DmsfFile
-      .visible
-      .where(project_id: project_id, dmsf_folder_id: dmsf_folder_id)
-      .where.not(id: id)
-      .find_each do |file|
+    DmsfFile.visible.where(project_id: record.project_id, dmsf_folder_id: record.dmsf_folder_id).find_each do |file|
       if file.name == value || file.title == value
         record.errors.add attribute, :taken
         break
       end
     end
 
-    # Check name uniqueness among folders
-    DmsfFolder.visible.where(project_id: project_id, dmsf_folder_id: dmsf_folder_id).find_each do |folder|
-      if folder.title == value
-        record.errors.add attribute, :taken
-        break
-      end
-    end
-
     # Check name uniqueness among links
-    DmsfLink.visible.where(project_id: project_id, dmsf_folder_id: dmsf_folder_id).find_each do |link|
+    DmsfLink.visible.where(project_id: record.project_id, dmsf_folder_id: record.dmsf_folder_id).find_each do |link|
       if link.name == value
         record.errors.add attribute, :taken
         break

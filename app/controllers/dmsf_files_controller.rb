@@ -67,7 +67,7 @@ class DmsfFilesController < ApplicationController
       Rails.logger.error "Could not send email notifications: #{e.message}"
     end
     # Allow a preview of the file by an external plugin
-    results = call_hook(:dmsf_files_controller_before_view, { file: @revision.disk_file })
+    results = call_hook(:dmsf_files_controller_before_view, { file: @revision.file.download })
     return if results.first == true
 
     member = Member.find_by(user_id: User.current.id, project_id: @file.project.id)
@@ -89,7 +89,7 @@ class DmsfFilesController < ApplicationController
       params[:disposition] = 'attachment' if params[:filename].present?
       send_data @revision.file.download,
                 filename: filename,
-                type: @revision.detect_content_type,
+                type: @revision.content_type,
                 disposition: params[:disposition].presence || @revision.dmsf_file.disposition
     end
   rescue DmsfAccessError => e
@@ -139,21 +139,18 @@ class DmsfFilesController < ApplicationController
         upload = DmsfUpload.create_from_uploaded_attachment(@project, @folder, file_upload)
         if upload
           revision.size = upload.size
-          revision.disk_filename = revision.new_storage_filename
           revision.file.attach(
             io: File.open(upload.tempfile_path),
-            filename: revision.disk_filename,
-            content_type: revision.mime_type,
+            filename: file_upload.filename,
+            content_type: Redmine::MimeType.of(file_upload.filename),
             identify: false
           )
         end
       else
         revision.size = last_revision.size
-        revision.disk_filename = last_revision.disk_filename
       end
       # Custom fields
       revision.copy_custom_field_values(params[:dmsf_file_revision][:custom_field_values], last_revision)
-      @file.name = revision.name
       ok = true
       if revision.save
         revision.assign_workflow params[:dmsf_workflow_id]
@@ -330,8 +327,8 @@ class DmsfFilesController < ApplicationController
     if tbnail
       if stale?(etag: tbnail)
         send_file tbnail,
-                  filename: filename_for_content_disposition(@file.last_revision.disk_file),
-                  type: @file.last_revision.detect_content_type,
+                  filename: filename_for_content_disposition(@file.name),
+                  type: @file.last_revision.content_type,
                   disposition: 'inline'
       end
     else

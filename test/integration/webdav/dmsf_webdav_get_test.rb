@@ -154,11 +154,11 @@ class DmsfWebdavGetTest < RedmineDmsf::Test::IntegrationTest
     folder = DmsfFolder.find_by(id: 1)
     assert_not_nil folder
     assert response.body.match(@folder1.title),
-           "Expected to find #{folder.title} in return data"
+           "Expected to find #{folder.title} in the response"
     file = DmsfFile.find_by(id: 1)
     assert_not_nil file
     assert response.body.match(file.name),
-           "Expected to find #{file.name} in return data"
+           "Expected to find #{file.name} in the response"
   end
 
   def test_user_assigned_to_project_dmsf_module_not_enabled

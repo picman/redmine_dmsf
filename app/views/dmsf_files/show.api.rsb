@@ -14,7 +14,7 @@ api.dmsf_file do
         api.dmsf_string "{{dmsf(#{@file.id},#{@file.name},#{r.id})}}"
         api.content_url view_dmsf_file_url(@file, download: r)
         api.size r.size
-        api.mime_type r.mime_type
+        api.mime_type r.content_type
         api.title r.title
         api.description r.description
         api.workflow r.workflow
