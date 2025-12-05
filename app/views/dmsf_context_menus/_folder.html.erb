@@ -46,7 +46,7 @@
     <% else %>
       <%= context_menu_link sprite_icon('lock', l(:button_lock)),
                             lock_dmsf_path(id: dmsf_folder.project, folder_id: dmsf_folder, back_url: back_url),
-                            disabled: !allowed %>
+                            class: 'icon icon-lock', disabled: !allowed %>
       <% end %>
   </li>
 <% end %>
