@@ -91,7 +91,7 @@ class DmsfFolder < ApplicationRecord
                 datetime: proc { |o| o.updated_at },
                 author: proc { |o| o.user }
 
-  validates :title, presence: true, length: { maximum: 255 }, dmsf_folder_name: true
+  validates :title, presence: true, length: { maximum: 255 }, dmsf_file_name: true
   validates :title, uniqueness: { scope: %i[dmsf_folder_id project_id deleted],
                                   conditions: -> { where(deleted: STATUS_ACTIVE) }, case_sensitive: true }
   validates :description, length: { maximum: 65_535 }

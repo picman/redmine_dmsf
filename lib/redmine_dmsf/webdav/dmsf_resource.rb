@@ -224,8 +224,9 @@ module RedmineDmsf
         dest = ResourceProxy.new(dest_path, @request, @response, @options.merge(user: @user))
         return PreconditionFailed if !dest.resource.is_a?(DmsfResource) || dest.resource.project.nil?
 
-        parent = dest.resource.parent
+        parent = dest_path.end_with?('/') && !collection? ? dest.resource : dest.resource.parent
         raise Forbidden unless dest.resource.project.module_enabled?(:dmsf)
+
         if !parent.exist? || (!User.current.admin? && (!DmsfFolder.permissions?(folder, allow_system: false) ||
            !DmsfFolder.permissions?(parent.folder, allow_system: false)))
           raise Forbidden
@@ -241,13 +242,11 @@ module RedmineDmsf
              !User.current.allowed_to?(:folder_manipulation, dest.resource.project))
             raise Forbidden
           end
-          return MethodNotAllowed unless folder # Moving sub-project not enabled
+          return MethodNotAllowed unless folder # Moving subprojects is not enabled
           raise Locked if folder.locked_for_user?
 
           # Change the title
           folder.title = dest.resource.basename
-          return PreconditionFailed unless folder.save
-
           # Move to a new destination
           folder.move_to(dest.resource.project, parent.folder) ? Created : PreconditionFailed
         else
@@ -294,7 +293,7 @@ module RedmineDmsf
               # Update Revision and names of file [We can link to old physical resource, as it's not changed]
               if file.last_revision
                 file.last_revision.name = dest.resource.basename
-                file.last_revision.title = DmsfFileRevision.filename_to_title(dest.resource.basename)
+                file.last_revision.title = File.basename(dest.resource.basename, '.*')
               end
               # Save Changes
               if file.last_revision.save && file.save
@@ -337,7 +336,7 @@ module RedmineDmsf
           #  Manipulate folders on destination project :folder_manipulation
           #  View folders on destination project       :view_dmsf_folders
           #  View files on the source project          :view_dmsf_files
-          #  View fodlers on the source project        :view_dmsf_folders
+          #  View folders on the source project        :view_dmsf_folders
           raise Forbidden unless User.current.admin? ||
                                  (User.current.allowed_to?(:folder_manipulation, dest.resource.project) &&
                                   User.current.allowed_to?(:view_dmsf_folders, dest.resource.project) &&
@@ -367,6 +366,7 @@ module RedmineDmsf
 
           # Update Revision and names of file (We can link to old physical resource, as it's not changed)
           new_file.last_revision.name = dest.resource.basename
+          new_file.last_revision.title = File.basename(dest.resource.basename, '.*')
           # Save Changes
           unless new_file.last_revision.save && new_file.save
             new_file.delete commit: true
@@ -582,7 +582,7 @@ module RedmineDmsf
           new_revision = DmsfFileRevision.new
           new_revision.minor_version = 1
           new_revision.major_version = 0
-          new_revision.title = DmsfFileRevision.filename_to_title(basename)
+          new_revision.title = File.basename(basename, '.*')
         end
 
         new_revision.dmsf_file = f
@@ -764,11 +764,11 @@ module RedmineDmsf
         f = DmsfFile.new
         f.project_id = project.id
         f.dmsf_folder = parent.folder
-        if f.save(validate: false) # Skip validation due to invalid characters in the filename
+        if f.save
           r = DmsfFileRevision.new
           r.minor_version = 1
           r.major_version = 0
-          r.title = DmsfFileRevision.filename_to_title(basename)
+          r.title = File.basename(basename, '.*')
           r.dmsf_file = f
           r.user = User.current
           r.name = basename
@@ -779,10 +779,10 @@ module RedmineDmsf
             r.custom_field_values << CustomValue.new({ custom_field: cf, value: cf.default_value })
           end
           if r.save(validate: false) # Skip validation due to invalid characters in the filename
-            revision.file.attach(
-              io: File.new(upload.tempfile_path),
-              filename: file_upload.filename,
-              content_type: Redmine::MimeType.of(file_upload.filename),
+            r.file.attach(
+              io: File.new(DmsfHelper.temp_filename(basename), File::CREAT),
+              filename: basename,
+              content_type: 'application/octet-stream',
               identify: false
             )
             return f

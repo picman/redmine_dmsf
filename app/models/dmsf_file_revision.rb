@@ -90,7 +90,7 @@ class DmsfFileRevision < ApplicationRecord
     }
   )
 
-  validates :title, presence: true, dmsf_file_name: true, length: { maximum: 255 }
+  validates :title, presence: true, length: { maximum: 255 }, dmsf_file_name: true
   validates :major_version, presence: true
   validates :name, presence: true, dmsf_file_name: true, length: { maximum: 255 }, dmsf_file_extension: true
   validates :description, length: { maximum: 1.kilobyte }
@@ -131,14 +131,6 @@ class DmsfFileRevision < ApplicationRecord
 
   def folder
     dmsf_file&.dmsf_folder
-  end
-
-  def self.remove_extension(filename)
-    filename[0, (filename.length - File.extname(filename).length)]
-  end
-
-  def self.filename_to_title(filename)
-    remove_extension(filename).gsub(/_+/, ' ')
   end
 
   def delete(commit: false, force: true)

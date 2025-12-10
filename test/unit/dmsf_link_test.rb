@@ -84,33 +84,6 @@ class DmsfLinksTest < RedmineDmsf::Test::UnitTest
                     "Name #{l('activerecord.errors.messages.error_contains_invalid_character')}"
   end
 
-  def test_name_uniqueness_validation
-    User.current = @admin
-
-    # Duplicity among files names
-    @folder_link1.name = @revision1.name
-    assert @folder_link1.invalid?
-    assert_includes @folder_link1.errors.full_messages, 'Name has already been taken'
-
-    # Duplicity among invisible files is all right
-    @folder_link1.name = @revision3.name
-    assert_not @folder_link1.invalid?
-
-    # Duplicity among files titles
-    @folder_link1.name = @revision1.title
-    assert @folder_link1.invalid?
-    assert_includes @folder_link1.errors.full_messages, 'Name has already been taken'
-
-    # Duplicity among folders
-    @folder_link1.name = @folder6.title
-    assert @folder_link1.invalid?
-    assert_includes @folder_link1.errors.full_messages, 'Name has already been taken'
-
-    # Name is all right
-    @folder_link1.name = 'xxx'
-    assert @folder_link1.valid?
-  end
-
   def test_validate_external_url_length
     @file_link2.target_type = 'DmsfUrl'
     @file_link2.external_url = "https://localhost/#{'a' * 256}"

@@ -86,7 +86,7 @@ class DmsfUpload
     @token = uploaded[:token]
 
     if file.nil? || file.last_revision.nil?
-      @title = DmsfFileRevision.filename_to_title(@name)
+      @title = File.basename(@name, '.*')
       @description = uploaded[:comment]
       if RedmineDmsf.empty_minor_version_by_default?
         @major_version = 1

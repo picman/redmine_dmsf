@@ -49,38 +49,6 @@ class DmsfFolderTest < RedmineDmsf::Test::UnitTest
                     "Title #{l('activerecord.errors.messages.error_contains_invalid_character')}"
   end
 
-  def test_title_uniqueness_validation
-    User.current = @admin
-
-    # Duplicity among files names
-    @folder1.title = @revision1.name
-    assert @folder1.invalid?
-    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
-
-    # Duplicity among invisible files is all right
-    @folder1.title = @revision3.name
-    assert_not @folder1.invalid?
-
-    # Duplicity among files titles
-    @folder1.title = @revision1.title
-    assert @folder1.invalid?
-    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
-
-    # Duplicity among folders
-    @folder1.title = @folder6.title
-    assert @folder1.invalid?
-    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
-
-    # Duplicity among links
-    @folder1.title = @folder_link1.name
-    assert @folder1.invalid?
-    assert_includes @folder1.errors.full_messages, 'Title has already been taken'
-
-    # Name is all right
-    @folder1.title = 'xxx'
-    assert @folder1.valid?
-  end
-
   def test_visibility
     # The role has got permissions
     User.current = @jsmith

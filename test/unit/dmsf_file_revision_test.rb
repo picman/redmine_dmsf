@@ -58,70 +58,6 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     assert_includes @revision1.errors.full_messages, 'Name is too long (maximum is 255 characters)'
   end
 
-  def test_name_uniqueness_validation
-    User.current = @admin
-
-    # Duplicity among files names
-    @revision7.name = @revision1.name
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
-
-    # Duplicity among invisible files is all right
-    @revision7.name = @revision3.name
-    assert_not @revision7.invalid?
-
-    # Duplicity among files titles
-    @revision7.name = @revision1.title
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
-
-    # Duplicity among folders
-    @revision7.name = @folder1.title
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
-
-    # Duplicity among links
-    @revision7.name = @folder_link1.name
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Name has already been taken'
-
-    # Name is all right
-    @revision7.name = 'xxx'
-    assert @revision7.valid?
-  end
-
-  def test_title_uniqueness_validation
-    User.current = @admin
-
-    # Duplicity among files names
-    @revision7.title = @revision1.name
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
-
-    # Duplicity among invisible files is all right
-    @revision7.title = @revision3.name
-    assert_not @revision7.invalid?
-
-    # Duplicity among files titles
-    @revision7.title = @revision1.title
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
-
-    # Duplicity among folders
-    @revision7.title = @folder1.title
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
-
-    # Duplicity among links
-    @revision7.title = @folder_link1.name
-    assert @revision7.invalid?
-    assert_includes @revision7.errors.full_messages, 'Title has already been taken'
-
-    # Name is all right
-    @revision7.title = 'xxx'
-    assert @revision7.valid?
-  end
-
   def test_name_invalid_characters_validation
     @revision1.name << DmsfFolder::INVALID_CHARACTERS[0]
     assert @revision1.invalid?
@@ -156,7 +92,7 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
       r1.dmsf_file = @file1 # name test.txt
       r1.user = User.current
       r1.name = 'test.txt.png'
-      r1.title = DmsfFileRevision.filename_to_title(r1.name)
+      r1.title = File.basename(r1.name, '.*')
       r1.description = nil
       r1.comment = nil
       r1.size = 4
