@@ -17,15 +17,19 @@
 # You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
 # <https://www.gnu.org/licenses/>.
 
-# File extension validator according to the Redmine whitelist and blacklist for file upload.
-class DmsfFileExtensionValidator < ActiveModel::EachValidator
-  include Redmine::I18n
-
+# File name validator
+class DmsfFileRevisionNameValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
-    extension = File.extname(value)
-
-    return if Attachment.valid_extension?(extension)
-
-    record.errors.add attribute, l(:error_attachment_extension_not_allowed, extension: extension)
+    # Check name/title uniqueness
+    DmsfFile
+      .visible
+      .where(project_id: record.dmsf_file.project_id, dmsf_folder_id: record.dmsf_file.dmsf_folder_id)
+      .where.not(id: record.dmsf_file_id)
+      .find_each do |dmsf_file|
+        if dmsf_file.name == value
+          record.errors.add attribute, :taken
+          break
+        end
+      end
   end
 end
