@@ -97,7 +97,7 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
       r1.comment = nil
       r1.size = 4
       assert r1.invalid?
-      message = ['Attachment extension .png is not allowed']
+      message = ['Name Attachment extension .png is not allowed']
       assert_equal message, r1.errors.full_messages
     end
   end
