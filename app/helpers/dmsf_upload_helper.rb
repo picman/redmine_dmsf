@@ -94,7 +94,7 @@ module DmsfUploadHelper
             new_revision.file.attach(
               io: File.open(committed_file[:tempfile_path]),
               filename: new_revision.name,
-              content_type: new_revision.content_type,
+              content_type: committed_file[:mime_type],
               identify: false
             )
             file.last_revision = new_revision

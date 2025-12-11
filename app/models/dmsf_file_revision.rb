@@ -278,12 +278,7 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def copy_file_content(open_file)
-    file.attach(
-      io: open_file,
-      filename: dmsf_file.name,
-      content_type: content_type,
-      identify: false
-    )
+    file.attach io: open_file, filename: dmsf_file.name
   end
 
   # Overrides Redmine::Acts::Customizable::InstanceMethods#available_custom_fields
