@@ -44,10 +44,10 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
                       .find_each
                       .with_index do |r, i|
         if i.zero?
-          r.file.attach(
+          r.shared_file.attach(
             io: File.open(path),
             filename: r.name,
-            content_type: r.content_type,
+            content_type: r.content_type || 'application/octet-stream',
             identify: false
           )
           # Remove the original file

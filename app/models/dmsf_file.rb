@@ -333,7 +333,7 @@ class DmsfFile < ApplicationRecord
       end
       if last_revision.file.attached?
         begin
-          new_revision.file.attach(
+          new_revision.shared_file.attach(
             io: StringIO.new(last_revision.file.download),
             filename: filename,
             content_type: new_revision.file.content_type,

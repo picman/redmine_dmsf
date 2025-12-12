@@ -91,7 +91,7 @@ module DmsfUploadHelper
               a = Attachment.find_by_token(committed_file[:token])
               committed_file[:tempfile_path] = a.diskfile if a
             end
-            new_revision.file.attach(
+            new_revision.shared_file.attach(
               io: File.open(committed_file[:tempfile_path]),
               filename: new_revision.name,
               content_type: committed_file[:mime_type],

@@ -779,7 +779,7 @@ module RedmineDmsf
             r.custom_field_values << CustomValue.new({ custom_field: cf, value: cf.default_value })
           end
           if r.save(validate: false) # Skip validation due to invalid characters in the filename
-            r.file.attach(
+            r.shared_file.attach(
               io: File.new(DmsfHelper.temp_filename(basename), File::CREAT),
               filename: basename,
               content_type: 'application/octet-stream',

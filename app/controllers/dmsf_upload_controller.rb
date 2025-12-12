@@ -65,11 +65,6 @@ class DmsfUploadController < ApplicationController
 
   # REST API and Redmine attachment form
   def upload
-    unless request.media_type == 'application/octet-stream'
-      head :not_acceptable
-      return
-    end
-
     @attachment = Attachment.new(file: request.body)
     @attachment.author = User.current
     @attachment.filename = params[:filename].presence || Redmine::Utils.random_hex(16)

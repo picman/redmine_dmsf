@@ -131,24 +131,24 @@ class DmsfFilesController < ApplicationController
       revision.minor_version = DmsfUploadHelper.db_version(params[:version_minor])
       revision.patch_version = DmsfUploadHelper.db_version(params[:version_patch])
 
+      # New content
       if params[:dmsf_attachments].present?
         keys = params[:dmsf_attachments].keys
         file_upload = params[:dmsf_attachments][keys.first] if keys&.first
-      end
-      if file_upload
-        upload = DmsfUpload.create_from_uploaded_attachment(@project, @folder, file_upload)
-        if upload
-          revision.size = upload.size
-          revision.file.attach(
-            io: File.open(upload.tempfile_path),
-            filename: file_upload.filename,
-            content_type: Redmine::MimeType.of(file_upload.filename),
+        a = Attachment.find_by_token(file_upload[:token]) if file_upload
+        if a
+          revision.size = a.filesize
+          revision.shared_file.attach(
+            io: File.open(a.diskfile),
+            filename: a.filename,
+            content_type: a.content_type.presence || 'application/octet-stream',
             identify: false
           )
         end
       else
         revision.size = last_revision.size
       end
+
       # Custom fields
       revision.copy_custom_field_values(params[:dmsf_file_revision][:custom_field_values], last_revision)
       ok = true
