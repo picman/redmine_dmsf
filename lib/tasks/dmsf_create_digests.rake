@@ -53,7 +53,7 @@ class DmsfCreateDigest
     count = revisions.all.size
     n = 0
     revisions.each_with_index do |rev, i|
-      if File.exist?(rev.disk_file)
+      if File.file?(rev.disk_file)
         file = File.new rev.disk_file, 'r'
         if file.respond_to?(:read)
           sha = Digest::SHA256.new
@@ -65,10 +65,10 @@ class DmsfCreateDigest
           rev.digest = Digest::SHA256.file(rev.disk_file)
         end
         rev.save unless @dry_run
+        n += 1
       else
         puts "#{rev.disk_file} not found"
       end
-      n += 1
       # Progress bar
       print "\r#{i * 100 / count}%"
     end
