@@ -84,7 +84,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     # Migrate attachments
     ActiveStorage::Attachment.find_each do |a|
       r = a.record
-      new_path = disk_file
+      new_path = disk_file(r)
       unless File.exist?(new_path)
         a.blob.open do |f|
           # Move the attachment
@@ -140,7 +140,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
   end
 
   def disk_file(dmsf_file_revision)
-    path = storage_base_path
+    path = storage_base_path(dmsf_file_revision)
     begin
       FileUtils.mkdir_p path
     rescue StandardError => e
