@@ -84,7 +84,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     # Migrate attachments
     ActiveStorage::Attachment.find_each do |a|
       r = a.record
-      new_path = disk_file(r)
+      new_path = disk_file(r, a)
       unless File.exist?(new_path)
         a.blob.open do |f|
           # Move the attachment
@@ -92,7 +92,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
           r.record_timestamps = false # Do not modify updated_at column
           DmsfFileRevision.no_touching do
             # Mime type
-            r.mime_type = f.content_type
+            r.mime_type = a.blob.content_type
             # Disk filename
             r.disk_filename = File.basename(new_path)
             # Digest
@@ -134,18 +134,28 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     end
   end
 
-  def storage_base_path(dmsf_file_revision)
-    time = dmsf_file_revision.created_at || DateTime.current
+  def storage_base_path(r)
+    time = r.created_at || DateTime.current
     DmsfFile.storage_path.join(time.strftime('%Y')).join time.strftime('%m')
   end
 
-  def disk_file(dmsf_file_revision)
-    path = storage_base_path(dmsf_file_revision)
+  def new_storage_filename(r, name)
+    filename = DmsfHelper.sanitize_filename(name)
+    timestamp = DateTime.current.strftime('%y%m%d%H%M%S')
+    while File.exist? storage_base_path(r).join("#{timestamp}_#{r.dmsf_file.id}_#{filename}")
+      timestamp.succ!
+    end
+    "#{timestamp}_#{r.dmsf_file.id}_#{filename}"
+  end
+
+  def disk_file(r, attachment)
+    path = storage_base_path(r)
     begin
       FileUtils.mkdir_p path
     rescue StandardError => e
       Rails.logger.error e.message
     end
-    path.join(dmsf_file_revision.disk_filename).to_s
+    filename = new_storage_filename(r, attachment.blob&.filename&.to_s)
+    path.join(filename).to_s
   end
 end
