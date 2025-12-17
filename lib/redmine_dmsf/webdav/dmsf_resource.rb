@@ -618,6 +618,7 @@ module RedmineDmsf
 
         if new_revision.save
           if request.body.respond_to?(:rewind)
+            request.body.rewind
             new_revision.copy_file_content request.body
           else # A workaround for Webrick that doesn't support rewind
             stream = StringIO.new

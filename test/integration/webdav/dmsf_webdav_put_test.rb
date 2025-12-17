@@ -381,6 +381,7 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
       assert_response :created
     end
     checksum = Digest::MD5.base64digest('1234')
+    @file1.last_revision = nil
     assert_equal checksum, @file1.last_revision.checksum
   end
 
