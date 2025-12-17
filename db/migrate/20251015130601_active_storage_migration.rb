@@ -134,28 +134,26 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     end
   end
 
-  def storage_base_path(r)
-    time = r.created_at || DateTime.current
+  def storage_base_path(rev)
+    time = rev.created_at || DateTime.current
     DmsfFile.storage_path.join(time.strftime('%Y')).join time.strftime('%m')
   end
 
-  def new_storage_filename(r, name)
+  def new_storage_filename(rev, name)
     filename = DmsfHelper.sanitize_filename(name)
     timestamp = DateTime.current.strftime('%y%m%d%H%M%S')
-    while File.exist? storage_base_path(r).join("#{timestamp}_#{r.dmsf_file.id}_#{filename}")
-      timestamp.succ!
-    end
-    "#{timestamp}_#{r.dmsf_file.id}_#{filename}"
+    timestamp.succ! while File.exist? storage_base_path(rev).join("#{timestamp}_#{rev.dmsf_file.id}_#{filename}")
+    "#{timestamp}_#{rev.dmsf_file.id}_#{filename}"
   end
 
-  def disk_file(r, attachment)
-    path = storage_base_path(r)
+  def disk_file(rev, attachment)
+    path = storage_base_path(rev)
     begin
       FileUtils.mkdir_p path
     rescue StandardError => e
       Rails.logger.error e.message
     end
-    filename = new_storage_filename(r, attachment.blob&.filename&.to_s)
+    filename = new_storage_filename(rev, attachment.blob&.filename&.to_s)
     path.join(filename).to_s
   end
 end
