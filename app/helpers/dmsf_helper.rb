@@ -34,7 +34,7 @@ module DmsfHelper
   def self.sanitize_filename(filename)
     # Get only the filename, not the whole path
     just_filename = File.basename(filename.gsub('\\\\', '/'))
-    # Replace all non alphanumeric, hyphens or periods with underscore
+    # Replace all non-alphanumeric, hyphens or periods with underscore
     just_filename.gsub!(/[^\w.\-]/, '_')
     # Keep the extension if any
     if !/^[a-zA-Z0-9_.\-]*$/.match?(just_filename) && just_filename =~ /(.[a-zA-Z0-9]+)$/

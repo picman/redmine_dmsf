@@ -241,16 +241,22 @@ module RedmineDmsf
                  {{dmsftn(file_id)}} -- with default height 200 (auto width)
                  {{dmsftn(file_id1 file_id2 file_id3)}} -- multiple thumbnails
                  {{dmsftn(file_id, size=300)}} -- with size 300x300
-                 {{dmsftn(file_id, height=300)}} -- with height (auto width)
-                 {{dmsftn(file_id, width=300)}} -- with width (auto height)
+                 {{dmsftn(file_id, height=300)}} -- with height (default width)
+                 {{dmsftn(file_id, width=300)}} -- with width (default height)
                  {{dmsftn(file_id, size=640x480)}} -- with size 640x480}
       macro :dmsftn do |_obj, args|
         raise ArgumentError if args.empty? # Requires file id
 
         args, options = extract_macro_options(args, :size, :width, :height, :title)
-        size = options[:size]
-        width = options[:width]
-        height = options[:height]
+
+        if options[:size].present?
+          width, height = options[:size].split('x')
+          height = width if height.blank?
+        else
+          width = options[:width].presence || Setting.thumbnails_size.to_i
+          height = options[:height].presence || Setting.thumbnails_size.to_i
+        end
+
         ids = args[0].split
         html = []
         ids.each do |id|
@@ -260,21 +266,17 @@ module RedmineDmsf
             next
           end
           raise ::I18n.t(:notice_not_authorized) unless User.current&.allowed_to?(:view_dmsf_files, file.project)
-          raise ::I18n.t(:error_not_supported_image_format) unless file.image?
+          raise ::I18n.t(:error_not_supported_image_format) unless file&.thumbnailable?
 
           member = Member.find_by(user_id: User.current.id, project_id: file.project.id)
           filename = file.last_revision.formatted_name(member)
           url = static_dmsf_file_url(file, filename: filename)
-          img = if size
-                  image_tag(url, alt: filename, title: file.title, size: size)
-                elsif height
-                  image_tag(url, alt: filename, title: file.title, width: 'auto', height: height)
-                elsif width
-                  image_tag(url, alt: filename, title: file.title, width: width, height: 'auto')
-                else
-                  image_tag(url, alt: filename, title: file.title, width: 'auto', height: 200)
-                end
-          html << link_to(img, url,
+          img = image_tag(file.last_revision&.file&.variant(resize_to_limit: [width, height]),
+                          alt: filename,
+                          style: "max-width: #{width}px; max-height: #{height}px;",
+                          loading: 'lazy')
+          html << link_to(img,
+                          url,
                           target: '_blank',
                           rel: 'noopener',
                           title: h(file.last_revision.try(:tooltip)),

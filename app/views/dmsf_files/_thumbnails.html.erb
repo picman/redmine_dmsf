@@ -25,12 +25,20 @@
           <div class="thumbnails">
         <% end %>
           <% images.each do |file| %>
-              <div>
+              <div class="thumbnail" title="<%= file.name %>">
                 <% if link_to # Redmine classic %>
-                    <%= link_to image_tag(dmsf_thumbnail_path(file), alt: file.title), view_dmsf_file_url(file) %>
+                  <% size = Setting.thumbnails_size.to_i %>
+                  <%= link_to image_tag(file.last_revision&.file&.variant(resize_to_limit: [size, size]),
+                                        alt: file.title,
+                                        style: "max-width: #{size}px; max-height: #{size}px;",
+                                        loading: 'lazy'),
+                              view_dmsf_file_url(file) %>
                 <% else # jQuery gallery %>
-                    <%= image_tag(dmsf_thumbnail_path(file),
-                      { :'data-fullsrc' => view_dmsf_file_url(file), alt: file.title }) %>
+                  <%= image_tag(file.last_revision&.file&.variant(resize_to_limit: [size, size]),
+                                :'data-fullsrc' => view_dmsf_file_url(file),
+                                alt: file.title,
+                                style: "max-width: #{size}px; max-height: #{size}px;",
+                                loading: 'lazy') %>
                 <% end %>
               </div>
           <% end %>

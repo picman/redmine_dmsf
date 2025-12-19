@@ -322,20 +322,6 @@ class DmsfFilesController < ApplicationController
     redirect_to trash_dmsf_path(@project)
   end
 
-  def thumbnail
-    tbnail = @file.thumbnail(size: params[:size])
-    if tbnail
-      if stale?(etag: tbnail)
-        send_file tbnail,
-                  filename: filename_for_content_disposition(@file.name),
-                  type: @file.last_revision.content_type,
-                  disposition: 'inline'
-      end
-    else
-      head :not_found
-    end
-  end
-
   private
 
   def find_file

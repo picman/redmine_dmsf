@@ -254,21 +254,23 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
     size = '50%'
     url = static_dmsf_file_url(@file7, @file7.last_revision.name)
     text = textilizable("{{dmsf_image(#{@file7.id}, size=#{size})}}")
-    assert text.include?(image_tag(url, alt: @file7.name, title: @file7.title, width: size, height: size)), text
-    # TODO: arguments src and with and height are swapped
+    assert_equal "<p>#{image_tag(url, alt: @file7.name, title: @file7.title, width: size, height: size)}</p>", text
+    # TODO: Swaped parameters src and size
     # size = '300'
     # text = textilizable("{{dmsf_image(#{@file7.id}, size=#{size})}}")
-    # assert text.include?(image_tag(url, alt: @file7.name, title: @file7.title, width: size, height: size)), text
-    # TODO: arguments src and with and height are swapped
+    # assert_equal "<p>#{image_tag(url, alt: @file7.name, title: @file7.title, width: size, height: size)}</p>", text
     # size = '640x480'
     # text = textilizable("{{dmsf_image(#{@file7.id}, size=#{size})}}")
-    # assert text.include?(image_tag(url, alt: @file7.name, title: @file7.title, width: '640', height: '480')), text
+    # assert_equal "<p>#{image_tag(url, alt: @file7.name, title: @file7.title, width: '640', height: '480')}</p>",
+    #              text
     height = '480'
     text = textilizable("{{dmsf_image(#{@file7.id}, height=#{height})}}")
-    assert text.include?(image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: height)), text
+    assert_equal "<p>#{image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: height)}</p>",
+                 text
     width = '480'
     text = textilizable("{{dmsf_image(#{@file7.id}, width=#{height})}}")
-    assert text.include?(image_tag(url, alt: @file7.name, title: @file7.title, width: width, height: 'auto')), text
+    assert_equal "<p>#{image_tag(url, alt: @file7.name, title: @file7.title, width: width, height: 'auto')}</p>",
+                 text
   end
 
   def test_macro_dmsf_image_no_permissions
@@ -344,74 +346,86 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
   def test_macro_dmsftn
     text = textilizable("{{dmsftn(#{@file7.id})}}")
     url = static_dmsf_file_url(@file7, @file7.last_revision.name)
-    img = image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: 200)
+    size = Setting.thumbnails_size.to_i
+    img = image_tag(@file7.last_revision&.file&.variant(resize_to_limit: [size, size]),
+                    alt: @file7.name,
+                    style: "max-width: #{size}px; max-height: #{size}px;",
+                    loading: 'lazy')
     link = link_to(img,
                    url,
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    assert text.include?(link), text
+    assert_equal "<p>#{link}</p>", text
   end
 
   # {{dmsftn(file_id file_id)}}
   def test_macro_dmsftn_multiple
     text = textilizable("{{dmsftn(#{@file7.id} #{@file7.id})}}")
     url = static_dmsf_file_url(@file7, @file7.last_revision.name)
-    img = image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: 200)
+    img = image_tag(@file7.last_revision&.file&.variant(resize_to_limit: [100, 100]),
+                    alt: @file7.name,
+                    style: 'max-width: 100px; max-height: 100px;',
+                    loading: 'lazy')
     link = link_to(img,
                    url,
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl': 'image/gif:test.gif:http://www.example.com/dmsf/files/7/test.gif')
-    assert text.include?(link + link), text
+    assert_equal "<p>#{link}#{link}</p>", text
   end
 
   # {{dmsftn(file_id size=300)}}
   def test_macro_dmsftn_size
     url = static_dmsf_file_url(@file7, @file7.last_revision.name)
-    size = '300'
-    text = textilizable("{{dmsftn(#{@file7.id}, size=#{size})}}")
-    img = image_tag(url, alt: @file7.name, title: @file7.title, size: size)
+    size = Setting.thumbnails_size.to_i
+
+    # Size
+    text = textilizable("{{dmsftn(#{@file7.id}, size=300)}}")
+    img = image_tag(@file7.last_revision&.file&.variant(resize_to_limit: [300, 300]),
+                    alt: @file7.name,
+                    style: 'max-width: 300px; max-height: 300px;',
+                    loading: 'lazy')
     link = link_to(img,
                    url,
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    assert text.include?(link), text
-    # TODO: arguments src and with and height are swapped
-    # size = '640x480'
-    # text = textilizable("{{dmsftn(#{@file7.id}, size=#{size})}}")
-    # img = image_tag(url, alt: @file7.name, title: @file7.title, width: 640, height: 480)
-    # link = link_to(img,
-    #                url,
-    #                target: '_blank',
-    #                rel: 'noopener',
-    #                title: h(@file7.last_revision.try(:tooltip)),
-    #                'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    # assert text.include?(link), text
-    height = '480'
-    text = textilizable("{{dmsftn(#{@file7.id}, height=#{height})}}")
-    img = image_tag(url, alt: @file7.name, title: @file7.title, width: 'auto', height: 480)
-    link = link_to(img,
-                   url,
-                   target: '_blank',
-                   rel: 'noopener',
-                   title: h(@file7.last_revision.try(:tooltip)),
-                   'data-downloadurl': 'image/gif:test.gif:http://www.example.com/dmsf/files/7/test.gif')
-    assert text.include?(link), text
-    width = '640'
-    text = textilizable("{{dmsftn(#{@file7.id}, width=#{width})}}")
-    img = image_tag(url, alt: @file7.name, title: @file7.title, width: 640, height: 'auto')
+    assert_equal "<p>#{link.gsub(/redirect\/.*\/#{@file7.name}/, '...')}</p>",
+                 text.gsub(/redirect\/.*\/#{@file7.name}/, '...')
+
+    # Height
+    text = textilizable("{{dmsftn(#{@file7.id}, height=480)}}")
+    img = image_tag(@file7.last_revision&.file&.variant(resize_to_limit: [size, 480]),
+                    alt: @file7.name,
+                    style: "max-width: #{size}px; max-height: 480px;",
+                    loading: 'lazy')
     link = link_to(img,
                    url,
                    target: '_blank',
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    assert text.include?(link), text
+    assert_equal "<p>#{link.gsub(/redirect\/.*\/#{@file7.name}/, '...')}</p>",
+                 text.gsub(/redirect\/.*\/#{@file7.name}/, '...')
+
+    # Width
+    text = textilizable("{{dmsftn(#{@file7.id}, width=640)}}")
+    img = image_tag(@file7.last_revision&.file&.variant(resize_to_limit: [640, size]),
+                    alt: @file7.name,
+                    style: "max-width: 640px; max-height: #{size}px;",
+                    loading: 'lazy')
+    link = link_to(img,
+                   url,
+                   target: '_blank',
+                   rel: 'noopener',
+                   title: h(@file7.last_revision.try(:tooltip)),
+                   'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
+    assert_equal "<p>#{link.gsub(/redirect\/.*\/#{@file7.name}/, '...')}</p>",
+                 text.gsub(/redirect\/.*\/#{@file7.name}/, '...')
   end
 
   def test_macro_dmsftn_no_permissions

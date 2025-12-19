@@ -546,7 +546,7 @@ class DmsfFile < ApplicationRecord
   end
 
   def thumbnailable?
-    Redmine::Thumbnail.convert_available? && (image? || (pdf? && Redmine::Thumbnail.gs_available?))
+    last_revision.file&.variable?
   end
 
   def previewable?
@@ -630,29 +630,6 @@ class DmsfFile < ApplicationRecord
       return cv if cv.custom_field == custom_field
     end
     nil
-  end
-
-  def thumbnail(options = {})
-    size = options[:size].to_i
-    if size.positive?
-      # Limit the number of thumbnails per image
-      size = (size / 50) * 50
-      # Maximum thumbnail size
-      size = 800 if size > 800
-    else
-      size = Setting.thumbnails_size.to_i
-    end
-    size = 100 unless size.positive?
-    target = File.join(Attachment.thumbnails_storage_path, "#{id}_#{last_revision.digest}_#{size}.thumb")
-    begin
-      Redmine::Thumbnail.generate last_revision.file.download, target, size, pdf?
-    rescue StandardError => e
-      Rails.logger.error do
-        %(An error occured while generating thumbnail for #{last_revision.file&.blob&.filename} to #{target}\n
-          Exception was: #{e.message})
-      end
-      nil
-    end
   end
 
   def locked_title
