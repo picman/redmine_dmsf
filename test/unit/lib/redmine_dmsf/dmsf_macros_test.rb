@@ -394,8 +394,8 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    assert_equal "<p>#{link.gsub(/redirect\/.*\/#{@file7.name}/, '...')}</p>",
-                 text.gsub(/redirect\/.*\/#{@file7.name}/, '...')
+    assert_equal "<p>#{link.gsub(%r{redirect/.*/#{@file7.name}}, '...')}</p>",
+                 text.gsub(%r{redirect/.*/#{@file7.name}}, '...')
 
     # Height
     text = textilizable("{{dmsftn(#{@file7.id}, height=480)}}")
@@ -409,8 +409,8 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    assert_equal "<p>#{link.gsub(/redirect\/.*\/#{@file7.name}/, '...')}</p>",
-                 text.gsub(/redirect\/.*\/#{@file7.name}/, '...')
+    assert_equal "<p>#{link.gsub(%r{redirect/.*/#{@file7.name}}, '...')}</p>",
+                 text.gsub(%r{redirect/.*/#{@file7.name}}, '...')
 
     # Width
     text = textilizable("{{dmsftn(#{@file7.id}, width=640)}}")
@@ -424,8 +424,8 @@ class DmsfMacrosTest < RedmineDmsf::Test::HelperTest
                    rel: 'noopener',
                    title: h(@file7.last_revision.try(:tooltip)),
                    'data-downloadurl' => "#{@file7.last_revision.content_type}:#{h(@file7.name)}:#{url}")
-    assert_equal "<p>#{link.gsub(/redirect\/.*\/#{@file7.name}/, '...')}</p>",
-                 text.gsub(/redirect\/.*\/#{@file7.name}/, '...')
+    assert_equal "<p>#{link.gsub(%r{redirect/.*/#{@file7.name}}, '...')}</p>",
+                 text.gsub(%r{redirect/.*/#{@file7.name}}, '...')
   end
 
   def test_macro_dmsftn_no_permissions
