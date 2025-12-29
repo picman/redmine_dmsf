@@ -39,26 +39,25 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
       end
       # Process a file
       disk_filename = File.basename(path)
+      $stdout.print path
+      found = false
       DmsfFileRevision.where(disk_filename: disk_filename)
                       .order(source_dmsf_file_revision_id: :asc)
-                      .find_each
+                      .each
                       .with_index do |r, i|
+        found = true
         if i.zero?
-          r.shared_file.attach(
-            io: File.open(path),
-            filename: r.name,
-            content_type: r.content_type || 'application/octet-stream',
-            identify: false
-          )
+          r.shared_file.attach io: File.open(path), filename: r.name
           # Remove the original file
           FileUtils.rm path
           key = r.file.blob.key
-          $stdout.puts "#{path} => #{File.join(key[0..1], key[2..3], key)} (#{r.file.blob.filename})"
+          $stdout.puts " => #{File.join(key[0..1], key[2..3], key)} (#{r.file.blob.filename})"
         else
           # The other revisions should have set the source revision
           warn("r#{r.id}.source_dmsf_file_revision_id is null") unless r.source_dmsf_file_revision_id
         end
       end
+      found ? $stdout.print("\n") : $stdout.print(" revision not found, skipped\n")
     end
     # Remove columns duplicated in ActiveStorage
     remove_column :dmsf_file_revisions, :digest
