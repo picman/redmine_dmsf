@@ -715,9 +715,7 @@ module RedmineDmsf
             Rails.logger.error "Could not send email notifications: #{e.message}"
           end
         end
-        file.last_revision.file.open do |f|
-          File.new f.path
-        end
+        file.last_revision.file.download
       end
 
       def reuse_version_for_locked_file?(file)

@@ -17,7 +17,8 @@ _config/additional_environment.rb_
     ++ #config.active_job.queue_adapter = :sidekiq
 
 2. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
-to 'No' in the plugin's option prior the migration.
+to 'No' in the plugin's options prior the migration. After an unsuccessful migration you can just go to your original 
+DMSF version and restore the database.
 
 4.2.3 *2025-10-06*
 ------------------
