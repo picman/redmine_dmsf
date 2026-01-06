@@ -43,14 +43,13 @@ module RedmineDmsf
       FileUtils.mkdir dir
       @blob.open do |file|
         FileUtils.mv file.path, File.join(dir, @blob.key)
-        system "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
       end
-      true
+      system "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
     rescue StandardError => e
       Rails.logger.error e.message
       false
     ensure
-      FileUtils.rm_f dir
+      FileUtils.rm_f(dir) if dir
     end
   end
 end
