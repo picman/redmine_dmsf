@@ -63,13 +63,14 @@ module RedmineDmsf
           @children = []
           if folder
             # Folders
-            folder.dmsf_folders.visible.each do |folder|
+            folder.dmsf_folders.visible.order(:title).each do |folder|
               @children.push child(folder.title) if DmsfFolder.permissions?(folder, allow_system: false)
             end
             # Files
             folder.dmsf_files.visible.each do |file|
               @children.push child(file.name)
             end
+            @children.sort_by!(&:name)
           end
         end
         @children

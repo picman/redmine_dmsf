@@ -35,7 +35,7 @@ module RedmineDmsf
 
         # Folders
         if User.current.allowed_to?(:view_dmsf_folders, project)
-          project.dmsf_folders.visible.pluck(:title).each do |title|
+          project.dmsf_folders.visible.order(:title).pluck(:title).each do |title|
             @children.push child(title)
           end
         end
@@ -44,6 +44,7 @@ module RedmineDmsf
           project.dmsf_files.visible.each do |file|
             @children.push child(file.name)
           end
+          @children.sort_by!(&:name)
         end
         @children
       end
