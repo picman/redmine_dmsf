@@ -67,7 +67,7 @@ class DmsfFilesController < ApplicationController
       Rails.logger.error "Could not send email notifications: #{e.message}"
     end
     # Allow a preview of the file by an external plugin
-    results = call_hook(:dmsf_files_controller_before_view, { file: @revision.file.download })
+    results = call_hook(:dmsf_files_controller_before_view, { file: @revision.file })
     return if results.first == true
 
     member = Member.find_by(user_id: User.current.id, project_id: @file.project.id)
