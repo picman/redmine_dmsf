@@ -1,8 +1,12 @@
 Changelog for Redmine DMSF
 ==========================
 
-4.2.4 *????-??-??*
+4.2.4 *2026-01-07*
 ------------------
+
+    Markdown formatter replaced with Common Mark
+
+* Bug: #15 - Replace markdown with common_mark
 
 4.2.3 *2025-10-06*
 ------------------
