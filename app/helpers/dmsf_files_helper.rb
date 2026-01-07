@@ -29,7 +29,7 @@ module DmsfFilesHelper
 
   def render_document_content(dmsf_file, content)
     if dmsf_file.markdown?
-      render partial: 'common/markup', locals: { markup_text_formatting: markdown_formatter, markup_text: content }
+      render partial: 'common/markup', locals: { markup_text_formatting: 'common_mark', markup_text: content }
     elsif dmsf_file.textile?
       render partial: 'common/markup', locals: { markup_text_formatting: 'textile', markup_text: content }
     else

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Redmine DMSF Plugin 5.0.0 devel
+=======
+# Redmine DMSF Plugin 4.2.5 devel
+>>>>>>> devel
 
 [![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=devel)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
