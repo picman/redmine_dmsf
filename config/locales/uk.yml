@@ -126,7 +126,6 @@ uk:
   label_maximum_files_download: Завантажена максимальна кількість файлів
   note_maximum_number_of_files_downloaded: Обмежує максимальну кількість файлів, завантажених у zip або надісланих 
     електронною поштою. 0 означає необмежений.
-  label_file_storage_directory: Директорія зберігання файлів
   label_index_database: Індекс бази даних
   label_stemming_language: Основна мова
   note_possible_values: Можливі значення

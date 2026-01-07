@@ -126,7 +126,6 @@ hu:
   label_maximum_files_download: Maximálisan feltölthető fájlok
   note_maximum_number_of_files_downloaded: Maximálisan letölthető zip fájlok, vagy emailek. 0 korlátlan letöltést
     jelent.
-  label_file_storage_directory: Fájl tárolókönyvtár
   label_index_database: Index database
   label_stemming_language: Törzs nyelv
   note_possible_values: Lehetséges értékek

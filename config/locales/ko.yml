@@ -126,7 +126,6 @@ ko:
   label_maximum_files_download: 최대 다운로드 개수
   note_maximum_number_of_files_downloaded: Zip 혹은 전자 우편을 통해 다운로드 할 수 있는 최대 파일 수 제한. 0은 무제한을 나타냅니다.
 
-  label_file_storage_directory: 파일 저장 디렉터리
   label_index_database: 데이터베이스 색인
   label_stemming_language: 형태소 분석 언어
   note_possible_values: 가능한 값

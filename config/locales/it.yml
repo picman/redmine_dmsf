@@ -126,7 +126,6 @@ it: # Italian strings thx 2 Matteo Arceci!
   label_maximum_files_download: Numero massimo di documenti scaricabili
   note_maximum_number_of_files_downloaded: Limita il numero massimo di documenti scaricabili in archivio zip o spediti
     via email. 0 significa senza limiti.
-  label_file_storage_directory: Cartella dei documenti
   label_index_database: Indice database
   label_stemming_language: Linguaggio di Stemming
   note_possible_values: Valori possibili

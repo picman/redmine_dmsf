@@ -126,7 +126,6 @@ zh:
   label_maximum_files_download: 最大下载文件数
   note_maximum_number_of_files_downloaded: 最大文件下载数量(zip或发送电子邮件方式). 0表示无限制.
 
-  label_file_storage_directory: 文件存储目录
   label_index_database: Index database
   label_stemming_language: Stemming language
   note_possible_values: Possible values

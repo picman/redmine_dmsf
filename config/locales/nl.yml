@@ -126,7 +126,6 @@ nl:
   label_maximum_files_download: Maximaal aantal bestanden download
   note_maximum_number_of_files_downloaded: Beperkt maximaal aantal bestanden gedownload in zip of verzonden via e-mail.
     0 betekent onbeperkt.
-  label_file_storage_directory: Overzicht bestandenopslag
   label_index_database: Index database
   label_stemming_language: Stemming Language
   note_possible_values: Mogelijke waardes

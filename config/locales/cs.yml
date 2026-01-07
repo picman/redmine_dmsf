@@ -127,7 +127,6 @@ cs:
   label_maximum_files_download: Maximální počet najednou stažených souborů
   note_maximum_number_of_files_downloaded: Maximální počet najednou stažených souborů jako Zip nebo odeslaných e-mailem.
     0 znamená bez omezení.
-  label_file_storage_directory: Složka pro uložení souborů
   label_index_database: Index databáze
   label_stemming_language: "Jazyk pro 'Stemming'"
   note_possible_values: Povolené hodnoty

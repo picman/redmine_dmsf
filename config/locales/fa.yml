@@ -124,7 +124,6 @@ fa:
   label_new_content: محتوای جدید
   label_maximum_files_download: حداکثر تعداد پرونده‌ها برای دریافت
   note_maximum_number_of_files_downloaded: تعداد پرونده‌هایی که به صورت هم‌زمان می‌توان دریافت کرد. 0 به معنی نامحدود است.
-  label_file_storage_directory: مسیر ذخیره‌سازی پرونده‌ها
   label_index_database: پایگاه داده نمایه
   label_stemming_language: زبان مورد استفاده برای نمایه‌گذاری
   note_possible_values: مقادیر ممکن

@@ -126,7 +126,6 @@ ja:
   label_maximum_files_download: 最大ファイルダウンロード数
   note_maximum_number_of_files_downloaded: Zip でダウンロードできる、またはメールで送信できるファイル数の上限。0は無制限。
 
-  label_file_storage_directory: ファイル保存フォルダ
   label_index_database: インデックスデータベース
   label_stemming_language: 語幹抽出する言語
   note_possible_values: 取りうる値

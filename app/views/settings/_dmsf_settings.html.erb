@@ -50,31 +50,6 @@
 </p>
 
 <p>
-  <%=  content_tag :label, l(:label_file_storage_directory) %>
-  <%= text_field_tag 'settings[dmsf_storage_directory]', RedmineDmsf.dmsf_storage_directory, size: 256 %>
-  <em class="info">
-    <%= l(:label_default) %>: files/dmsf
-  </em>
-</p>
-<% unless File.exist?(DmsfFile.storage_path) %>
-  <% begin %>
-    <% FileUtils.mkdir_p DmsfFile.storage_path %>
-  <% rescue %>
-    <p class="warning"><%= l(:error_file_storage_directory_does_not_exist) %></p>
-  <% end %>
-<% end %>
-<% testfilename = DmsfFile.storage_path.join('test.test') %>
-<% if File.exist?(RedmineDmsf.dmsf_storage_directory) %>
-  <% begin %>
-    <% File.open(testfilename, 'wb') {} %>
-  <% rescue %>
-    <p class="warning"><%= l(:error_file_can_not_be_created) %></p>
-  <% ensure %>
-    <% FileUtils.rm_f testfilename %>
-  <% end %>
-<% end %>
-
-<p>
   <%= content_tag :label, l(:label_dmsf_office_bin) %>
   <%= text_field_tag 'settings[office_bin]', RedmineDmsf.office_bin, size: 10 %>
   <% unless RedmineDmsf::Preview.office_available? %>

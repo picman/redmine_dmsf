@@ -126,7 +126,6 @@ sl:
   label_maximum_files_download: Maximum datotek za prenos dol.
   note_maximum_number_of_files_downloaded: Omejitev največjega števila prenešenih datotek v zip formatu ali poslanih po
     emailu. 0 pomeni neomejeno.
-  label_file_storage_directory: Direktorij za datoteke
   label_index_database: Index podatkovna baza
   label_stemming_language: Jezik za korenjenje besed (stemming)
   note_possible_values: Možne vrednosti

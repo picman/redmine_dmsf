@@ -127,7 +127,6 @@ de:
   label_maximum_files_download: Maximal zulässige Anzahl der Dateien, die heruntergeladen werden können.
   note_maximum_number_of_files_downloaded: Beschränkt die maximale Anzahl, der Dateien, die auf einmal heruntergeladen
     werden können. (per ZIP oder E-Mail). 0 bedeutet unbeschränkt.
-  label_file_storage_directory: Verzeichnis für die Dateiablage
   label_index_database: Index Datenbank
   label_stemming_language: Stemming-Sprache
   note_possible_values: Mögliche Werte

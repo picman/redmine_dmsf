@@ -126,7 +126,6 @@ fr:
   label_maximum_files_download: Nombre maximal de fichiers pouvant être téléchargés
   note_maximum_number_of_files_downloaded: Nombre maximal de documents pouvant être téléchargés ou transmis par mail en
     une fois. La valeur 0 signifie illimité.
-  label_file_storage_directory: Dossier de stockage des documents
   label_index_database: Indexer la base de données
   label_stemming_language: Méthode de racinisation
   note_possible_values: valeurs possibles
