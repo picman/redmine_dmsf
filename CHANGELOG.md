@@ -1,7 +1,6 @@
 Changelog for Redmine DMSF
 ==========================
 
-<<<<<<< HEAD
 5.0.0 *????-??-??*
 ------------------
 
@@ -20,9 +19,6 @@ _config/additional_environment.rb_
 2. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
 to 'No' in the plugin's options prior the migration. After an unsuccessful migration you can just go to your original 
 DMSF version and restore the database.
-=======
-4.2.5 *????-??-??*
-------------------
 
 4.2.4 *2026-01-07*
 ------------------
@@ -30,7 +26,6 @@ DMSF version and restore the database.
     Markdown formatter replaced with Common Mark
 
 * Bug: #15 - Replace markdown with common_mark
->>>>>>> devel
 
 4.2.3 *2025-10-06*
 ------------------
