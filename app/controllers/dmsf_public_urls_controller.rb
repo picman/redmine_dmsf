@@ -30,10 +30,20 @@ class DmsfPublicUrlsController < ApplicationController
       begin
         # IE has got a tendency to cache files
         expires_in 0.years, 'must-revalidate' => true
-        send_data(revision.file.download,
-                  filename: filename_for_content_disposition(revision.name),
-                  type: revision.content_type,
-                  disposition: dmsf_public_url.dmsf_file.disposition)
+        if ActiveStorage::Blob.service.is_a?(ActiveStorage::Service::DiskService)
+          # Speed up, if files are stored locally
+          key = revision.file.blob.key
+          path = File.join(ActiveStorage::Blob.service.root, key[0..1], key[2..3], key)
+          send_file path,
+                    filename: filename_for_content_disposition(revision.name),
+                    type: revision.content_type,
+                    disposition: dmsf_public_url.dmsf_file.disposition
+        else
+          send_data revision.file.download,
+                    filename: filename_for_content_disposition(revision.name),
+                    type: revision.content_type,
+                    disposition: dmsf_public_url.dmsf_file.disposition
+        end
       rescue StandardError => e
         Rails.logger.error e.message
         render_404

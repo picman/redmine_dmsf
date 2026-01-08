@@ -716,7 +716,13 @@ module RedmineDmsf
             Rails.logger.error "Could not send email notifications: #{e.message}"
           end
         end
-        file.last_revision.file.download
+        if ActiveStorage::Blob.service.is_a?(ActiveStorage::Service::DiskService)
+          # Speed up, if files are stored locally
+          key = file.last_revision.file.blob.key
+          File.new File.join(ActiveStorage::Blob.service.root, key[0..1], key[2..3], key)
+        else
+          file.last_revision.file.download
+        end
       end
 
       def reuse_version_for_locked_file?(file)

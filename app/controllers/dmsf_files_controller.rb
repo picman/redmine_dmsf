@@ -87,10 +87,20 @@ class DmsfFilesController < ApplicationController
     # Offer the file for download
     else
       params[:disposition] = 'attachment' if params[:filename].present?
-      send_data @revision.file.download,
-                filename: filename,
-                type: @revision.content_type,
-                disposition: params[:disposition].presence || @revision.dmsf_file.disposition
+      if ActiveStorage::Blob.service.is_a?(ActiveStorage::Service::DiskService)
+        # Speed up, if files are stored locally
+        key = @revision.file.blob.key
+        path = File.join(ActiveStorage::Blob.service.root, key[0..1], key[2..3], key)
+        send_file path,
+                  filename: filename,
+                  type: @revision.content_type,
+                  disposition: params[:disposition].presence || @revision.dmsf_file.disposition
+      else
+        send_data @revision.file.download,
+                  filename: filename,
+                  type: @revision.content_type,
+                  disposition: params[:disposition].presence || @revision.dmsf_file.disposition
+      end
     end
   rescue DmsfAccessError => e
     Rails.logger.error e.message
