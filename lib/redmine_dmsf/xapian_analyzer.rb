@@ -45,11 +45,6 @@ module RedmineDmsf
         FileUtils.mv file.path, File.join(dir, @blob.key)
       end
       system "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
-    rescue Xapian::DatabaseLockError => e
-      Rails.logger.warn e.message
-      # Let's wait and try it again
-      sleep 1
-      system "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: false
     rescue StandardError => e
       Rails.logger.error e.message
       false

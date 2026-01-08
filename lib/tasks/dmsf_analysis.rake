@@ -18,7 +18,7 @@
 # <https://www.gnu.org/licenses/>.
 
 desc <<~END_DESC
-  Try to add missing documents into Xapian full-text search index. 
+  Try to add missing documents into Xapian full-text search index.
 
   Example:
     rake redmine:dmsf_analysis RAILS_ENV="production"
