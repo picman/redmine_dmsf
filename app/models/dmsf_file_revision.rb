@@ -30,7 +30,7 @@ class DmsfFileRevision < ApplicationRecord
   belongs_to :dmsf_workflow_assigned_by_user, class_name: 'User'
   belongs_to :dmsf_workflow
 
-  has_one_attached :shared_file
+  has_one_attached :shared_file, dependent: :no_destroy
 
   has_many :dmsf_file_revision_access, dependent: :destroy
   has_many :dmsf_workflow_step_assignment, dependent: :destroy
@@ -100,6 +100,9 @@ class DmsfFileRevision < ApplicationRecord
             dmsf_file_revision_name: true
   validates :description, length: { maximum: 1.kilobyte }
   validates :size, dmsf_max_file_size: true
+
+  # Let's delete the attachment manually
+  def no_destroy; end
 
   def file
     unless shared_file.attached?
@@ -364,7 +367,7 @@ class DmsfFileRevision < ApplicationRecord
 
     if derived_revisions.empty?
       # Remove the file from Xapian index
-      RemoveFromIndexJob.schedule file.blob.key if RedmineDmsf.xapian_available
+      RemoveFromIndexJob.schedule file.blob.key if file.blob.metadata['xapian'] && RedmineDmsf.xapian_available
       # Remove the file
       shared_file.purge if RedmineDmsf.physical_file_delete?
     else
