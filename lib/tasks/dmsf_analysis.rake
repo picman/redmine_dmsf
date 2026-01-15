@@ -20,14 +20,19 @@
 desc <<~END_DESC
   Try to add missing documents into Xapian full-text search index.
 
+  Available options:
+    * force - Analyze despite the fact that 'xapian:true' in the metadata
+
   Example:
     rake redmine:dmsf_analysis RAILS_ENV="production"
+    rake redmine:dmsf_analysis force=1 RAILS_ENV="production"
 END_DESC
 
 namespace :redmine do
   task dmsf_analysis: :environment do
+    force = !ENV.fetch('force', nil)
     ActiveStorage::Blob.find_each do |blob|
-      blob.analyze unless blob.metadata['xapian']
+      blob.analyze unless blob.metadata['xapian'] && force
     end
   end
 end
