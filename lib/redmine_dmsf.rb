@@ -41,14 +41,6 @@ module RedmineDmsf
       Setting.plugin_redmine_dmsf['dmsf_max_email_filesize'].to_i
     end
 
-    def dmsf_storage_directory
-      if Setting.plugin_redmine_dmsf['dmsf_storage_directory'].present?
-        Setting.plugin_redmine_dmsf['dmsf_storage_directory'].strip
-      else
-        'files/dmsf'
-      end
-    end
-
     def dmsf_index_database
       dir = if Setting.plugin_redmine_dmsf['dmsf_index_database'].present?
               Setting.plugin_redmine_dmsf['dmsf_index_database'].strip

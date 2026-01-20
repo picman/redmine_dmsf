@@ -70,14 +70,14 @@ module RedmineDmsf
         @folder6 = DmsfFolder.find 6
         @folder7 = DmsfFolder.find 7
         @folder8 = DmsfFolder.find 8
-        Setting.plugin_redmine_dmsf['dmsf_storage_directory'] = File.join('files', ['dmsf'])
-        FileUtils.cp_r File.join(File.expand_path('../fixtures/files', __FILE__), '.'), DmsfFile.storage_path
+        FileUtils.mkdir_p ActiveStorage::Blob.service.root
+        FileUtils.cp_r File.join(File.expand_path('../fixtures/files', __FILE__), '.'), ActiveStorage::Blob.service.root
         User.current = nil
       end
 
       def teardown
         # Delete our tmp folder
-        FileUtils.rm_rf DmsfFile.storage_path
+        FileUtils.rm_rf ActiveStorage::Blob.service.root
       rescue StandardError => e
         Rails.logger.error e.message
       end

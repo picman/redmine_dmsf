@@ -125,8 +125,13 @@ class DmsfFile < ApplicationRecord
     self.watcher_user_ids = [] if new_record?
   end
 
+  # An obsolete method, just for old DB migrations purposes
   def self.storage_path
-    path = RedmineDmsf.dmsf_storage_directory
+    path = if Setting.plugin_redmine_dmsf['dmsf_storage_directory'].present?
+             Setting.plugin_redmine_dmsf['dmsf_storage_directory'].strip
+           else
+             'files/dmsf'
+           end
     pn = Pathname.new(path)
     return pn if pn.absolute?
 

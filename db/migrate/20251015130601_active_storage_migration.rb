@@ -31,7 +31,9 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     if xapian_database_removed?
       $stdout.puts 'The Xapian database has been removed as it will be rebuilt from scratch during the migration'
     end
-    Dir.glob(DmsfFile.storage_path.join('**/*')).each do |path|
+    path = DmsfFile.storage_path.join('**/*')
+    $stdout.puts path
+    Dir.glob(path.join('**/*')).each do |path|
       # Print out the currently processed directory
       unless File.file?(path)
         $stdout.puts path
@@ -135,7 +137,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
 
   def storage_base_path(rev)
     time = rev.created_at || DateTime.current
-    DmsfFile.storage_path.join(time.strftime('%Y')).join time.strftime('%m')
+    storage_path.join(time.strftime('%Y')).join time.strftime('%m')
   end
 
   def new_storage_filename(rev, name)
