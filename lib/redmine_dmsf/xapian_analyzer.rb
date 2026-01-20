@@ -49,7 +49,7 @@ module RedmineDmsf
       Rails.logger.error e.message
       false
     ensure
-      FileUtils.rm_f(dir) if dir
+      FileUtils.rm_r(dir) if dir
     end
   end
 end
