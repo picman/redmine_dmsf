@@ -29,7 +29,7 @@ module RedmineDmsf
   end
 
   mattr_accessor :xapian_available, instance_writer: false
-  @@xapian_available = RedmineDmsf.lib_available?('xapian')
+  @@xapian_available = RedmineDmsf.lib_available?('xapian') && system('omindex -V')
 
   # Settings
   class << self

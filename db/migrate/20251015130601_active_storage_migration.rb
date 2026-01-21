@@ -43,7 +43,8 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
       disk_filename = File.basename(path)
       $stdout.print path
       found = false
-      DmsfFileRevision.where(disk_filename: disk_filename)
+      DmsfFileRevision.select(:id, :name)
+                      .where(disk_filename: disk_filename)
                       .order(source_dmsf_file_revision_id: :asc)
                       .each
                       .with_index do |r, i|
@@ -52,8 +53,8 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
           r.shared_file.attach io: File.open(path), filename: r.name
           # Remove the original file
           FileUtils.rm(path) if RedmineDmsf.physical_file_delete?
-          key = r.file.blob.key
-          $stdout.puts " => #{File.join(key[0..1], key[2..3], key)} (#{r.file.blob.filename})"
+          key = r.shared_file.blob.key
+          $stdout.puts " => #{File.join(key[0..1], key[2..3], key)} (#{r.shared_file.blob.filename})"
         else
           # The other revisions should have set the source revision
           warn("r#{r.id}.source_dmsf_file_revision_id is null") unless r.source_dmsf_file_revision_id
