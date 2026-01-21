@@ -47,7 +47,7 @@ module RedmineDmsf
       wait_for_flintlock db_path
       cmd = "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p"
       stdout, stderr, = Open3.capture3(cmd)
-      Rails.logger.info(stdout) if stdout.present?
+      Rails.logger.error(stdout) if stdout.present?
       Rails.logger.error(stderr) if stderr.present?
     rescue StandardError => e
       Rails.logger.error e.message
@@ -58,16 +58,19 @@ module RedmineDmsf
 
     # Wait if Xapian database is locked for writing
     def wait_for_flintlock(db_path)
+      return unless Dir.exist?(db_path)
+
       db = Xapian::Database.new(db_path, Xapian::DB_OPEN)
-      (1..3).each do |i|
+      (1..5).each do |i|
         break unless db.locked
 
+        Rails.logger.debug { "DatabaseLockError: waiting for #{i}s" }
         sleep i
       end
     rescue StandardError => e
       Rails.logger.error e.message
     ensure
-      db.close
+      db&.close
     end
   end
 end
