@@ -48,29 +48,15 @@ Further information about the GPL license can be found at
 
 #### Indexing
 
-If you want to use full-text search features, you must setup file content indexing.
-
-It is necessary to index DMSF files with omindex before searching attempts to receive some output:
-
-1. Change the configuration part of redmine_dmsf/extra/xapian_indexer.rb file according to your environment.
-   (The path to the index database set in xapian_indexer.rb must corresponds to the path set in the plugin's settings.)
-2. Run `ruby redmine_dmsf/extra/xapian_indexer.rb -v`
-
-This command should be run on regular basis (e.g. from cron)
-
-Example of cron job (once per hour at 8th minute):
-
-    8 * * * * root /usr/bin/ruby redmine_dmsf/extra/xapian_indexer.rb
-
-See redmine_dmsf/extra/xapian_indexer.rb for help.
+Indexing requires `omindex` command from `xapian-omega` package installed.
 
 #### Searching
 
-If you want to use fulltext search abilities, install xapian packages. In case of using of Bitnami
+If you want to use fulltext search abilities, install Xapian packages. In case of using of Bitnami
 stack or Ruby installed via RVM it might be necessary to install Xapian bindings from sources. See https://xapian.org
  for details.
 
-To index some files with omega you may have to install some other packages like
+To index some files with Omega you may have to install some other packages like
 xpdf, antiword, ...
 
 From Omega documentation:
@@ -133,7 +119,7 @@ libwps-tools gzip unrtf catdvi djview djview3 uuid uuid-dev xz libemail-outlook-
 
 ## Inline displaying of office documents (optional)
 
-If LibreOffice binary `libreoffice` is present in the server, office documents (.odt, .ods,...) are displayed inline.
+If LibreOffice binary `libreoffice` is present on the server, office documents (.odt, .ods,...) are displayed inline.
 The command must be runable by the web app's user. Test it in advance, e.g:
 
 `sudo -u www-data libreoffice --convert-to pdf my_document.odt`
