@@ -28,8 +28,14 @@ module RedmineDmsf
     false
   end
 
+  # Return true if the given command is available
+  def self.cmd_available?(cmd)
+    _, _, status = Open3.capture3(cmd)
+    status.success?
+  end
+
   mattr_accessor :xapian_available, instance_writer: false
-  @@xapian_available = RedmineDmsf.lib_available?('xapian') && system('omindex -V')
+  @@xapian_available = RedmineDmsf.lib_available?('xapian') && RedmineDmsf.cmd_available?('omindex -V')
 
   # Settings
   class << self

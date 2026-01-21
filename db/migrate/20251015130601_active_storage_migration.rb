@@ -43,8 +43,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
       disk_filename = File.basename(path)
       $stdout.print path
       found = false
-      DmsfFileRevision.select(:id, :name)
-                      .where(disk_filename: disk_filename)
+      DmsfFileRevision.where(disk_filename: disk_filename)
                       .order(source_dmsf_file_revision_id: :asc)
                       .each
                       .with_index do |r, i|
