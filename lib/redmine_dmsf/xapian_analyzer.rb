@@ -44,12 +44,30 @@ module RedmineDmsf
       @blob.open do |file|
         FileUtils.mv file.path, File.join(dir, @blob.key)
       end
-      system "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p", exception: true
+      wait_for_flintlock db_path
+      cmd = "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p"
+      stdout, stderr, = Open3.capture3(cmd)
+      Rails.logger.info(stdout) if stdout.present?
+      Rails.logger.error(stderr) if stderr.present?
     rescue StandardError => e
       Rails.logger.error e.message
       false
     ensure
       FileUtils.rm_r(dir) if dir
+    end
+
+    # Wait if Xapian database is locked for writing
+    def wait_for_flintlock(db_path)
+      db = Xapian::Database.new(db_path, Xapian::DB_OPEN)
+      (1..3).each do |i|
+        break unless db.locked
+
+        sleep i
+      end
+    rescue StandardError => e
+      Rails.logger.error e.message
+    ensure
+      db.close
     end
   end
 end
