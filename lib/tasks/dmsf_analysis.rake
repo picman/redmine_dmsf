@@ -31,8 +31,11 @@ END_DESC
 namespace :redmine do
   task dmsf_analysis: :environment do
     force = !ENV.fetch('force', nil)
-    ActiveStorage::Blob.find_each do |blob|
+    count = ActiveStorage::Blob.all.size
+    ActiveStorage::Blob.find_each.with_index do |blob, i|
       blob.analyze unless blob.metadata['xapian'] && force
+      print "\r#{i * 100 / count}%"
     end
+    print "\r100%\n"
   end
 end
