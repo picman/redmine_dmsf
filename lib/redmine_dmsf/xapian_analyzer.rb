@@ -23,6 +23,7 @@ module RedmineDmsf
     def self.accept?(blob)
       return false unless RedmineDmsf.xapian_available &&
                           blob.byte_size < 1_024 * 1_024 * RedmineDmsf.dmsf_max_xapian_filesize # MB
+      return false if blob.audio? || blob.image? || blob.video?
 
       @blob = blob
       true

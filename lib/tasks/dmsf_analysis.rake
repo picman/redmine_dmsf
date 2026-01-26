@@ -31,9 +31,14 @@ END_DESC
 namespace :redmine do
   task dmsf_analysis: :environment do
     force = !ENV.fetch('force', nil)
-    count = ActiveStorage::Blob.all.size
-    ActiveStorage::Blob.find_each.with_index do |blob, i|
-      blob.analyze unless blob.metadata['xapian'] && force
+    max_size = 1_024 * 1_024 * RedmineDmsf.dmsf_max_xapian_filesize
+    scope = ActiveStorage::Blob.where([byte_size: ...max_size])
+    count = scope.all.size
+    scope.find_each.with_index do |blob, i|
+      next if blob.audio? || blob.image? || blob.video?
+      next if blob.metadata['xapian'] && !force
+
+      blob.analyze
       print "\r#{i * 100 / count}%"
     end
     print "\r100%\n"
