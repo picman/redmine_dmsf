@@ -4,21 +4,17 @@ Changelog for Redmine DMSF
 5.0.0 *????-??-??*
 ------------------
 
+    Active Storage
+
 IMPORTANT: 
 
-1. If you use an asynchronous queue adapter such as Sidekiq and want to have migrated documents indexed by
-Xapian for full-text search, it is necessary to use a synchronous adapter during the migration. After the migration you
-can switch it back to the asynchronous one.
-
-_config/additional_environment.rb_
-
-    # Queue adapter
-    -- config.active_job.queue_adapter = :sidekiq
-    ++ #config.active_job.queue_adapter = :sidekiq
-
-2. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
+1. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
 to 'No' in the plugin's options prior the migration. After an unsuccessful migration you can just go to your original 
 DMSF version and restore the database.
+2. For the sake of full-text search it's necessary to manually run `redmine:dmsf_analysis` rake task after the 
+migration.
+
+* New: #9 - External Storage support: Amazon S3
 
 4.2.4 *2026-01-07*
 ------------------

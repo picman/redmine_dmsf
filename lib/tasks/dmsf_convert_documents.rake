@@ -181,14 +181,17 @@ class DmsfConvertDocuments
     revision.major_version = 0
     revision.minor_version = 1
     revision.comment = "Converted from #{container.class.name}"
-    revision.mime_type = attachment.content_type
-    revision.disk_filename = revision.new_storage_filename
     if @dry_run
       $stdout.puts "Dry run revision: #{revision.title}"
       warn(revision.errors.full_messages.to_sentence) if revision.invalid?
     else
-      FileUtils.cp attachment.diskfile, revision.disk_file(search_if_not_exists: false)
-      revision.size = File.size(revision.disk_file(search_if_not_exists: false))
+      revision.size = a.filesize
+      revision.shared_file.attach(
+        io: File.open(attachment.diskfile),
+        filename: attachment.filename,
+        content_type: attachment.content_type.presence || 'application/octet-stream',
+        identify: false
+      )
       revision.save!
     end
     files << file

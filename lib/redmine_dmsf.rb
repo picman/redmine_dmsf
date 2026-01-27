@@ -34,7 +34,7 @@ module RedmineDmsf
     status.success?
   end
 
-  mattr_accessor :xapian_available, instance_writer: false
+  mattr_accessor :xapian_available
   @@xapian_available = RedmineDmsf.lib_available?('xapian') && RedmineDmsf.cmd_available?('omindex -V')
 
   # Settings

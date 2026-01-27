@@ -3,6 +3,17 @@
 [![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=devel)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
 
+>IMPORTANT (for those migrating from a version < 5.0.0):
+>
+> For the sake of Active Storage are all the files physically present in the filesystem migrated to a new location in a 
+> completely diferent file structure!
+> 
+>1. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
+   to 'No' in the plugin's options prior the migration. After an unsuccessful migration you can just go to your original
+   DMSF version and restore the database.
+>2. For the sake of full-text search it's necessary to manually run `redmine:dmsf_analysis` rake task after the
+   migration. Prior of this task remove the present Xapian database.
+
 Redmine DMSF is Document Management System Features plugin for Redmine issue tracking system; It is aimed to replace current Redmine's Documents module.
 
 Redmine DMSF now comes bundled with WebDAV functionality: if switched on within plugin settings this will be accessible from _/dmsf/webdav_.
@@ -190,7 +201,7 @@ instance is stopped.
     wget https://github.com/picman/redmine_dmsf/archive/master.zip
 
 1. In case of upgrade **BACKUP YOUR DATABASE, ORIGINAL PLUGIN AND THE FOLDER WITH DOCUMENTS** first!!!
-2. Put redmine_dmsf plugin directory into plugins. The plugins sub-directory must be named just **redmine_dmsf**. In case
+2. Put redmine_dmsf plugin directory into plugins. The plugins subdirectory must be named just **redmine_dmsf**. In case
    of need rename _redmine_dmsf-x.y.z_ to *redmine_dmsf*.
 3. **Go to the redmine directory**
 
@@ -210,8 +221,8 @@ instance is stopped.
         bundle config set --local without 'xapian'
         bundle install
 
-5. Install Active Storage => [Active Storage](#active-storage)
-6. Enable WebDAV => [WebDAV](#webdav)
+5. Install Active Storage ⇒ [Active Storage](#active-storage)
+6. Enable WebDAV ⇒ [WebDAV](#webdav)
 7. Initialize/Update database
 
    `RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=redmine_dmsf`

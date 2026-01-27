@@ -27,10 +27,10 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     add_column :dmsf_file_revisions, :temp_updated_at, :datetime,
                default: nil, null: true, if_not_exists: true
     DmsfFileRevision.update_all 'temp_updated_at = updated_at'
-    # Remove the Xapian database as it will be rebuilt from scratch during the migration
-    if xapian_database_removed?
-      $stdout.puts 'The Xapian database has been removed as it will be rebuilt from scratch during the migration'
-    end
+    # Switch of Xapian
+    xapian_available = RedmineDmsf.xapian_available
+    RedmineDmsf.xapian_available = false
+    # Index files
     path = DmsfFile.storage_path.join('**/*')
     $stdout.puts path
     Dir.glob(path.join('**/*')).each do |path|
@@ -71,6 +71,10 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
     # Restore updated_at column
     DmsfFileRevision.update_all 'updated_at = temp_updated_at'
     remove_column :dmsf_file_revisions, :temp_updated_at
+    # Restore Xapian availability
+    RedmineDmsf.xapian_available = xapian_available
+    $stdout.puts "Don't forget to rebuild Xapian database using redmine:dmsf_analysis rake task."
+    $stdout.puts 'Prior of this task remove the present Xapian database.'
     $stdout.puts 'Done'
   end
 
@@ -116,24 +120,12 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
         a.purge
       end
     end
-    # Remove the Xapian database as it is useless now and has to be rebuilt with xapian_indexer.rb
-    if xapian_database_removed?
-      $stdout.puts 'Xapian database have been removed as it is useless now and has to be rebuilt with xapian_indexer.rb'
-    end
+    $stdout.puts "Don't forget to rebuild Xapian database using extra/xapian_indexer.rb."
+    $stdout.puts 'Prior of this task remove the present Xapian database.'
     $stdout.puts 'Done'
   end
 
   private
-
-  # Delete Xapian database
-  def xapian_database_removed?
-    if RedmineDmsf.xapian_available
-      FileUtils.rm_rf File.join(RedmineDmsf.dmsf_index_database, RedmineDmsf.dmsf_stemming_lang)
-      true
-    else
-      false
-    end
-  end
 
   def storage_base_path(rev)
     time = rev.created_at || DateTime.current

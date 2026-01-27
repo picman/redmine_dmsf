@@ -48,7 +48,7 @@ module RedmineDmsf
       wait_for_flintlock db_path
       cmd = "#{env}omindex -s \"#{stem_lang}\" -D \"#{db_path}\" --url=/#{url} \"#{dir}\" -p"
       stdout, stderr, status = Open3.capture3(cmd)
-      Rails.logger.error(stdout) if stdout.present?
+      Rails.logger.warn(stdout) if stdout.present?
       Rails.logger.error(stderr) if stderr.present?
       status.success?
     rescue StandardError => e
