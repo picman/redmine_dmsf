@@ -141,7 +141,7 @@ class DmsfFolder < ApplicationRecord
   end
 
   def default_values
-    self.notification = true if RedmineDmsf.dmsf_default_notifications? && !system
+    self.notification = true if RedmineDmsf.dmsf_default_notifications? && !self.system
   end
 
   def locked_by
@@ -466,7 +466,7 @@ class DmsfFolder < ApplicationRecord
   end
 
   def issue
-    if @issue.nil? && system
+    if @issue.nil? && self.system
       issue_id = title.to_i
       @issue = Issue.find_by(id: issue_id) if issue_id.positive?
     end
@@ -559,7 +559,7 @@ class DmsfFolder < ApplicationRecord
   def css_classes(trash)
     classes = []
     if trash
-      if system
+      if self.system
         classes << 'dmsf-system'
       else
         classes << 'hascontextmenu'
