@@ -573,7 +573,7 @@ class DmsfFolder < ApplicationRecord
       else
         classes << 'dmsf-child'
       end
-      if system
+      if self.system
         classes << 'dmsf-system'
       else
         classes << 'hascontextmenu'

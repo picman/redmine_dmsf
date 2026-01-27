@@ -5,6 +5,7 @@ Changelog for Redmine DMSF
 ------------------
 
     Active Storage
+    Ruby 3.4 compatibility
 
 IMPORTANT: 
 
@@ -14,7 +15,9 @@ DMSF version and restore the database.
 2. For the sake of full-text search it's necessary to manually run `redmine:dmsf_analysis` rake task after the 
 migration.
 
-* New: #9 - External Storage support: Amazon S3
+* New: #9  - External Storage support: Amazon S3
+* Bug: #17 - DMSF compatibility issue with Ruby 3.4?
+
 
 4.2.4 *2026-01-07*
 ------------------
