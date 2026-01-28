@@ -21,6 +21,7 @@ source 'https://rubygems.org' do
   gem 'active_record_union'
   gem 'activestorage'
   gem 'image_processing', '~> 1.2'
+  gem 'ostruct' # Dav4Rack
   gem 'ox' # Dav4Rack
   gem 'rake' unless Dir.exist?(File.expand_path('../../redmine_dashboard', __FILE__))
   gem 'simple_enum'
