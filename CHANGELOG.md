@@ -1,7 +1,7 @@
 Changelog for Redmine DMSF
 ==========================
 
-5.0.0 *????-??-??*
+5.0.0 *2026-01-28*
 ------------------
 
     Active Storage
@@ -9,10 +9,12 @@ Changelog for Redmine DMSF
 
 IMPORTANT: 
 
-1. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
-to 'No' in the plugin's options prior the migration. After an unsuccessful migration you can just go to your original 
+1. Active Storage requires some manual installation steps. Follow
+Active Storage installation procedure in README.md.
+2. To be able to roll back easily, it is highly recommended to back up the database and set _**Physical file delete**_
+to 'No' in the plugin's options prior to the migration. After an unsuccessful migration you can just go to your original 
 DMSF version and restore the database.
-2. For the sake of full-text search it's necessary to manually run `redmine:dmsf_analysis` rake task after the 
+3. For the sake of full-text search it's necessary to manually run `redmine:dmsf_analysis` rake task after the 
 migration.
 
 * New: #9  - External Storage support: Amazon S3
