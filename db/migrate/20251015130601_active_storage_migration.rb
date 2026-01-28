@@ -80,7 +80,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
 
   # Active Storage -> File system
   def down
-    $stdout.puts 'It could be a very long process. Be patient...'
+    $stdout.puts "\n>> It could be a very long process. Be patient...\n"
     # Restore removed columns
     add_column :dmsf_file_revisions, :digest, :string, limit: 64, default: '', null: false
     add_column :dmsf_file_revisions, :mime_type, :string
@@ -120,8 +120,8 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
         a.purge
       end
     end
-    $stdout.puts "Don't forget to rebuild Xapian database using extra/xapian_indexer.rb."
-    $stdout.puts 'Prior of this task remove the present Xapian database.'
+    $stdout.puts "\n>> Don't forget to rebuild Xapian database using extra/xapian_indexer.rb."
+    $stdout.puts ">> Prior of this task remove the present Xapian database.\n"
     $stdout.puts 'Done'
   end
 
