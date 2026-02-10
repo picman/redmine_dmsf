@@ -19,6 +19,7 @@
 
 require File.expand_path('../../../../../test_helper', __FILE__)
 
+# Tests the DMS file revision custom field
 class DmsfFileRevisionFormatTest < RedmineDmsf::Test::FieldFormatTest
   fixtures :dmsf_locks, :dmsf_workflows, :dmsf_folders, :dmsf_files, :dmsf_file_revisions
 
