@@ -1,8 +1,14 @@
 Changelog for Redmine DMSF
 ==========================
 
-5.0.1 *????-??-??*
+5.0.1 *2026-02-11*
 ------------------
+
+    Bugs fixing
+
+* Bug: #21 - Undefined method icon for mime type in RedmineDmsf::FieldFormats::DmsfFileRevisionFormatbugSomething 
+             isn't working
+
 
 5.0.0 *2026-01-28*
 ------------------
