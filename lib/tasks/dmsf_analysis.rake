@@ -32,7 +32,7 @@ namespace :redmine do
   task dmsf_analysis: :environment do
     force = ENV.fetch('force', nil)
     max_size = 1_024 * 1_024 * RedmineDmsf.dmsf_max_xapian_filesize
-    scope = ActiveStorage::Blob.where([byte_size: ...max_size])
+    scope = ActiveStorage::Blob.where(byte_size: ...max_size)
     count = scope.all.size
     scope.find_each.with_index do |blob, i|
       next if blob.audio? || blob.image? || blob.video?
