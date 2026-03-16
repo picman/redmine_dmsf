@@ -18,17 +18,17 @@
 # <https://www.gnu.org/licenses/>.
 
 desc <<~END_DESC
-  Identify documents without physical file in the file system
-  
+  Identify documents without a physical file in the file system present
+
   Example:
-    rake redmine:dmsf_missing_files RAILS_ENV="production"    
+    rake redmine:dmsf_missing_files RAILS_ENV="production"
 END_DESC
 
 namespace :redmine do
   task dmsf_missing_files: :environment do
     dmsf_missing_files = DmsfMissingFiles.new
     dmsf_missing_files.run
-    puts "done"
+    puts 'done'
   end
 end
 
