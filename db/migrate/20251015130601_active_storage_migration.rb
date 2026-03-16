@@ -129,7 +129,7 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
 
   def storage_base_path(rev)
     time = rev.created_at || DateTime.current
-    storage_path.join(time.strftime('%Y')).join time.strftime('%m')
+    DmsfFile.storage_path.join(time.strftime('%Y')).join time.strftime('%m')
   end
 
   def new_storage_filename(rev, name)
