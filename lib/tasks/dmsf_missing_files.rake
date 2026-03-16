@@ -47,7 +47,7 @@ class DmsfMissingFiles
         e += 1
         next
       end
-      file = rev.shared_file
+      file = rev.file
       unless file.attached?
         warn "dmsf_file_revision #{rev.id} has no shared file attached"
         e += 1
