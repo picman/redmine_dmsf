@@ -40,16 +40,16 @@ class DmsfMissingFiles
     e = 0
     DmsfFile.visible.find_each do |dmsf_file|
       i += 1
-      print "\r#{i / n * 100}%"
+      print "\r#{i * 100 / n}%"
       rev = dmsf_file.last_revision
       unless rev
-        warn "dmsf_file #{dmsf_file.id} has no revision"
+        print "\rdmsf_file #{dmsf_file.id} has no revision\n"
         e += 1
         next
       end
       file = rev.file
       unless file.attached?
-        warn "dmsf_file_revision #{rev.id} has no shared file attached"
+        print "\rdmsf_file #{dmsf_file.id}, dmsf_file_revision #{rev.id} has no shared file attached\n"
         e += 1
         next
       end
