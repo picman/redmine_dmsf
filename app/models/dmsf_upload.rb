@@ -20,7 +20,7 @@
 # Upload
 class DmsfUpload
   attr_accessor :name, :disk_filename, :mime_type, :title, :description, :comment, :major_version, :minor_version,
-                :patch_version, :locked, :workflow, :custom_values, :tempfile_path, :token
+                :patch_version, :locked, :workflow, :custom_values, :token
   attr_reader   :size
 
   def disk_file
@@ -35,8 +35,8 @@ class DmsfUpload
         content_type: a.content_type.presence || 'application/octet-stream',
         original_filename: a.filename,
         comment: uploaded_file[:description],
-        tempfile_path: a.diskfile,
-        token: uploaded_file[:token]
+        token: uploaded_file[:token],
+        size: a.filesize
       }
       DmsfUpload.new project, folder, uploaded
     else
@@ -51,7 +51,6 @@ class DmsfUpload
       @disk_filename = ''
       @mime_type = ''
       @size = 0
-      @tempfile_path = ''
       @token = ''
       if RedmineDmsf.empty_minor_version_by_default?
         @major_version = 1
@@ -77,12 +76,7 @@ class DmsfUpload
 
     @disk_filename = uploaded[:disk_filename]
     @mime_type = uploaded[:content_type]
-    @size = File.size?(uploaded[:tempfile_path])
-    unless @size
-      @size = 0
-      Rails.logger.error "Cannot find #{uploaded[:tempfile_path]}"
-    end
-    @tempfile_path = uploaded[:tempfile_path]
+    @size = uploaded[:size]
     @token = uploaded[:token]
 
     if file.nil? || file.last_revision.nil?

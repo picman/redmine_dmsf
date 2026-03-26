@@ -21,26 +21,14 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # Upload tests
 class DmsfUploadTest < RedmineDmsf::Test::UnitTest
-  def setup
-    super
-    @uploaded = {
-      disk_filename: '230105094726_1-TIOMAN_IMG_4391a.JPG',
-      content_type: 'image/jpeg',
-      original_filename: '1-TIOMAN_IMG_4391a.JPG',
-      comment: '',
-      tempfile_path: '/opt/redmine/files/2023/01/230105104724_1-TIOMAN_IMG_4391a.JPG',
-      digest: '3fae7e571666c3b9a70067970a00396b5019e6ea94b26398d13e989e695a1a39'
-    }
-  end
-
   def test_initialize
     with_settings plugin_redmine_dmsf: { 'empty_minor_version_by_default' => '1' } do
-      upload = DmsfUpload.new(@project1, nil, @uploaded)
+      upload = DmsfUpload.new(@project1, nil)
       assert_equal 1, upload.major_version
       assert_nil upload.minor_version
     end
     with_settings plugin_redmine_dmsf: { 'empty_minor_version_by_default' => nil } do
-      upload = DmsfUpload.new(@project1, nil, @uploaded)
+      upload = DmsfUpload.new(@project1, nil)
       assert_equal 0, upload.major_version
       assert_equal 0, upload.minor_version
     end

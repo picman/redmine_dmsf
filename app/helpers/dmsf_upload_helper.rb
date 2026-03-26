@@ -86,17 +86,18 @@ module DmsfUploadHelper
         if new_revision.save
           new_revision.assign_workflow committed_file[:dmsf_workflow_id]
           begin
-            # If the path is not present we get it from the token
-            if committed_file[:token].present?
-              a = Attachment.find_by_token(committed_file[:token])
-              committed_file[:tempfile_path] = a.diskfile if a
-            end
+            a = Attachment.find_by_token(committed_file[:token]) if committed_file[:token].present?
+            raise StandardError, l(:error_attachment_not_found, name: committed_file[:token]) unless a
+
+            # Attach file to the new revision
             new_revision.shared_file.attach(
-              io: File.open(committed_file[:tempfile_path]),
+              io: File.open(a.diskfile),
               filename: new_revision.name,
               content_type: committed_file[:mime_type],
               identify: false
             )
+            # Destroy the temporary attachment
+            a.destroy
             file.last_revision = new_revision
             files.push file
             container.dmsf_file_added file if container && !new_object

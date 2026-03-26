@@ -49,7 +49,7 @@ class DmsfUploadController < ApplicationController
 
         @uploads.push upload
         params[:committed_files][key][:disk_filename] = upload.disk_filename
-        params[:committed_files][key][:tempfile_path] = upload.tempfile_path
+        params[:committed_files][key][:token] = upload.token
       end
       commit_files if params[:committed_files].present?
     # Upload
@@ -106,7 +106,7 @@ class DmsfUploadController < ApplicationController
       next unless upload
 
       uploaded_file[:disk_filename] = upload.disk_filename
-      uploaded_file[:tempfile_path] = upload.tempfile_path
+      uploaded_file[:token] = upload.token
       uploaded_file[:size] = upload.size
       uploaded_file[:mime_type] = upload.mime_type
     end

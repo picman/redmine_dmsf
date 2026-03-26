@@ -173,7 +173,7 @@ module RedmineDmsf
               end
               uploaded_file[:size] = upload.size
               uploaded_file[:mime_type] = upload.mime_type
-              uploaded_file[:tempfile_path] = upload.tempfile_path
+              uploaded_file[:token] = upload.token
               if params[:dmsf_attachments_wfs].present? && params[:dmsf_attachments_wfs][key].present?
                 uploaded_file[:workflow_id] = params[:dmsf_attachments_wfs][key].to_i
               end

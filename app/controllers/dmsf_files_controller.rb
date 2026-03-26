@@ -154,6 +154,7 @@ class DmsfFilesController < ApplicationController
             content_type: a.content_type.presence || 'application/octet-stream',
             identify: false
           )
+          a.destroy
         end
       else
         revision.size = last_revision.size
