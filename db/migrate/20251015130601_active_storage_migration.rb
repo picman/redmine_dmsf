@@ -50,10 +50,16 @@ class ActiveStorageMigration < ActiveRecord::Migration[7.0]
         found = true
         if i.zero?
           r.shared_file.attach io: File.open(path), filename: r.name
-          # Remove the original file
-          FileUtils.rm(path) if RedmineDmsf.physical_file_delete?
-          key = r.shared_file.blob.key
-          $stdout.puts " => #{File.join(key[0..1], key[2..3], key)} (#{r.shared_file.blob.filename})"
+          # If the record is persisted and unchanged, the attachment is saved to the database immediately. Otherwise,
+          # it’ll be saved to the DB when the record is next saved. => Call `save` anyway.
+          if r.shared_file.attachment.save
+            # Remove the original file
+            FileUtils.rm(path) if RedmineDmsf.physical_file_delete?
+            key = r.shared_file.blob.key
+            $stdout.puts " => #{File.join(key[0..1], key[2..3], key)} (#{r.shared_file.blob.filename})"
+          else
+            warn r.shared_file.attachment.errors.full_messages
+          end
         else
           # The other revisions should have set the source revision
           warn("r#{r.id}.source_dmsf_file_revision_id is null") unless r.source_dmsf_file_revision_id
