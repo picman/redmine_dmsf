@@ -37,11 +37,13 @@
 <%= context_menu_link sprite_icon('copy', "#{l(:button_copy)}/#{l(:button_move)}"),
                       copymove_entries_path(id: project, folder_id: file.dmsf_folder, ids: ["file-#{file.id}"],
                                             back_url: back_url), class: 'icon icon-copy' %>
-<% member = Member.find_by(user_id: User.current.id, project_id: file.project.id) %>
-<% filename = file.last_revision&.formatted_name(member) %>
-<%= link_to sprite_icon('download', l(:button_download)),
-            static_dmsf_file_path(file, filename: filename, download: file.last_revision&.id),
-            class: 'icon icon-download', disabled: false %>
+<% if file.last_revision %>
+  <% member = Member.find_by(user_id: User.current.id, project_id: file.project.id) %>
+  <% filename = file.last_revision.formatted_name(member) %>
+  <%= link_to sprite_icon('download', l(:button_download)),
+              static_dmsf_file_path(file, filename: filename, download: file.last_revision.id),
+              class: 'icon icon-download', disabled: false %>
+<% end %>
 <%= render partial: 'dmsf_context_menus/watch', locals: { object: file } %>
 <%= delete_link(dmsf_file_path(id: file, details: true),
                 back_url: dmsf_folder_path(id: file.project, folder_id: file.dmsf_folder)) if file_delete_allowed %>
