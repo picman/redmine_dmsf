@@ -1,8 +1,13 @@
 Changelog for Redmine DMSF
 ==========================
 
-5.0.2 *????-??-??*
+5.0.2 *2026-03-31*
 ------------------
+
+    Bugs fixing
+
+* Bug: #23 - When I upload a file to the DMS module, it is saved in redmine/files and redmine/dmsf_as
+* Bug: #24 - Some of the migrated documents return a 504
 
 5.0.1 *2026-02-11*
 ------------------
