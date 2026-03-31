@@ -55,6 +55,6 @@ class DmsfMissingFiles
       end
     end
     print "\r100%"
-    puts "#{e} missing files"
+    print "\n#{e} missing files\n"
   end
 end
