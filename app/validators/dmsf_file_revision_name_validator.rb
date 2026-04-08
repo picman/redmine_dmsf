@@ -28,6 +28,7 @@ class DmsfFileRevisionNameValidator < ActiveModel::EachValidator
       .find_each do |dmsf_file|
         if dmsf_file.name == value
           record.errors.add attribute, :taken
+          Rails.logger.debug { "#{dmsf_file.id}: '#{dmsf_file.name}' = #{record.dmsf_file_id}: '#{value}'" }
           break
         end
       end
