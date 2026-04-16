@@ -317,6 +317,7 @@ module Dav4rack
     # Remove the given lock
     def unlock(token)
       return NotImplemented unless @lock_class
+      return BadRequest if token.nil?
 
       token = token.slice(1, token.length - 2)
       if token.blank?
