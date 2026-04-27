@@ -178,7 +178,7 @@ div[id*="revision_access_"] {
 }
 
 svg.dmsf-gray {
-    stroke: grey;
+    stroke: grey !important;
 }
 
 /* System folders */
