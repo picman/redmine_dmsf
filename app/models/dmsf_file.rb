@@ -320,7 +320,7 @@ class DmsfFile < ApplicationRecord
     file.project_id = project.id
     file.notification = RedmineDmsf.dmsf_default_notifications?
     if file.save && last_revision
-      new_revision = last_revision.clone
+      new_revision = last_revision.dup
       new_revision.name = filename
       new_revision.title = File.basename(filename, '.*')
       new_revision.dmsf_file = file
@@ -349,17 +349,6 @@ class DmsfFile < ApplicationRecord
         end
       end
       new_revision.comment = l(:comment_copied_from, source: "#{self.project.identifier}:#{dmsf_path_str}")
-      new_revision.custom_values = []
-      last_revision.custom_values.each do |cv|
-        v = CustomValue.new
-        v.custom_field = cv.custom_field
-        v.value = if cv.value.blank? && cv.custom_field.is_required
-                    cv.custom_field.default_value
-                  else
-                    cv.value
-                  end
-        new_revision.custom_values << v
-      end
       # Check the name and title
       basename = File.basename(filename, '.*')
       extname = File.extname(filename)
