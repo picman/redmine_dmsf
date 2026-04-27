@@ -360,7 +360,7 @@ class DmsfFile < ApplicationRecord
       basename = File.basename(filename, '.*')
       extname = File.extname(filename)
       i = 1
-      while new_revision.invalid? && i < 1_000
+      while new_revision.invalid? && new_revision.errors.added?(:name, :taken) && i < 1_000
         new_revision.title = "#{basename} (#{i})"
         new_revision.name = "#{new_revision.title}#{extname}"
         i += 1
