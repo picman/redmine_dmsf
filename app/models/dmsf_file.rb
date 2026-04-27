@@ -353,11 +353,11 @@ class DmsfFile < ApplicationRecord
       last_revision.custom_values.each do |cv|
         v = CustomValue.new
         v.custom_field = cv.custom_field
-        if cv.value.blank? && cv.custom_field.is_required
-          v.value = cv.custom_field.default_value
-        else
-          v.value = cv.value
-        end
+        v.value = if cv.value.blank? && cv.custom_field.is_required
+                    cv.custom_field.default_value
+                  else
+                    value
+                  end
         new_revision.custom_values << v
       end
       # Check the name and title
