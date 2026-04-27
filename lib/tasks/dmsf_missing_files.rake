@@ -35,10 +35,11 @@ end
 # Search for missing files
 class DmsfMissingFiles
   def run
-    n = DmsfFile.visible.all.size
+    scope = DmsfFile.visible
+    n = scope.all.size
     i = 0
     e = 0
-    DmsfFile.visible.find_each do |dmsf_file|
+    scope.find_each do |dmsf_file|
       i += 1
       print "\r#{i * 100 / n}%"
       rev = dmsf_file.last_revision
@@ -55,6 +56,6 @@ class DmsfMissingFiles
       end
     end
     print "\r100%"
-    print "\n#{e} missing files\n"
+    print "\n#{e} of #{n} files are missing\n"
   end
 end
