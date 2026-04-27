@@ -356,7 +356,7 @@ class DmsfFile < ApplicationRecord
         v.value = if cv.value.blank? && cv.custom_field.is_required
                     cv.custom_field.default_value
                   else
-                    value
+                    cv.value
                   end
         new_revision.custom_values << v
       end
