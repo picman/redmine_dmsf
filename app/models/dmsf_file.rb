@@ -324,6 +324,7 @@ class DmsfFile < ApplicationRecord
       new_revision.name = filename
       new_revision.title = File.basename(filename, '.*')
       new_revision.dmsf_file = file
+      new_revision.user_id = User.current.id
       # Assign the same workflow if it's a global one, or we are in the same project
       new_revision.workflow = nil
       new_revision.dmsf_workflow_id = nil
