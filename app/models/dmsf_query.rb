@@ -114,6 +114,13 @@ class DmsfQuery < Query
       [l(:title_rejected), '4'],
       [l(:title_obsolete), '5']
     ]
+    add_available_filter 'type', type: :list, values: [
+      %w[file file],
+      %w[folder folder],
+      %w[file-link file-link],
+      %w[folder-link folder-link],
+      %w[url-link url-link]
+    ]
     add_custom_fields_filters DmsfFileRevisionCustomField.visible
   end
 

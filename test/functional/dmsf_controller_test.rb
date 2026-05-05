@@ -271,6 +271,28 @@ class DmsfControllerTest < RedmineDmsf::Test::TestCase
     assert_select 'a', text: @file10.title, count: 0
   end
 
+  def test_show_filters_type_file
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    get "/projects/#{@project1.id}/dmsf",
+        params: { set_filter: '1', type: 'file' }
+    assert_response :success
+    # Just files
+    assert_select 'a', text: @file10.title
+    # No folders
+    assert_select 'a', text: @folder1.title, count: 0
+  end
+
+  def test_show_filters_type_folder
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    get "/projects/#{@project1.id}/dmsf",
+        params: { set_filter: '1', type: 'folder' }
+    assert_response :success
+    # Just folders
+    assert_select 'a', text: @folder1.title
+    # No files
+    assert_select 'a', text: @file10.title, count: 0
+  end
+
   def test_show_without_file_manipulation
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
     @role_manager.remove_permission! :file_manipulation
