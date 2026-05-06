@@ -24,6 +24,6 @@ class DmsfFileNameValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     # Check invalid characters
     record.errors.add attribute, :error_contains_invalid_character unless ALL_INVALID_CHARACTERS.match?(value)
-    Rails.logger.debug { "#{record.dmsf_file_id}: '#{value}'" }
+    Rails.logger.debug { "#{record.id}: '#{value}'" }
   end
 end

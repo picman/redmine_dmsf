@@ -97,7 +97,7 @@ class DmsfFileRevision < ApplicationRecord
             dmsf_file_name: true,
             length: { maximum: 255 },
             dmsf_file_extension: true,
-            dmsf_file_revision_name: true
+            dmsf_file_revision_name: true, if: proc { |r| r.visible? }
   validates :description, length: { maximum: 1.kilobyte }
   validates :size, dmsf_max_file_size: true
 
