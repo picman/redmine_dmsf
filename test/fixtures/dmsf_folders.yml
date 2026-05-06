@@ -70,3 +70,12 @@ dmsf_folders_010:
   project_id:     5
   dmsf_folder_id: NULL
   user_id:        1
+
+# Deleted folder
+dmsf_folders_011:
+  id: 11
+  title: folder11
+  project_id: 1
+  dmsf_folder_id: NULL
+  user_id: 1
+  deleted: 1

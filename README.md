@@ -249,51 +249,39 @@ instance is stopped.
     I) To convert documents from the standard Redmine document module
 
         Available options:
-
             * project - id or identifier of a project (default to all projects)
             * dry_run - perform just a check without any conversion
             * issues - Convert also files attached to issues
 
         Example:
-
             rake redmine:dmsf_convert_documents project=test RAILS_ENV="production"
-
-            (If you don't run the rake task as the web server user, don't forget to change the ownership of the imported files, e.g.
-              chown -R www-data:www-data /redmine/files/dmsf
-            afterwards)
-
+ 
     II) To alert all users who are expected to do an approval in the current approval steps
 
         Example:
-
             rake redmine:dmsf_alert_approvals RAILS_ENV="production"
 
     III) To create missing checksums for all document revisions
 
         Available options:
-
           * dry_run - test, no changes to the database
           * forceSHA256 - replace old MD5 with SHA256
 
         Example:
-
           bundle exec rake redmine:dmsf_create_digests RAILS_ENV="production"
           bundle exec rake redmine:dmsf_create_digests forceSHA256=1 RAILS_ENV="production"
           bundle exec rake redmine:dmsf_create_digests dry_run=1 RAILS_ENV="production"
 
     IV) To maintain DMSF
 
-        * Remove all files with no database record from the document directory
-        * Remove all links project_id = -1 (added links to an issue which hasn't been created)
+        * Remove deleted items from all trash bins deleted before the given time (1 year by default) 
 
         Available options:
-
-          * dry_run - No physical deletion but to list of all unused files only
+          * age - How long ago were the items deleted in days
 
         Example:
-
-          rake redmine:dmsf_maintenance RAILS_ENV="production"
-          rake redmine:dmsf_maintenance dry_run=1 RAILS_ENV="production"
+          rake redmine:dmsf_prune_trash_bins RAILS_ENV="production"
+          rake redmine:dmsf_prune_trash_bins age=30 RAILS_ENV="production"
 
 ### WebDAV
 

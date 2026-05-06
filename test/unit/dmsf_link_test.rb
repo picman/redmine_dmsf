@@ -239,4 +239,25 @@ class DmsfLinksTest < RedmineDmsf::Test::UnitTest
     assert @folder_link1.delete(commit: true), @folder_link1.errors.full_messages.to_sentence
     assert_nil DmsfLink.find_by(id: @folder_link1.id)
   end
+
+  def test_prune
+    # Younger deleted link
+    @file_link8.updated_at = 12.days.ago
+    assert @file_link8.save
+    assert_no_difference 'DmsfLink.deleted.count' do
+      DmsfLink.prune 13.days.ago
+    end
+    # Older deleted link
+    @file_link8.updated_at = 12.days.ago
+    assert @file_link8.save
+    assert_difference 'DmsfLink.deleted.count', -1 do
+      DmsfLink.prune 11.days.ago
+    end
+    # Older visible link
+    @file_link7.updated_at = 12.days.ago
+    assert @file_link7.save
+    assert_no_difference 'DmsfLink.deleted.count' do
+      DmsfLink.prune 11.days.ago
+    end
+  end
 end

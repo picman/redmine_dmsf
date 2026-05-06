@@ -319,4 +319,26 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
       assert @file1.approval_allowed_zero_minor
     end
   end
+
+  def test_prune
+    # Younger deleted file
+    @file3.updated_at = 12.days.ago
+    assert @file3.save
+    assert_no_difference 'DmsfFile.deleted.count' do
+      DmsfFile.prune 13.days.ago
+    end
+    # Older deleted file
+    @file3.updated_at = 12.days.ago
+    assert @file3.save
+    assert_difference 'DmsfFile.deleted.count', -1 do
+      DmsfFile.prune 11.days.ago
+    end
+    assert_not DmsfFileRevision.where(dmsf_file_id: @file3.id).present?
+    # Older visible file
+    @file4.updated_at = 12.days.ago
+    assert @file4.save
+    assert_no_difference 'DmsfFile.deleted.count' do
+      DmsfFile.prune 11.days.ago
+    end
+  end
 end

@@ -148,4 +148,8 @@ class DmsfLink < ApplicationRecord
 
     @parent_folder&.destroy
   end
+
+  def self.prune(timestamp)
+    DmsfLink.deleted.where(updated_at: ..timestamp).destroy_all
+  end
 end

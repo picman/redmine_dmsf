@@ -603,14 +603,16 @@ class DmsfFolder < ApplicationRecord
     false
   end
 
-  class << self
-    def directory_subtree(tree, folder, level)
-      folders = folder.dmsf_folders.visible.to_a
-      folders.delete_if(&:locked_for_user?)
-      folders.each do |subfolder|
-        tree.push ["#{'...' * level}#{subfolder.title}", subfolder.id]
-        DmsfFolder.directory_subtree tree, subfolder, level + 1
-      end
+  def self.directory_subtree(tree, folder, level)
+    folders = folder.dmsf_folders.visible.to_a
+    folders.delete_if(&:locked_for_user?)
+    folders.each do |subfolder|
+      tree.push ["#{'...' * level}#{subfolder.title}", subfolder.id]
+      DmsfFolder.directory_subtree tree, subfolder, level + 1
     end
+  end
+
+  def self.prune(timestamp)
+    DmsfFolder.deleted.where(updated_at: ..timestamp).destroy_all
   end
 end

@@ -78,7 +78,7 @@ file_link3:
   created_at: <%= DateTime.current %>
   updated_at: <%= DateTime.current %>
 
-file_link4:
+file_link7:
   id: 7
   target_project_id: 1
   target_id: 1
@@ -90,3 +90,14 @@ file_link4:
   deleted_by_user_id: NULL
   created_at: <%= DateTime.current %>
   updated_at: <%= DateTime.current %>
+
+  # Deleted link
+file_link8:
+  id: 8
+  target_project_id: 1
+  target_id: 1
+  target_type: DmsfFile
+  name: file1_link
+  project_id: 1
+  dmsf_folder_id: 9
+  deleted: 1

@@ -663,4 +663,8 @@ class DmsfFile < ApplicationRecord
 
     @parent_folder&.destroy
   end
+
+  def self.prune(timestamp)
+    DmsfFile.deleted.where(updated_at: ..timestamp).destroy_all
+  end
 end

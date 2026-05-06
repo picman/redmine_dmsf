@@ -52,7 +52,7 @@ class DmsfFolderTest < RedmineDmsf::Test::UnitTest
   def test_visibility
     # The role has got permissions
     User.current = @jsmith
-    assert_equal 7, DmsfFolder.where(project_id: @project1.id).all.size
+    assert_equal 8, DmsfFolder.where(project_id: @project1.id).all.size
     assert_equal 5, DmsfFolder.visible.where(project_id: @project1.id).all.size
     # The user has got permissions
     User.current = @dlopper
@@ -341,5 +341,26 @@ class DmsfFolderTest < RedmineDmsf::Test::UnitTest
     @dmsf_file11.destroy
     # System folders are empty and should have been deleted
     assert_not DmsfFolder.where(id: [8, 9]).exist?
+  end
+
+  def test_prune
+    User.current = @jsmith
+    # Younger deleted folder
+    @folder11.updated_at = 12.days.ago
+    assert @folder11.save
+    assert_no_difference 'DmsfFolder.deleted.count' do
+      DmsfFolder.prune 13.days.ago
+    end
+    # Older deleted folder
+    @folder11.updated_at = 12.days.ago
+    assert_difference 'DmsfFolder.deleted.count', -1 do
+      DmsfFolder.prune 11.days.ago
+    end
+    # Older visible folder
+    @folder1.updated_at = 12.days.ago
+    assert @folder1.save
+    assert_no_difference 'DmsfFolder.deleted.count' do
+      DmsfFolder.prune 11.days.ago
+    end
   end
 end

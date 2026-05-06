@@ -54,6 +54,7 @@ module RedmineDmsf
         end
         @file1 = DmsfFile.find 1
         @file2 = DmsfFile.find 2
+        @file3 = DmsfFile.find 3
         @file4 = DmsfFile.find 4
         @file5 = DmsfFile.find 5
         @file6 = DmsfFile.find 6
@@ -65,11 +66,13 @@ module RedmineDmsf
         @folder_link1 = DmsfLink.find 1
         @file_link2 = DmsfLink.find 2
         @file_link7 = DmsfLink.find 7
+        @file_link8 = DmsfLink.find 8
         @folder1 = DmsfFolder.find 1
         @folder2 = DmsfFolder.find 2
         @folder6 = DmsfFolder.find 6
         @folder7 = DmsfFolder.find 7
         @folder8 = DmsfFolder.find 8
+        @folder11 = DmsfFolder.find 11
         FileUtils.mkdir_p ActiveStorage::Blob.service.root
         FileUtils.cp_r File.join(File.expand_path('../fixtures/files', __FILE__), '.'), ActiveStorage::Blob.service.root
         User.current = nil
