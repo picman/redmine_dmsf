@@ -32,6 +32,8 @@ module RedmineDmsf
   def self.cmd_available?(cmd)
     _, _, status = Open3.capture3(cmd)
     status.success?
+  rescue StandardError => _
+    false
   end
 
   mattr_accessor :xapian_available
