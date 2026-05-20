@@ -1,8 +1,14 @@
 Changelog for Redmine DMSF
 ==========================
 
-5.0.3 *????-??-??*
+5.0.3 *2026-02-20*
 ------------------
+
+    Trash bins cleanup rake task
+    A new filter type
+
+* New: #30 - A rake task to delete items from trash bin
+* New: #29 - Filtering by type
 
 5.0.2 *2026-03-31*
 ------------------
