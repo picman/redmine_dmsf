@@ -1,4 +1,4 @@
-# Redmine DMSF Plugin 5.0.
+# Redmine DMSF Plugin 5.0.3
 
 [![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=master)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
