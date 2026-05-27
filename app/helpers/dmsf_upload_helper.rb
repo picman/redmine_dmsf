@@ -97,6 +97,7 @@ module DmsfUploadHelper
               identify: false
             )
             # Destroy the temporary attachment
+            a.delete_from_disk
             a.destroy
             file.last_revision = new_revision
             files.push file

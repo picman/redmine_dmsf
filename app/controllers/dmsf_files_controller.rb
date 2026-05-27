@@ -154,6 +154,8 @@ class DmsfFilesController < ApplicationController
             content_type: a.content_type.presence || 'application/octet-stream',
             identify: false
           )
+          # Destroy the temporary attachment
+          a.delete_from_disk
           a.destroy
         end
       else

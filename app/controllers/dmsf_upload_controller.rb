@@ -98,12 +98,17 @@ class DmsfUploadController < ApplicationController
     attachments = params[:attachments]
     return unless attachments
 
-    @folder = DmsfFolder.visible.find_by(id: attachments[:folder_id]) if attachments[:folder_id].present?
-    # standard file input uploads
+    if attachments[:issue_id].present? # Issue attachment
+      issue = Issue.find(attachments[:issue_id])
+      @project = issue.project
+      @folder = issue.system_folder(create: true)
+    elsif attachments[:folder_id].present? # New document revision
+      @folder = DmsfFolder.visible.find_by(id: attachments[:folder_id])
+    end
     uploaded_files = attachments.slice('uploaded_file')
     uploaded_files.each_value do |uploaded_file|
       upload = DmsfUpload.create_from_uploaded_attachment(@project, @folder, uploaded_file)
-      next unless upload
+      raise(ActiveRecord::RecordNotFound, "Attachment #{uploaded_file[:token]} not found") unless upload
 
       uploaded_file[:disk_filename] = upload.disk_filename
       uploaded_file[:token] = upload.token
@@ -111,6 +116,8 @@ class DmsfUploadController < ApplicationController
       uploaded_file[:mime_type] = upload.mime_type
     end
     commit_files_internal uploaded_files
+  rescue ActiveRecord::RecordNotFound
+    render_404
   end
 
   def delete_dmsf_attachment
@@ -129,8 +136,9 @@ class DmsfUploadController < ApplicationController
 
   private
 
-  def commit_files_internal(committed_files)
-    @files, failed_uploads = DmsfUploadHelper.commit_files_internal(committed_files, @project, @folder, self)
+  def commit_files_internal(committed_files, issue = nil)
+    @files, failed_uploads = DmsfUploadHelper.commit_files_internal(committed_files, @project, @folder, self,
+                                                                    issue)
     call_hook :dmsf_upload_controller_after_commit, { files: @files }
     respond_to do |format|
       format.js

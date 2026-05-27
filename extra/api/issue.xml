@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<attachments>
+  <issue_id>1</issue_id>
+  <uploaded_file>
+    <name>cat.gif</name>
+    <title>cat</title>
+    <!-- Optional -->
+    <description>REST API</description>
+    <comment>From API</comment>
+    <version_major>A</version_major>
+    <version_minor>1</version_minor>
+    <version_patch>0</version_patch>
+    <!-- End of optional -->
+    <token>15838.c49f68ff81b552d315927df2e27df506</token>
+  </uploaded_file>
+</attachments>

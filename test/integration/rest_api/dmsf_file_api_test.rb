@@ -174,6 +174,60 @@ class DmsfFileApiTest < RedmineDmsf::Test::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  def test_attach_document
+    # curl --data-binary "@cat.gif" -H "Content-Type: application/octet-stream" -X POST -u ${1}:${2}
+    #   http://localhost:3000/projects/12/dmsf/upload.xml?filename=cat.gif
+    post "/projects/#{@project1.id}/dmsf/upload.xml?filename=test.txt&key=#{@token.value}",
+         params: 'File content',
+         headers: { 'CONTENT_TYPE' => 'application/octet-stream' }
+    assert_response :created
+    assert @response.media_type.include?('application/xml')
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <upload>
+    #   <token>2.8bb2564936980e92ceec8a5759ec34a8</token>
+    # </upload>
+    xml = Hash.from_xml(response.body)
+    assert_kind_of Hash, xml['upload']
+    ftoken = xml['upload']['token']
+    assert_not_nil ftoken
+    # curl -v -H "Content-Type: application/xml" -X POST --data "@issue.xml" -u ${1}:${2}
+    #   http://localhost:3000/projects/12/dmsf/commit.xml
+    issue1 = Issue.find(1)
+    payload = %(<attachments>
+                 <issue_id>#{issue1.id}</issue_id>
+                 <uploaded_file>
+                   <name>test.txt</name>
+                   <title>test.txt</title>
+                   <!-- Optional -->
+                   <description>REST API</description>
+                   <comment>From API</comment>
+                   <version_major>A</version_major>
+                   <version_minor>1</version_minor>
+                   <version_patch>0</version_patch>
+                   <!-- End of optional -->
+                   <token>#{ftoken}</token>
+                 </uploaded_file>
+                </attachments>)
+    assert_difference 'DmsfFileRevision.count', +1 do
+      post "/projects/#{@project1.id}/dmsf/commit.xml?key=#{@token.value}",
+           params: payload,
+           headers: { 'CONTENT_TYPE' => 'application/xml' }
+    end
+    assert_equal 1, issue1.dmsf_files.count
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <dmsf_files total_count="1" type="array">
+    #  <file>
+    #    <id>17229</id>
+    #    <name>test.txt</name>
+    #  </file>
+    #  </dmsf_files> #
+    assert_select 'dmsf_files > file > name', text: 'test.txt'
+    assert_response :success
+    revision = DmsfFileRevision.order(:created_at).last
+    assert revision.present?
+    assert_equal 'text/plain', revision.content_type
+  end
+
   def test_delete_file
     # curl -v -H "Content-Type: application/xml" -X DELETE -u ${1}:${2} http://localhost:3000/dmsf/files/196118.xml
     delete "/dmsf/files/#{@file1.id}.xml?key=#{@token.value}", headers: { 'CONTENT_TYPE' => 'application/xml' }
