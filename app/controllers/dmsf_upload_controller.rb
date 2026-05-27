@@ -70,7 +70,7 @@ class DmsfUploadController < ApplicationController
     @attachment.filename = params[:filename].presence || Redmine::Utils.random_hex(16)
     @attachment.content_type = params[:content_type].presence
     begin
-      Attachment.skip_callback(:commit, :after, :reuse_existing_file_if_possible, raise: false)
+      Attachment.set_callback(:commit, :after, :reuse_existing_file_if_possible, on: :create)
       saved = @attachment.save
     ensure
       Attachment.set_callback(:commit, :after, :reuse_existing_file_if_possible)
