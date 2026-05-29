@@ -36,9 +36,12 @@ USER_API_KEY="${1}"
 #curl -v -H "Content-Type: application/xml" -X GET -u ${USER_LOGIN}:${USER_PASSWORD} http://localhost:3000/dmsf/files/17216.xml
 #curl -v -H "Content-Type: application/octet-stream" -X GET -u ${USER_LOGIN}:${USER_PASSWORD} http://localhost:3000/dmsf/files/41532/download > file.txt
 
-# 3. Upload a document into a given folder, root folder or attach it to an issue
+# 3. Upload a document into a given folder, the root folder or attach it to an issue
+# 3.1 Upload a document
 #curl --data-binary "@cat.gif" -H "Content-Type: application/octet-stream" -X POST -u ${USER_LOGIN}:${USER_PASSWORD} http://localhost:3000/projects/12/dmsf/upload.xml?filename=cat.gif
+# 3.2 into a folder or the root folder
 #curl -v -H "Content-Type: application/xml" -X POST --data "@file.xml" -u ${USER_LOGIN}:${USER_PASSWORD} http://localhost:3000/projects/12/dmsf/commit.xml
+# 3.3 or attach it to an issue
 #curl -v -H "Content-Type: application/xml" -X POST --data "@issue.xml" -H "X-Redmine-API-Key: ${USER_API_KEY}" http://localhost:3000/projects/1/dmsf/commit.xml
 
 # 4. Create a new revision

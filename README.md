@@ -38,20 +38,20 @@ Further information about the GPL license can be found at
   * Document locking
   * Multi (drag/drop depending on browser) upload/download
   * Direct document or document link sending via email
-  * Configurable document approval workflow
+  * Configurable document [approval workflow](https://github.com/picman/redmine_dmsf/wiki/Approval-workflow)
   * Document access auditing
   * Integration with Redmine's activity feed
   * Wiki macros for a quick content linking
   * Full read/write WebDAV functionality
   * Optional document content full-text search
-  * Documents and folders' symbolic links
+  * Documents and folders' [symbolic links](https://github.com/picman/redmine_dmsf/wiki/Document-links)
   * Trash bin
   * Documents attachable to issues
   * Office documents are displayed inline
   * Editing of office documents
-  * REST API
+  * [REST API](https://github.com/picman/redmine_dmsf/wiki/REST-API)
   * DMS Document revision as a custom field type
-  * Compatible with Redmine 6
+  * Compatible with Redmine 6.1
 
 ## Dependencies
 
