@@ -70,7 +70,7 @@ class DmsfUploadController < ApplicationController
     @attachment.filename = params[:filename].presence || Redmine::Utils.random_hex(16)
     @attachment.content_type = params[:content_type].presence
     saved = @attachment.save
-    
+
     respond_to do |format|
       format.js
       format.api do
