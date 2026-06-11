@@ -7,7 +7,7 @@ Changelog for Redmine DMSF
 5.0.4 *2026-05-29*
 ------------------
 
-    REST API for atttaching documents to issues
+    REST API for attaching documents to issues
 
 * New: #22 - REST API: Support attaching files to issues (documents attachable to issues feature)
 * Bug: #25 - Error deleting attachment: "cannot update a destroyed record" on Redmine 6.1 + Rails 7.2 + DMSF 5.0.1
