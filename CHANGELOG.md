@@ -1,8 +1,12 @@
 Changelog for Redmine DMSF
 ==========================
 
-5.0.5 *????-??-??*
+5.0.5 *2026-06-23*
 ------------------
+
+    Bug fixing
+
+* Bug: #25 Error deleting attachment: "cannot update a destroyed record" on Redmine 6.1 + Rails 7.2 + DMSF 5.0.1
 
 5.0.4 *2026-05-29*
 ------------------
@@ -24,7 +28,7 @@ Changelog for Redmine DMSF
 5.0.2 *2026-03-31*
 ------------------
 
-    Bugs fixing
+    Bug fixing
 
 * Bug: #23 - When I upload a file to the DMS module, it is saved in redmine/files and redmine/dmsf_as
 * Bug: #24 - Some of the migrated documents return a 504
@@ -32,7 +36,7 @@ Changelog for Redmine DMSF
 5.0.1 *2026-02-11*
 ------------------
 
-    Bugs fixing
+    Bug fixing
 
 * Bug: #21 - Undefined method icon for mime type in RedmineDmsf::FieldFormats::DmsfFileRevisionFormatbugSomething 
              isn't working
