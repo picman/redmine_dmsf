@@ -20,6 +20,14 @@
 <% html_title l(:dmsf) %>
 
 <div class="contextual">
+  <% if RedmineDmsf::OnlyOffice.viewable?(@file.name) %>
+    <%= link_to sprite_icon('zoom-in', l(:label_dmsf_onlyoffice_view)),
+                dmsf_onlyoffice_view_path(@file), class: 'icon icon-zoom-in' %>
+    <% if @file_manipulation_allowed && RedmineDmsf::OnlyOffice.editable?(@file.name) && !@file.locked_for_user? %>
+      <%= link_to sprite_icon('edit', l(:label_dmsf_onlyoffice_edit)),
+                  dmsf_onlyoffice_edit_path(@file), class: 'icon icon-edit' %>
+    <% end %>
+  <% end %>
   <% if @file_manipulation_allowed %>
     <% if @file.locked_for_user? %>
       <% if User.current.allowed_to?(:force_file_unlock, @project) %>

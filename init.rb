@@ -57,6 +57,17 @@ Redmine::Plugin.register :redmine_dmsf do
              'only_approval_zero_minor_version' => '0',
              'dmsf_max_notification_receivers_info' => 10,
              'office_bin' => 'libreoffice',
+             'dmsf_onlyoffice_use_official_settings' => '1',
+             'dmsf_onlyoffice_document_server_url' => '',
+             'dmsf_onlyoffice_document_server_internal_url' => '',
+             'dmsf_onlyoffice_redmine_internal_url' => '',
+             'dmsf_onlyoffice_jwt_secret' => '',
+             'dmsf_onlyoffice_jwt_algorithm' => 'HS256',
+             'dmsf_onlyoffice_jwt_header' => 'Authorization',
+             'dmsf_onlyoffice_disable_certificate_verification' => '0',
+             'dmsf_onlyoffice_editable_extensions' => RedmineDmsf::OnlyOffice::DEFAULT_EDITABLE_EXTENSIONS.join(','),
+             'dmsf_onlyoffice_version_type' => 'minor',
+             'dmsf_onlyoffice_token_ttl' => 86_400,
              'dmsf_global_menu_disabled' => '0',
              'dmsf_default_query' => '0',
              'empty_minor_version_by_default' => '0',
@@ -112,6 +123,7 @@ Redmine::AccessControl.map do |map|
                       dmsf: %i[entries_operation entries_email download_email_entries add_email append_email
                                autocomplete_for_user],
                       dmsf_files: %i[show view thumbnail],
+                      dmsf_onlyoffice: [:view],
                       dmsf_workflows: [:log]
                     },
                     read: true)
@@ -128,6 +140,7 @@ Redmine::AccessControl.map do |map|
                     {
                       dmsf_files: %i[create_revision lock unlock delete_revision obsolete_revision notify_activate
                                      notify_deactivate restore],
+                      dmsf_onlyoffice: [:edit],
                       dmsf_upload: %i[upload_files upload commit_files commit delete_dmsf_attachment
                                       delete_dmsf_link_attachment multi_upload],
                       dmsf_links: %i[new create destroy restore autocomplete_for_project autocomplete_for_folder],

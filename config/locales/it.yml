@@ -442,6 +442,35 @@ it: # Italian strings thx 2 Matteo Arceci!
     to prevent previews of office documents, put an empty string here. After a change, you might have to restart the
     application to take it any effect.
   note_dmsf_office_bin_not_available: "LibreOffice's command line binary '%{value}' not available"
+  label_dmsf_onlyoffice: ONLYOFFICE Docs
+  label_dmsf_onlyoffice_view: Visualizza in ONLYOFFICE
+  label_dmsf_onlyoffice_edit: Modifica in ONLYOFFICE
+  label_dmsf_onlyoffice_use_official_settings: Usa le impostazioni del plugin ONLYOFFICE per Redmine
+  note_dmsf_onlyoffice_use_official_settings: Riutilizza Document Server, indirizzi interni, JWT e TLS configurati nel plugin ufficiale onlyoffice_redmine.
+  label_dmsf_onlyoffice_document_server_url: Indirizzo del servizio di modifica documenti
+  note_dmsf_onlyoffice_document_server_url: URL pubblico del Document Server ONLYOFFICE esistente. Lascia vuoto per disabilitare l'integrazione DMSF.
+  label_dmsf_onlyoffice_document_server_internal_url: Indirizzo interno del Document Server
+  note_dmsf_onlyoffice_document_server_internal_url: Indirizzo opzionale usato da Redmine per raggiungere ONLYOFFICE nella rete privata.
+  label_dmsf_onlyoffice_redmine_internal_url: Indirizzo interno di Redmine
+  note_dmsf_onlyoffice_redmine_internal_url: Indirizzo opzionale usato da ONLYOFFICE per scaricare i file DMSF e inviare le callback a Redmine.
+  label_dmsf_onlyoffice_jwt_secret: Segreto JWT
+  note_dmsf_onlyoffice_jwt_secret: Deve coincidere con il segreto configurato in ONLYOFFICE Docs. Lascia vuoto solo se JWT è disabilitato sul Document Server.
+  label_dmsf_onlyoffice_jwt_algorithm: Algoritmo JWT
+  note_dmsf_onlyoffice_jwt_algorithm: Algoritmo HMAC configurato in ONLYOFFICE Docs. HS256 è il valore predefinito standard.
+  label_dmsf_onlyoffice_jwt_header: Header di autorizzazione JWT
+  note_dmsf_onlyoffice_jwt_header: Header usato da ONLYOFFICE per il token JWT delle callback. Il valore abituale è Authorization.
+  label_dmsf_onlyoffice_disable_certificate_verification: Disabilita la verifica del certificato TLS
+  note_dmsf_onlyoffice_disable_certificate_verification: Opzione non sicura. Usala solo per test con un certificato autofirmato del Document Server.
+  label_dmsf_onlyoffice_editable_extensions: Estensioni modificabili
+  note_dmsf_onlyoffice_editable_extensions: Estensioni separate da virgola apribili in modifica. Gli altri formati supportati restano in sola visualizzazione.
+  label_dmsf_onlyoffice_version_type: Incremento versione dopo il salvataggio
+  note_dmsf_onlyoffice_version_type: Una sessione di modifica ONLYOFFICE completata crea una nuova revisione DMSF e incrementa questa parte della versione.
+  label_dmsf_version_patch: Patch
+  label_dmsf_version_minor: Minore
+  label_dmsf_version_major: Maggiore
+  label_dmsf_onlyoffice_token_ttl: Durata token editor (secondi)
+  note_dmsf_onlyoffice_token_ttl: Validità degli URL firmati di download e callback, da 300 secondi a 7 giorni.
+  comment_dmsf_onlyoffice_revision: Salvato da ONLYOFFICE
 
   label_dmsf_columns: Colonne DMS
   label_column_id: ID

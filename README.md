@@ -143,6 +143,33 @@ The command must be runable by the web app's user. Test it in advance, e.g:
 sudo apt install libreoffice liblibreoffice-java
 ```
 
+## ONLYOFFICE Docs integration (optional)
+
+DMSF can open supported documents in an existing ONLYOFFICE Document Server for viewing and collaborative editing.
+Unlike the standard ONLYOFFICE Redmine connector, the callback stores the edited content as a new DMSF revision instead
+of overwriting a Redmine `Attachment`.
+
+Configure the integration in **Administration → Plugins → DMSF → Configure**:
+
+* Set the public Document Editing Service address.
+* Set the internal Document Server and Redmine addresses when the two services communicate through private DNS names.
+* Set the same JWT secret, HMAC algorithm, and authorization header used by ONLYOFFICE Docs.
+* If the official `onlyoffice_redmine` plugin is installed, DMSF can reuse its server, JWT, internal URL, and TLS settings.
+* Leave `office_bin` empty when LibreOffice PDF previews are no longer required.
+
+After upgrading, run the plugin migration so the callback can record an idempotency key for each saved DMSF revision:
+
+```
+RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=redmine_dmsf
+```
+
+The Document Server must be able to download signed DMSF URLs and POST callbacks to Redmine. Redmine must be able to
+download the saved file URL returned by the Document Server.
+
+DMSF persists the final ONLYOFFICE callback (status `2`) as a new revision. Force-save callbacks are deliberately not
+stored as revisions, which avoids creating a new DMSF version for every automatic save. If another DMSF revision is
+uploaded while the editor is open, the callback is rejected rather than replacing newer work.
+
 ## Usage
 
 DMSF is designed to act as project module, so it must be checked as an enabled module within the project settings.

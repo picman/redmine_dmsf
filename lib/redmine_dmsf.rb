@@ -188,6 +188,89 @@ module RedmineDmsf
       end
     end
 
+    def onlyoffice_official_settings
+      return {} unless Redmine::Plugin.installed?('onlyoffice_redmine')
+
+      Setting.plugin_onlyoffice_redmine || {}
+    rescue NoMethodError
+      {}
+    end
+
+    def onlyoffice_use_official_settings?
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_use_official_settings']
+      enabled = value.to_i.positive? || value == 'true'
+      enabled && onlyoffice_official_settings.present?
+    end
+
+    def onlyoffice_document_server_url
+      onlyoffice_setting('dmsf_onlyoffice_document_server_url', 'oo_address')
+    end
+
+    def onlyoffice_document_server_internal_url
+      onlyoffice_setting('dmsf_onlyoffice_document_server_internal_url', 'inner_editor')
+    end
+
+    def onlyoffice_redmine_internal_url
+      onlyoffice_setting('dmsf_onlyoffice_redmine_internal_url', 'inner_server')
+    end
+
+    def onlyoffice_jwt_secret
+      onlyoffice_setting('dmsf_onlyoffice_jwt_secret', 'jwtsecret')
+    end
+
+    def onlyoffice_jwt_algorithm
+      value = onlyoffice_setting('dmsf_onlyoffice_jwt_algorithm', 'jwt_algorithm', 'HS256').upcase
+      %w[HS256 HS384 HS512].include?(value) ? value : 'HS256'
+    end
+
+    def onlyoffice_jwt_header
+      onlyoffice_setting('dmsf_onlyoffice_jwt_header', 'jwtheader', 'Authorization').presence || 'Authorization'
+    end
+
+    def onlyoffice_ssl_verification_disabled?
+      if onlyoffice_use_official_settings?
+        value = onlyoffice_official_settings['check_cert']
+        value == 'on' || value == true || value.to_s == '1'
+      else
+        value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_disable_certificate_verification']
+        value.to_i.positive? || value == 'true'
+      end
+    end
+
+    def onlyoffice_editable_extensions
+      if onlyoffice_use_official_settings?
+        extensions = Array(onlyoffice_official_settings['formats_editable'])
+                     .map { |extension| extension.to_s.delete_prefix('.').downcase }
+                     .reject(&:blank?)
+        return extensions.presence || RedmineDmsf::OnlyOffice::DEFAULT_EDITABLE_EXTENSIONS
+      end
+
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_editable_extensions']
+      extensions = value.to_s.split(/[\s,;]+/)
+                        .map { |extension| extension.delete_prefix('.').downcase }
+                        .reject(&:blank?)
+      extensions.presence || RedmineDmsf::OnlyOffice::DEFAULT_EDITABLE_EXTENSIONS
+    end
+
+    def onlyoffice_version_type
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_version_type'].to_s
+      %w[patch minor major].include?(value) ? value : 'minor'
+    end
+
+    def onlyoffice_version_constant
+      case onlyoffice_version_type
+      when 'patch' then DmsfFileRevision::PATCH_VERSION
+      when 'major' then DmsfFileRevision::MAJOR_VERSION
+      else DmsfFileRevision::MINOR_VERSION
+      end
+    end
+
+    def onlyoffice_token_ttl
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_token_ttl'].to_i
+      value = 86_400 if value <= 0
+      value.clamp(300, 604_800)
+    end
+
     def dmsf_global_menu_disabled?
       value = Setting.plugin_redmine_dmsf['dmsf_global_menu_disabled']
       value.to_i.positive? || value == 'true'
@@ -232,10 +315,24 @@ module RedmineDmsf
         3
       end
     end
+
+    private
+
+    def onlyoffice_setting(local_key, official_key, default = '')
+      value = if onlyoffice_use_official_settings?
+                onlyoffice_official_settings[official_key]
+              else
+                Setting.plugin_redmine_dmsf[local_key]
+              end
+      value = default if value.blank?
+      value.to_s.strip
+    end
   end
 end
 
 # DMSF libraries
+
+require "#{File.dirname(__FILE__)}/redmine_dmsf/onlyoffice"
 
 # Validators
 require "#{File.dirname(__FILE__)}/../app/validators/dmsf_file_name_validator"
