@@ -332,7 +332,7 @@ end
 
 # DMSF libraries
 
-require "#{File.dirname(__FILE__)}/redmine_dmsf/onlyoffice"
+require "#{File.dirname(__FILE__)}/redmine_dmsf/only_office"
 
 # Validators
 require "#{File.dirname(__FILE__)}/../app/validators/dmsf_file_name_validator"
