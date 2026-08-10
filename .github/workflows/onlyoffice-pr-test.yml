@@ -115,16 +115,22 @@ jobs:
       - name: Run ONLYOFFICE unit tests
         run: |
           cd /opt/redmine
-          bin/rails test plugins/redmine_dmsf/test/unit/onlyoffice_test.rb
+          set +e
+          bin/rails test plugins/redmine_dmsf/test/unit/onlyoffice_test.rb 2>&1 | tee /tmp/onlyoffice_test.out
+          status=${PIPESTATUS[0]}
+          set -e
+          exit "$status"
 
       - name: Run all plugin unit tests
         run: |
           cd /opt/redmine
           bundle exec rake redmine:plugins:test:units
 
-      - name: Archive test.log
+      - name: Archive test output
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: "onlyoffice_test_${{ matrix.engine }}.log"
-          path: /opt/redmine/log/test.log
+          path: |
+            /opt/redmine/log/test.log
+            /tmp/onlyoffice_test.out
