@@ -116,7 +116,7 @@ jobs:
         run: |
           cd /opt/redmine
           set +e
-          bin/rails test plugins/redmine_dmsf/test/unit/onlyoffice_test.rb 2>&1 | tee /tmp/onlyoffice_test.out
+          TESTOPTS='--name=/OnlyOfficeTest#/' bundle exec rake redmine:plugins:test:units 2>&1 | tee /tmp/onlyoffice_test.out
           status=${PIPESTATUS[0]}
           set -e
           exit "$status"
