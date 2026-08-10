@@ -38,20 +38,20 @@ class OnlyOfficeTest < ActiveSupport::TestCase
     revision = Struct.new(:name).new('example.docx')
     user = Struct.new(:id, :name, :language).new(7, 'Editor', 'en')
 
-    RedmineDmsf.stub(:onlyoffice_jwt_secret, '') do
-      config = RedmineDmsf::OnlyOffice.editor_config(
-        revision: revision,
-        user: user,
-        mode: 'view',
-        key: 'separate-view-key',
-        download_url: 'https://redmine.test/download',
-        callback_url: 'https://redmine.test/callback',
-        back_url: 'https://redmine.test/dmsf/file/1'
-      )
+    RedmineDmsf.stubs(:onlyoffice_jwt_secret).returns('')
 
-      assert_equal 'separate-view-key', config[:document][:key]
-      assert_equal false, config[:document][:permissions][:edit]
-    end
+    config = RedmineDmsf::OnlyOffice.editor_config(
+      revision: revision,
+      user: user,
+      mode: 'view',
+      key: 'separate-view-key',
+      download_url: 'https://redmine.test/download',
+      callback_url: 'https://redmine.test/callback',
+      back_url: 'https://redmine.test/dmsf/file/1'
+    )
+
+    assert_equal 'separate-view-key', config[:document][:key]
+    assert_equal false, config[:document][:permissions][:edit]
   end
 
   test 'decodes a signed callback token from the request body' do
@@ -59,13 +59,11 @@ class OnlyOfficeTest < ActiveSupport::TestCase
     token = RedmineDmsf::OnlyOffice.jwt_encode(payload, 'secret')
     request = Struct.new(:raw_post, :headers).new({ token: token }.to_json, {})
 
-    RedmineDmsf.stub(:onlyoffice_jwt_secret, 'secret') do
-      RedmineDmsf.stub(:onlyoffice_jwt_algorithm, 'HS256') do
-        RedmineDmsf.stub(:onlyoffice_jwt_header, 'Authorization') do
-          assert_equal payload, RedmineDmsf::OnlyOffice.callback_payload(request)
-        end
-      end
-    end
+    RedmineDmsf.stubs(:onlyoffice_jwt_secret).returns('secret')
+    RedmineDmsf.stubs(:onlyoffice_jwt_algorithm).returns('HS256')
+    RedmineDmsf.stubs(:onlyoffice_jwt_header).returns('Authorization')
+
+    assert_equal payload, RedmineDmsf::OnlyOffice.callback_payload(request)
   end
 
   test 'decodes a signed callback payload from the authorization header' do
@@ -73,13 +71,11 @@ class OnlyOfficeTest < ActiveSupport::TestCase
     token = RedmineDmsf::OnlyOffice.jwt_encode({ payload: payload }, 'secret')
     request = Struct.new(:raw_post, :headers).new(payload.to_json, { 'Authorization' => "Bearer #{token}" })
 
-    RedmineDmsf.stub(:onlyoffice_jwt_secret, 'secret') do
-      RedmineDmsf.stub(:onlyoffice_jwt_algorithm, 'HS256') do
-        RedmineDmsf.stub(:onlyoffice_jwt_header, 'Authorization') do
-          assert_equal payload, RedmineDmsf::OnlyOffice.callback_payload(request)
-        end
-      end
-    end
+    RedmineDmsf.stubs(:onlyoffice_jwt_secret).returns('secret')
+    RedmineDmsf.stubs(:onlyoffice_jwt_algorithm).returns('HS256')
+    RedmineDmsf.stubs(:onlyoffice_jwt_header).returns('Authorization')
+
+    assert_equal payload, RedmineDmsf::OnlyOffice.callback_payload(request)
   end
 
   test 'rewrites reverse proxy base paths without duplicating them' do
