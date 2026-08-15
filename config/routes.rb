@@ -121,7 +121,7 @@ if Redmine::Plugin.installed? 'redmine_dmsf'
     get '/dmsf/files/:id/onlyoffice/edit', to: 'dmsf_onlyoffice#edit', as: 'dmsf_onlyoffice_edit'
     get '/dmsf/files/:id/onlyoffice/download/:filename', to: 'dmsf_onlyoffice#download',
                                                          as: 'dmsf_onlyoffice_download',
-                                                         filename: /[^\/]+/
+                                                         filename: %r{[^/]+}
     post '/dmsf/onlyoffice/callback', to: 'dmsf_onlyoffice#callback', as: 'dmsf_onlyoffice_callback'
 
     get '/dmsf/files/:id/download', to: 'dmsf_files#view',
