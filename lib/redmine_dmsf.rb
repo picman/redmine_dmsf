@@ -230,7 +230,7 @@ module RedmineDmsf
     def onlyoffice_ssl_verification_disabled?
       if onlyoffice_use_official_settings?
         value = onlyoffice_official_settings['check_cert']
-        value == 'on' || value == true || value.to_s == '1'
+        ['on', true, 1, '1'].include?(value)
       else
         value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_disable_certificate_verification']
         value.to_i.positive? || value == 'true'
