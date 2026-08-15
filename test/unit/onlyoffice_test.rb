@@ -2,6 +2,7 @@
 
 require File.expand_path('../test_helper', __dir__)
 
+# Unit tests for the DMSF ONLYOFFICE integration helpers.
 class OnlyOfficeTest < ActiveSupport::TestCase
   test 'maps office extensions to ONLYOFFICE document types' do
     assert_equal 'word', RedmineDmsf::OnlyOffice.document_type('example.docx')
