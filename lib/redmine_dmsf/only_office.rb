@@ -122,9 +122,7 @@ module RedmineDmsf
         }
 
         secret = RedmineDmsf.onlyoffice_jwt_secret
-        if secret.present?
-          config[:token] = jwt_encode(config, secret, algorithm: RedmineDmsf.onlyoffice_jwt_algorithm)
-        end
+        config[:token] = jwt_encode(config, secret, algorithm: RedmineDmsf.onlyoffice_jwt_algorithm) if secret.present?
         config
       end
 
@@ -159,9 +157,7 @@ module RedmineDmsf
 
         algorithm = RedmineDmsf.onlyoffice_jwt_algorithm
         body_token = raw_body['token'].to_s
-        if body_token.present?
-          return jwt_decode(body_token, secret, algorithm: algorithm).deep_stringify_keys
-        end
+        return jwt_decode(body_token, secret, algorithm: algorithm).deep_stringify_keys if body_token.present?
 
         header_name = RedmineDmsf.onlyoffice_jwt_header.presence || 'Authorization'
         header_token = request.headers[header_name].to_s.sub(/\ABearer\s+/i, '')
@@ -290,7 +286,7 @@ module RedmineDmsf
       end
 
       def base64url_decode(value)
-        Base64.urlsafe_decode64(value.to_s + ('=' * ((4 - value.to_s.length % 4) % 4)))
+        Base64.urlsafe_decode64(value.to_s + ('=' * ((4 - (value.to_s.length % 4)) % 4)))
       end
 
       def jwt_digest(algorithm)
@@ -306,7 +302,7 @@ module RedmineDmsf
       def normalized_path(path)
         value = path.to_s
         value = "/#{value}" unless value.start_with?('/')
-        value = value.gsub(%r{/+}, '/')
+        value = value.squeeze('/')
         value.length > 1 ? value.delete_suffix('/') : value
       end
 
@@ -333,9 +329,9 @@ module RedmineDmsf
         rescue URI::InvalidURIError
           nil
         end
-        unless %w[http https].include?(uri.scheme) && allowed.include?([uri.scheme, uri.host, uri.port])
-          raise InvalidDownloadUrl, 'The callback download URL is not a configured ONLYOFFICE Document Server URL'
-        end
+        return if %w[http https].include?(uri.scheme) && allowed.include?([uri.scheme, uri.host, uri.port])
+
+        raise InvalidDownloadUrl, 'The callback download URL is not a configured ONLYOFFICE Document Server URL'
       end
 
       def fetch(url, io, redirects, max_bytes)
@@ -368,6 +364,7 @@ module RedmineDmsf
               if max_bytes&.positive? && bytes > max_bytes
                 raise FileTooLarge, 'The edited document exceeds Redmine attachment_max_size'
               end
+
               io.write(chunk)
             end
           when Net::HTTPRedirection
