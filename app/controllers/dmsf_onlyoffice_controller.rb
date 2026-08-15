@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Handles ONLYOFFICE editor, download, and callback requests for DMSF files.
 class DmsfOnlyofficeController < ApplicationController
   menu_item :dmsf
 
