@@ -297,7 +297,9 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_checksum
-    assert_equal @revision1.checksum, @revision1.file.blob.checksum
+    checksum =
+      "MD5: #{Base64.decode64(@revision1.file.blob.checksum).each_byte.map { |b| format('%02x', b.to_i) }.join}"
+    assert_equal @revision1.checksum, checksum
   end
 
   def test_content_type
