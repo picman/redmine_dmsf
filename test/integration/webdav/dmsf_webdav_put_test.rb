@@ -380,9 +380,9 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
           headers: @jsmith.merge!({ content_type: :text })
       assert_response :created
     end
-    checksum = Digest::MD5.base64digest('1234')
+    checksum = Digest::MD5.hexdigest('1234')
     @file1.last_revision = nil
-    assert_equal checksum, @file1.last_revision.checksum
+    assert_equal "MD5: #{checksum}", @file1.last_revision.checksum
   end
 
   def test_put_version
