@@ -121,6 +121,8 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def checksum
+    return '' unless file&.blob&.checksum
+
     "MD5: #{Base64.decode64(file&.blob&.checksum).each_byte.map { |b| format('%02x', b.to_i) }.join}"
   end
 
