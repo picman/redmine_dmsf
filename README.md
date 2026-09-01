@@ -6,7 +6,7 @@
 >IMPORTANT (for those migrating from a version < 5.0.0):
 >
 > For the sake of Active Storage are all the files, physically present in the filesystem, migrated to a new location in 
-> a completely diferent file structure!
+> a completely different file structure!
 > 
 >1. Active Storage requires some manual installation steps. Follow 
 >[Active Storage installation procedure](#active-storage).
