@@ -21,34 +21,34 @@
 
 <div class="contextual">
   <% if @file_manipulation_allowed %>
-    <% if @file.locked_for_user? %>
+    <% if @dmsf_file.locked_for_user? %>
       <% if User.current.allowed_to?(:force_file_unlock, @project) %>
-        <%= link_to_if @file.unlockable?, sprite_icon('unlock', l(:button_unlock)),
-                       unlock_dmsf_files_path(id:  @file, back_url: dmsf_file_path(id: @file)),
+        <%= link_to_if @dmsf_file.unlockable?, sprite_icon('unlock', l(:button_unlock)),
+                       unlock_dmsf_files_path(id:  @dmsf_file, back_url: dmsf_file_path(id: @dmsf_file)),
                        title: l(:title_unlock_file), class: 'icon icon-unlock' %>
       <% end %>
     <% else %>
-      <% if @file.locked? %>
-        <%= link_to_if @file.unlockable?, sprite_icon('unlock', l(:button_unlock)),
-                       unlock_dmsf_files_path(id: @file, back_url: dmsf_file_path(id: @file)),
+      <% if @dmsf_file.locked? %>
+        <%= link_to_if @dmsf_file.unlockable?, sprite_icon('unlock', l(:button_unlock)),
+                       unlock_dmsf_files_path(id: @dmsf_file, back_url: dmsf_file_path(id: @dmsf_file)),
                        title: l(:title_unlock_file), class: 'icon icon-unlock' %>
       <% else %>
         <%= link_to sprite_icon('lock', l(:button_lock)),
-                    lock_dmsf_files_path(id: @file, back_url: dmsf_file_path(id: @file)),
+                    lock_dmsf_files_path(id: @dmsf_file, back_url: dmsf_file_path(id: @dmsf_file)),
                     title: l(:title_lock_file), class: 'icon icon-lock' %>
       <% end %>
       <%= actions_dropdown do %>
         <%= render partial: 'dmsf_context_menus/revisions',
-                   locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
-                             notifications: @notifications, back_url: dmsf_file_path(id: @file) } %>
+                   locals: { project: @project, file: @dmsf_file, file_delete_allowed: @file_delete_allowed,
+                             notifications: @notifications, back_url: dmsf_file_path(id: @dmsf_file) } %>
       <% end %>
     <% end %>
   <% end %>
 </div>
 
-<%= render partial: '/dmsf/path', locals: { folder: @file.dmsf_folder, filename: @file.title, title: nil } %>
+<%= render partial: '/dmsf/path', locals: { folder: @dmsf_file.dmsf_folder, filename: @dmsf_file.title, title: nil } %>
 
-<% if @file_manipulation_allowed && !@file.locked_for_user? %>
+<% if @file_manipulation_allowed && !@dmsf_file.locked_for_user? %>
   <%= error_messages_for 'file' %>
   <%= error_messages_for 'revision' %>
   <%= render partial: 'file_new_revision' %>
@@ -57,18 +57,18 @@
 <div>
   <div class="dmsf-id-box">
     <strong><%= label_tag '', l(:label_document) %></strong>
-    #<%= @file.id %>
+    #<%= @dmsf_file.id %>
   </div>
 </div>
 
 <h3><%= l(:heading_revisions) %></h3>
-<% @file.dmsf_file_revisions.visible[@revision_pages.offset, @revision_pages.per_page].each do |revision| %>
+<% @dmsf_file.dmsf_file_revisions.visible[@revision_pages.offset, @revision_pages.per_page].each do |revision| %>
   <div class="dmsf-revision-box">
     <div class="dmsf-widget-header fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix">
       <div class="dmsf-controls contextual">
         <%= actions_dropdown do %>
           <%= render partial: 'dmsf_context_menus/revision_actions',
-                     locals: { project: @project, file: @file, file_delete_allowed: @file_delete_allowed,
+                     locals: { project: @project, file: @dmsf_file, file_delete_allowed: @file_delete_allowed,
                                file_manipulation_allowed: @file_manipulation_allowed, revision: revision } %>
         <% end %>
       </div>
@@ -161,10 +161,10 @@
 <% end %>
 <span class="pagination"><%= pagination_links_full @revision_pages, @revision_count %></span>
 
-<% if @file.watchers.present? && User.current.allowed_to?(:view_dmsf_file_watchers, @project) %>
+<% if @dmsf_file.watchers.present? && User.current.allowed_to?(:view_dmsf_file_watchers, @project) %>
   <% content_for :sidebar do %>
     <div id="watchers">
-      <%= render partial: 'watchers/watchers', locals: { watched: @file } %>
+      <%= render partial: 'watchers/watchers', locals: { watched: @dmsf_file } %>
     </div>
   <% end %>
 <% end %>

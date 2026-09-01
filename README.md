@@ -51,11 +51,11 @@ Further information about the GPL license can be found at
   * Editing of office documents
   * [REST API](https://github.com/picman/redmine_dmsf/wiki/REST-API)
   * DMS Document revision as a custom field type
-  * Compatible with Redmine 6.1
+  * Webhooks
 
 ## Dependencies
 
-  * Redmine 6.1 or higher
+  * Redmine 7.0
 
 ### Full-text search (optional)
 

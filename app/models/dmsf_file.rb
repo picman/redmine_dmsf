@@ -24,6 +24,7 @@ require 'English'
 # File
 class DmsfFile < ApplicationRecord
   include RedmineDmsf::Lockable
+  include Rails.application.routes.url_helpers
 
   belongs_to :project
   belongs_to :dmsf_folder
@@ -103,6 +104,7 @@ class DmsfFile < ApplicationRecord
     project_key: 'project_id',
     date_column: "#{table_name}.updated_at"
   )
+  acts_as_webhookable
 
   before_create :default_values
   before_destroy :delete_system_folder_before
@@ -113,6 +115,10 @@ class DmsfFile < ApplicationRecord
 
   def self.previews_storage_path
     Rails.root.join 'tmp/dmsf_previews'
+  end
+
+  def webhook_payload_api_template
+    "#{File.dirname(__FILE__)}/../views/dmsf_files/show.api.rsb"
   end
 
   def default_values
@@ -171,8 +177,30 @@ class DmsfFile < ApplicationRecord
     @last_revision ||= deleted? ? dmsf_file_revisions.first : dmsf_file_revisions.visible.first
   end
 
+  def visible?(user)
+    # Webhooks: deleted is not taken into account here, just permissions.
+    user.allowed_to?(:view_dmsf_files, project)
+  end
+
   def deleted?
     deleted == STATUS_DELETED
+  end
+
+  def created_on
+    created_at
+  end
+
+  def updated_on
+    updated_at
+  end
+
+  def download_url
+    download_dmsf_file_url self, host: Setting.host_name
+  end
+
+  def view_url(options)
+    options[:host] = Setting.host_name
+    view_dmsf_file_url self, options
   end
 
   def locked_by
@@ -200,6 +228,8 @@ class DmsfFile < ApplicationRecord
         self.deleted = STATUS_DELETED
         self.deleted_by_user = User.current
         save
+        # Let's trigger the delete hook too when the document is moved into the trash bin.
+        Webhook.trigger event_name('deleted'), self
         # Associated revisions should be marked as deleted too
         dmsf_file_revisions.each { |r| r.delete(commit: commit, force: true) }
       end

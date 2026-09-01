@@ -99,7 +99,8 @@ class DmsfFileApiTest < RedmineDmsf::Test::IntegrationTest
     assert_select 'dmsf_file > title', text: @file1.title
     assert_select 'dmsf_file > name', text: @file1.name
     assert_select 'dmsf_file > project_id', text: @file1.project_id.to_s
-    assert_select 'dmsf_file > content_url', text: "http://www.example.com/dmsf/files/#{@file1.id}/download"
+    url = ["#{Setting.protocol}:/", Setting.host_name, 'dmsf', 'files', @file1.id, 'download'].join('/')
+    assert_select 'dmsf_file > content_url', text: url
     assert_select 'dmsf_file > dmsf_file_revisions > dmsf_file_revision', @file1.dmsf_file_revisions.all.size
     assert_select 'dmsf_file > dmsf_file_revisions > dmsf_file_revision > custom_fields > custom_field'
     assert_select 'dmsf_file > dmsf_file_revisions > dmsf_file_revision > dmsf_worklfow_state',
