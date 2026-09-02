@@ -47,7 +47,6 @@ namespace :redmine do
       # Restore updated_at of the parent revision
       blob.attachments.each_with_index do |attachment, i|
         attachment.record&.touch time: updated_ats[i]
-        puts ">>> #{updated_ats[i]}"
       end
 
       print "\r#{i * 100 / count}%"
