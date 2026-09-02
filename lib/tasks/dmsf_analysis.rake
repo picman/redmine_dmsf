@@ -38,7 +38,18 @@ namespace :redmine do
       next if blob.audio? || blob.image? || blob.video?
       next if blob.metadata['xapian'] && !force
 
+      # Stash updated_at of the parent revision
+      # A consequence of the analysis is that the parent dmsf_file_revision.updated_at is updated
+      updated_ats = blob.attachments.map { |a| a.record&.updated_at }
+
       blob.analyze
+
+      # Restore updated_at of the parent revision
+      blob.attachments.each_with_index do |attachment, i|
+        attachment.record&.touch time: updated_ats[i]
+        puts ">>> #{updated_ats[i]}"
+      end
+
       print "\r#{i * 100 / count}%"
     end
     print "\r100%\n"

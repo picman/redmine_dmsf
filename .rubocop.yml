@@ -120,6 +120,7 @@ Rails/SkipsModelValidations:
     - db/migrate/20240829093801_rename_dmsf_digest_token.rb
     - db/migrate/20251015130601_active_storage_migration.rb
     - db/migrate/20251017101001_restore_updated_at.rb
+    - lib/tasks/dmsf_analysis.rake
 
 Rails/ThreeStateBooleanColumn:
   Exclude:
