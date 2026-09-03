@@ -28,6 +28,7 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
     @issue1 = Issue.find 1
     @wf1 = DmsfWorkflow.find 1
     @wf2 = DmsfWorkflow.find 2
+    Rails.application.routes.default_url_options[:host] = 'www.example.com'
   end
 
   def test_project_file_count_differs_from_project_visibility_count
