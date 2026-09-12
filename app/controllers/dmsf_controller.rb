@@ -33,7 +33,7 @@ class DmsfController < ApplicationController
   before_action :permissions?
   # Also try to lookup folder by title if this is an API call
   before_action :find_folder_by_title, only: [:show]
-  before_action :query, only: %i[expand_folder show trash empty_trash index]
+  before_action :fetch_query, only: %i[expand_folder show trash empty_trash index]
   before_action :project_roles, only: %i[new edit create save]
   before_action :find_target_folder, only: %i[copymove entries_operation]
   before_action :check_target_folder, only: [:entries_operation]
@@ -50,6 +50,9 @@ class DmsfController < ApplicationController
   helper :dmsf_queries
   helper :context_menus
   helper :watchers
+
+  rescue_from Query::StatementInvalid, with: :query_statement_invalid
+  rescue_from Query::QueryError, with: :query_error
 
   def permissions?
     if !DmsfFolder.permissions?(@folder, allow_system: false)
@@ -503,6 +506,11 @@ class DmsfController < ApplicationController
 
   private
 
+  def query_error(exception)
+    session.delete :dmsf_query
+    super
+  end
+
   def users_for_new_users
     User.active.visible.member_of(@project).like(params[:q]).order(:type, :lastname).to_a
   end
@@ -758,9 +766,10 @@ class DmsfController < ApplicationController
     copy
   end
 
-  def query
-    retrieve_default_query true
-    @query = retrieve_query DmsfQuery, true
+  def fetch_query
+    use_session = !request.format.csv?
+    retrieve_default_query use_session
+    retrieve_query DmsfQuery, use_session
   end
 
   def retrieve_default_query(use_session)
@@ -772,8 +781,8 @@ class DmsfController < ApplicationController
       params[:set_filter] = 1
       return
     end
-    if !params[:set_filter] && use_session && session[:issue_query]
-      query_id, project_id = session[:issue_query].values_at(:id, :project_id)
+    if !params[:set_filter] && use_session && session[:dmsf_query]
+      query_id, project_id = session[:dmsf_query].values_at(:id, :project_id)
       return if DmsfQuery.exists?(id: query_id) && project_id == @project&.id
     end
     default_query = DmsfQuery.default(project: @project)

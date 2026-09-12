@@ -41,7 +41,6 @@ class DmsfQuery < Query
 
   def initialize(attributes = nil, *_args)
     super(attributes)
-    self.sort_criteria = []
     self.filters ||= { 'title' => { operator: '~', values: [''] } }
     self.dmsf_folder_id = nil
     self.deleted = false

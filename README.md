@@ -1,4 +1,4 @@
-# Redmine DMSF Plugin 5.1.0
+# Redmine DMSF Plugin 5.1.1
 
 [![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=master)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
@@ -264,9 +264,12 @@ instance is stopped.
 
     `chown -R www-data:www-data plugins/redmine_dmsf`
 
-10. Restart the web server, e.g.:
+10. Restart the web server. If you use a servis for an asynchronous queue adapter, you should restart it too. E.g.:
 
-    `systemctl restart apache2`
+    ```
+    systemctl restart apache2
+    systemctl restart sidekiq
+    ```
 
 11. You should configure the plugin via Redmine interface: Administration -> Plugins -> DMSF -> Configure. (You should check and then save the plugin's configuration after each upgrade.)
 12. Don't forget to grant permissions for DMSF in Administration -> Roles and permissions

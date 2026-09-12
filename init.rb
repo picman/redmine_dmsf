@@ -27,7 +27,7 @@ Redmine::Plugin.register :redmine_dmsf do
   author_url 'https://github.com/picman/redmine_dmsf/graphs/contributors'
   author 'Vít Jonáš / Daniel Munn / Karel Pičman'
   description 'Document Management System Features'
-  version '5.1.0'
+  version '5.1.1'
 
   requires_redmine version_or_higher: '7.0.0'
 

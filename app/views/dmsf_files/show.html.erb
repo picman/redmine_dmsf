@@ -82,8 +82,13 @@
       </div>
       <div class="dmsf-widget-header-text">
         <i><%= l(:info_revision, rev: revision.id) %></i>
-        <%= (revision.source_revision.nil? ? l(:label_created) : l(:label_changed)).downcase %>
-        <%= l(:info_changed_by_user, changed: format_time(revision.updated_at)) %>
+        <% if revision.source_revision.nil? %>
+          <%= l(:label_created).downcase %>
+          <%= l(:info_changed_by_user, changed: format_time(revision.created_at)) %>
+        <% else %>
+          <%= l(:label_changed).downcase %>
+          <%= l(:info_changed_by_user, changed: format_time(revision.updated_at)) %>
+        <% end %>
         <%= link_to(revision.user.name, user_path(revision.user)) if revision.user %>
       </div>
     </div>

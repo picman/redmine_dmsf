@@ -22,10 +22,12 @@ source 'https://rubygems.org' do
   gem 'activestorage'
   gem 'image_processing', '~> 1.2'
   gem 'ox' # Dav4Rack
+  gem 'pstore'
   gem 'rake' unless Dir.exist?(File.expand_path('../../redmine_dashboard', __FILE__))
   gem 'simple_enum'
   gem 'uuidtools'
   gem 'zip-zip' unless Dir.exist?(File.expand_path('../../vault', __FILE__))
+
   group :xapian do
     gem 'xapian-ruby'
   end

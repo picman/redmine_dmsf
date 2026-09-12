@@ -28,6 +28,7 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     @revision1 = DmsfFileRevision.find 1
     @revision2 = DmsfFileRevision.find 2
     @revision3 = DmsfFileRevision.find 3
+    @revision4 = DmsfFileRevision.find 4
     @revision7 = DmsfFileRevision.find 7
     @revision8 = DmsfFileRevision.find 8
     @revision13 = DmsfFileRevision.find 13
@@ -305,5 +306,12 @@ class DmsfFileRevisionTest < RedmineDmsf::Test::UnitTest
     assert_equal 'text/plain', @revision1.content_type
     @revision1.file.blob.filename = 'data'
     assert_equal 'application/octet-stream', @revision1.content_type
+  end
+
+  def test_update_parent_folder
+    @revision4.title = 'Test File 4'
+    assert @revision4.save
+    # to_i - exclude milliseconds (Postgres and SQLite)
+    assert_equal @revision4.dmsf_file.dmsf_folder.reload.updated_at.to_i, @revision4.updated_at.to_i
   end
 end

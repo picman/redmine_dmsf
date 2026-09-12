@@ -36,6 +36,7 @@ class DmsfFileRevision < ApplicationRecord
   has_many :dmsf_workflow_step_assignment, dependent: :destroy
 
   before_destroy :delete_source_revision
+  after_save :update_parent_folder
 
   STATUS_DELETED = 1
   STATUS_ACTIVE = 0
@@ -432,4 +433,12 @@ class DmsfFileRevision < ApplicationRecord
     end
     result
   end
+
+  # Update the parent folder's timestamp (updated_at)
+  # Rails/SkipsModelValidations: Avoid using touch because it skips validations. =>
+  # rubocop:disable Rails/SkipsModelValidations
+  def update_parent_folder
+    dmsf_file.dmsf_folder&.touch time: updated_at
+  end
+  # rubocop:enable Rails/SkipsModelValidations
 end

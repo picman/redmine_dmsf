@@ -18,7 +18,8 @@
 # <https://www.gnu.org/licenses/>.
 
 desc <<~END_DESC
-  Identify documents without a physical file in the file system present
+  Identify documents without a physical file in the file system present.
+  You can then attach a new file from GUI or use redmine:dmsf_attach_file rake task.
 
   Example:
     rake redmine:dmsf_missing_files RAILS_ENV="production"

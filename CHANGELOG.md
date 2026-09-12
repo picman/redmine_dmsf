@@ -1,6 +1,16 @@
 Changelog for Redmine DMSF
 ==========================
 
+5.1.1 *2026-08-19*
+------------------
+
+    Ruby 4 compatibility
+
+* New: #39 - Error executing the dmsf macro (missing attribute 'mime_type' for DmsfFileRevision)
+* Bug: #38 - Folder "changed date" does not change when files get new versions
+* New: #36 - Adds missing Ruby Gem 'pstore' for Ruby 4 compatibility
+* Bug: #35 - Sort order of tables does not persist but is only session based
+
 5.1.0 *2026-07-16*
 ------------------
 
