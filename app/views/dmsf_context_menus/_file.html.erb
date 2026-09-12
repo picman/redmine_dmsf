@@ -73,6 +73,20 @@
                                                    email_entries: true, back_url: back_url),
                       method: :post, class: 'icon icon-email', disabled: !email_allowed %>
 </li>
+<% if @onlyoffice_view %>
+  <li>
+    <%= context_menu_link sprite_icon('zoom-in', l(:label_dmsf_onlyoffice_view)),
+                          dmsf_onlyoffice_view_path(dmsf_file, back_url: back_url),
+                          class: 'icon icon-zoom-in', disabled: false %>
+  </li>
+  <% if @onlyoffice_edit %>
+    <li>
+      <%= context_menu_link sprite_icon('edit', l(:label_dmsf_onlyoffice_edit)),
+                            dmsf_onlyoffice_edit_path(dmsf_file, back_url: back_url),
+                            class: 'icon icon-edit', disabled: !allowed || dmsf_file.locked_for_user? %>
+    </li>
+  <% end %>
+<% end %>
 <% if RedmineDmsf.dmsf_webdav? %>
   <li>
     <% if dmsf_file.last_revision && dmsf_file.last_revision.protocol %>

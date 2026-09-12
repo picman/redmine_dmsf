@@ -63,6 +63,96 @@
   </em>
 </p>
 
+<hr>
+<em class="info">
+  <%= l(:label_dmsf_onlyoffice) %>
+</em>
+
+<% if Redmine::Plugin.installed?('onlyoffice_redmine') %>
+  <p>
+    <%= content_tag :label, l(:label_dmsf_onlyoffice_use_official_settings) %>
+    <%= check_box_tag 'settings[dmsf_onlyoffice_use_official_settings]', '1',
+                      RedmineDmsf.onlyoffice_use_official_settings? %>
+    <em class="info"><%= l(:note_dmsf_onlyoffice_use_official_settings) %></em>
+  </p>
+<% end %>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_document_server_url) %>
+  <%= text_field_tag 'settings[dmsf_onlyoffice_document_server_url]',
+                     RedmineDmsf.onlyoffice_document_server_url, size: 60,
+                     placeholder: 'https://onlyoffice.example.org' %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_document_server_url) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_document_server_internal_url) %>
+  <%= text_field_tag 'settings[dmsf_onlyoffice_document_server_internal_url]',
+                     RedmineDmsf.onlyoffice_document_server_internal_url, size: 60,
+                     placeholder: 'http://onlyoffice-documentserver' %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_document_server_internal_url) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_redmine_internal_url) %>
+  <%= text_field_tag 'settings[dmsf_onlyoffice_redmine_internal_url]',
+                     RedmineDmsf.onlyoffice_redmine_internal_url, size: 60,
+                     placeholder: 'http://redmine:3000' %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_redmine_internal_url) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_jwt_secret) %>
+  <%= password_field_tag 'settings[dmsf_onlyoffice_jwt_secret]', RedmineDmsf.onlyoffice_jwt_secret,
+                         size: 60, autocomplete: 'new-password' %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_jwt_secret) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_jwt_algorithm) %>
+  <%= select_tag 'settings[dmsf_onlyoffice_jwt_algorithm]',
+                 options_for_select(%w[HS256 HS384 HS512], RedmineDmsf.onlyoffice_jwt_algorithm) %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_jwt_algorithm) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_jwt_header) %>
+  <%= text_field_tag 'settings[dmsf_onlyoffice_jwt_header]', RedmineDmsf.onlyoffice_jwt_header, size: 30 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_jwt_header) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_disable_certificate_verification) %>
+  <%= check_box_tag 'settings[dmsf_onlyoffice_disable_certificate_verification]', '1',
+                    RedmineDmsf.onlyoffice_ssl_verification_disabled? %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_disable_certificate_verification) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_editable_extensions) %>
+  <%= text_field_tag 'settings[dmsf_onlyoffice_editable_extensions]',
+                     RedmineDmsf.onlyoffice_editable_extensions.join(','), size: 90 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_editable_extensions) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_version_type) %>
+  <%= select_tag 'settings[dmsf_onlyoffice_version_type]',
+                 options_for_select([
+                                      [l(:label_dmsf_version_patch), 'patch'],
+                                      [l(:label_dmsf_version_minor), 'minor'],
+                                      [l(:label_dmsf_version_major), 'major']
+                                    ], RedmineDmsf.onlyoffice_version_type) %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_version_type) %></em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_onlyoffice_token_ttl) %>
+  <%= number_field_tag 'settings[dmsf_onlyoffice_token_ttl]', RedmineDmsf.onlyoffice_token_ttl,
+                       min: 300, max: 604800, step: 60 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_token_ttl) %></em>
+</p>
+
 <p>
   <%= content_tag :label, l(:label_physical_file_delete) %>
   <%= check_box_tag 'settings[dmsf_really_delete_files]', '1', RedmineDmsf.physical_file_delete? %>
