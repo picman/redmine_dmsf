@@ -30,6 +30,9 @@ AllCops:
     - '**/vendor/**/*'
 
 # Rules for DMSF
+Layout/EndOfLine:
+  EnforcedStyle: lf
+
 Layout/LineLength:
   Exclude:
     - app/models/dmsf_query.rb

@@ -20,14 +20,18 @@
 name: "GitHub CI"
 on:
   push:
-    branches: ["master"]
+    branches: ["master", "onlyoffice", "feature/onlyoffice-dmsf-integration"]
   pull_request:
-    branches: ["master"]
+    branches: ["master", "onlyoffice"]
+  workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   plugin_tests:
     strategy:
       fail-fast: false
       matrix:
+        redmine: ["7.0.0", "7.0.1"]
         engine: [mysql, postgresql, sqlite]
         include:
           - engine: mysql
@@ -83,8 +87,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y litmus libreoffice subversion xapian-omega
       - name: Clone Redmine
-        # Get the latest stable Redmine
-        run: svn export https://svn.redmine.org/redmine/branches/7.0-stable/ /opt/redmine
+        # Test exact releases instead of a moving stable branch
+        run: svn export https://svn.redmine.org/redmine/tags/${{matrix.redmine}}/ /opt/redmine
       - name: Checkout code
         uses: actions/checkout@v3        
       - name: Link the plugin
@@ -94,7 +98,6 @@ jobs:
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1 # The latest major version
         with:
-          bundler-cache: true
           ruby-version: '3.4'
       - name: Setup database
         # Create the database
@@ -130,6 +133,7 @@ jobs:
           echo "  service: Disk" >> /opt/redmine/config/storage.yml
           echo "  root: <%= Rails.root.join('dmsf_as_test') %>" >> /opt/redmine/config/storage.yml
       - name: Install Redmine
+        id: install
         # Install Redmine
         run: |
           cd /opt/redmine                    
@@ -143,13 +147,21 @@ jobs:
           bundle exec rake assets:precompile
         env:
           REDMINE_LANG: en
-      - name: Standard tests
-        # Run the tests
+      - name: Unit tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: |
           cd /opt/redmine
-          bundle exec rake redmine:plugins:test:units
-          bundle exec rake redmine:plugins:test:functionals
-          bundle exec rake redmine:plugins:test:integration
+          bundle exec rake redmine:plugins:test:units NAME=redmine_dmsf RAILS_ENV=test
+      - name: Functional tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          cd /opt/redmine
+          bundle exec rake redmine:plugins:test:functionals NAME=redmine_dmsf RAILS_ENV=test
+      - name: Integration tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          cd /opt/redmine
+          bundle exec rake redmine:plugins:test:integration NAME=redmine_dmsf RAILS_ENV=test
       - name: Helpers tests
         run: |
           cd /opt/redmine
@@ -158,6 +170,7 @@ jobs:
           ruby plugins/redmine_dmsf/test/helpers/dmsf_links_helper_test.rb
           ruby plugins/redmine_dmsf/test/helpers/dmsf_queries_helper_test.rb
       - name: Rubocop
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         # Run the Rubocop tests
         run: |
           cd /opt/redmine                    
@@ -191,5 +204,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: "test_${{matrix.engine}}.log"
+          name: "test_${{matrix.redmine}}_${{matrix.engine}}.log"
           path: /opt/redmine/log/test.log

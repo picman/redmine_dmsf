@@ -1,0 +1,6 @@
+# Keep Ruby sources identical on Linux, macOS and Windows checkouts.
+*.rb text eol=lf
+*.rake text eol=lf
+Gemfile text eol=lf
+PluginGemfile text eol=lf
+Rakefile text eol=lf

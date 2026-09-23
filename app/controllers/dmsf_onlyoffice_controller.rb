@@ -8,6 +8,8 @@ class DmsfOnlyofficeController < ApplicationController
   before_action :find_file, only: %i[view edit]
   before_action :authorize, only: %i[view edit]
   before_action :check_dmsf_permissions, only: %i[view edit]
+  # Document Server requests are authenticated by signed tokens, not browser sessions.
+  skip_before_action :check_if_login_required, only: %i[download callback]
   skip_before_action :verify_authenticity_token, only: :callback
 
   def view
@@ -23,13 +25,13 @@ class DmsfOnlyofficeController < ApplicationController
   end
 
   def download
+    previous_user = User.current
     claims = RedmineDmsf::OnlyOffice.decode_storage_token(params[:token], purpose: 'download')
     file = DmsfFile.visible.find(claims.fetch('file_id'))
     revision = DmsfFileRevision.visible.find(claims.fetch('revision_id'))
     user = token_user(claims)
     raise ActiveRecord::RecordNotFound unless revision.dmsf_file_id == file.id && revision.file.attached?
 
-    previous_user = User.current
     User.current = user
     unless (user.active? || user.anonymous?) && user.allowed_to?(:view_dmsf_files, file.project) &&
            DmsfFolder.permissions?(file.dmsf_folder, allow_system: true, file: true)
@@ -48,7 +50,7 @@ class DmsfOnlyofficeController < ApplicationController
     Rails.logger.warn "ONLYOFFICE DMSF download rejected: #{e.message}"
     render_404
   ensure
-    User.current = previous_user if defined?(previous_user)
+    User.current = previous_user
   end
 
   def callback
@@ -155,6 +157,7 @@ class DmsfOnlyofficeController < ApplicationController
   end
 
   def save_revision(body, claims)
+    previous_user = User.current
     raise RedmineDmsf::OnlyOffice::InvalidToken, 'The ONLYOFFICE session is view-only' unless claims['mode'] == 'edit'
 
     file = DmsfFile.visible.find(claims.fetch('file_id'))
@@ -164,7 +167,6 @@ class DmsfOnlyofficeController < ApplicationController
     return if DmsfFileRevision.exists?(onlyoffice_key: claims.fetch('key'))
     raise RedmineDmsf::OnlyOffice::Error, 'Missing callback file URL' if body['url'].blank?
 
-    previous_user = User.current
     User.current = user
     unless user.active? && user.allowed_to?(:file_manipulation, file.project) &&
            DmsfFolder.permissions?(file.dmsf_folder, allow_system: true, file: true)
@@ -239,7 +241,7 @@ class DmsfOnlyofficeController < ApplicationController
 
     Rails.logger.info "Ignoring duplicate ONLYOFFICE callback for #{claims['key']}"
   ensure
-    User.current = previous_user if defined?(previous_user)
+    User.current = previous_user
     tempfile&.close!
   end
 end
