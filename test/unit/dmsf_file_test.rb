@@ -358,6 +358,9 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
     # dlopper2 - non-member
     assert_not @file1.visible?(@someone)
     assert_not @file3.visible?(@someone) # Deleted file
+    # Without the param
+    User.current = @jsmith
+    assert @file1.visible?
   end
 
   def test_created_on

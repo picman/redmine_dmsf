@@ -177,9 +177,9 @@ class DmsfFile < ApplicationRecord
     @last_revision ||= deleted? ? dmsf_file_revisions.first : dmsf_file_revisions.visible.first
   end
 
-  def visible?(user)
+  def visible?(user = User.current)
     # Webhooks: deleted is not taken into account here, just permissions.
-    user.allowed_to?(:view_dmsf_files, project)
+    user.allowed_to? :view_dmsf_files, project
   end
 
   def deleted?

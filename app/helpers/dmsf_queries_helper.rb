@@ -186,8 +186,8 @@ module DmsfQueriesHelper
         end
         tag + content_tag('div', item.filename, class: 'dmsf-filename', title: l(:label_target_folder))
       when 'file', 'file-link'
-        icon_name = icon_for_mime_type(Redmine::MimeType.css_class_of(item.filename))
-        icon_class = icon_class_for_mime_type(item.filename)
+        icon_name = icon_for_mime_type(Redmine::MimeType.of(item.filename))
+        icon_class = Redmine::MimeType.css_class_of(item.filename)
         if item&.deleted?
           tag = content_tag(:span, sprite_icon(icon_name, h(value)), class: "icon #{icon_class}")
         else
@@ -310,17 +310,6 @@ module DmsfQueriesHelper
       true
     else
       Redmine::MimeType.is_type?('text', filename) || Redmine::SyntaxHighlighting.filename_supported?(filename)
-    end
-  end
-
-  def icon_class_for_mime_type(mime)
-    case Redmine::MimeType.of(mime)
-    when 'application/pdf'
-      'icon-pdf'
-    when 'text/plain'
-      'icon-txt'
-    else
-      'icon-file'
     end
   end
 end
