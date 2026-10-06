@@ -258,12 +258,7 @@ require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/access_control_patch"
 require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/search_patch"
 require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/custom_field_patch"
 require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/puma_patch"
-# A workaround for obsolete 'alias_method' usage in RedmineUp's plugins
-if RedmineDmsf::Plugin.an_obsolete_plugin_present?
-  require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/notifiable_ru_patch"
-else
-  require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/notifiable_patch"
-end
+require "#{File.dirname(__FILE__)}/redmine_dmsf/patches/notifiable_patch"
 
 # Load up classes that make up our WebDAV solution ontop of Dav4rack
 require "#{File.dirname(__FILE__)}/dav4rack"
