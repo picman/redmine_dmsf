@@ -81,11 +81,15 @@ class DmsfFilesController < ApplicationController
       send_file pdf_preview, filename: "#{basename}.pdf", type: 'application/pdf', disposition: 'inline'
     # Text preview
     elsif !api_request? && params[:download].blank? &&
-          (@dmsf_file.size <= Setting.file_max_size_displayed.to_i.kilobyte) && !@dmsf_file.pdf? &&
+          (@dmsf_file.size <= Setting.file_max_size_displayed.to_i.kilobyte) &&
           (@dmsf_file.text? || @dmsf_file.markdown? || @dmsf_file.textile?) && !@dmsf_file.html? &&
           formats.include?(:html)
-      @content = @revision.file.download
-      render action: 'document'
+      if @dmsf_file.pdf?
+        path = static_dmsf_file_path(@dmsf_file, filename: filename, download: @dmsf_file.last_revision&.id)
+        render action: 'pdf', locals: { path: path }
+      else
+        render action: 'document', locals: { content: @revision.file.download }
+      end
     # Offer the file for download
     else
       params[:disposition] = 'attachment' if params[:filename].present?

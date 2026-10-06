@@ -17,6 +17,6 @@
   # <https://www.gnu.org/licenses/>.
 %>
 
-<%= render layout: 'layouts/document' do %>&nbsp;
-  <%= render_document_content @dmsf_file, content %>
+<%= render layout: 'layouts/document' do %>
+  <%= render partial: 'common/pdf', locals: { path: path } %>
 <% end %>
