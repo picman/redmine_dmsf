@@ -1,8 +1,20 @@
 Changelog for Redmine DMSF
 ==========================
 
-5.1.2 *????-??-??*
+5.2.0 *2026-10-07*
 ------------------
+
+    File mime type icons
+    RedmineUP plugins compatibility
+    Webhooks
+
+* New: #41 - Display hexadecimal MD5 checksums
+* New: #42 - Webhooks
+* Bug: #44 - Open links always in a new tab but not in current one
+* New: #45 - redmine:dmsf_analysis rake task updates updated_at of analyzed documents
+* Bug: #46 - dmsf_convert_documents: dry run fails due to undefined method name=bug
+* Bug: #48 - File type icons are missing in version 5.x.x
+* Bug: #47 - SystemStackError on admin pages — notifiable_ru_patch selected against prepend-based RedmineUP plugins
 
 5.1.1 *2026-08-19*
 ------------------
