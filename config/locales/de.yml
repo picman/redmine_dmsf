@@ -490,6 +490,8 @@ de:
   note_maximum_xapian_filesize: Begrenzt die maximale Dateigröße für die Indizierung. Größere Dateien werden nicht 
     indiziert. Angabe in MB.
 
+  label_search_for_users: Nach hinzufügbaren Benutzer suchen
+
   activerecord:
     errors:
       messages:

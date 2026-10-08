@@ -495,6 +495,8 @@ cs:
   note_maximum_xapian_filesize: Omezuje maximální velikost souboru pro indexaci. Větší soubory nebudou indexovány. 
     Velikost je v MB.
 
+  label_search_for_users: Vyhledej uživatele pro přidání
+
   activerecord:
     errors:
       messages:
