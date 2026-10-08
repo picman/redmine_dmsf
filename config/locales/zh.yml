@@ -492,7 +492,7 @@ zh:
   label_maximum_xapian_filesize: Maximum Xapian file size
   note_maximum_xapian_filesize: Limits maximum filesize for indexing. Larger files won't be indexed. Number is in MB.
 
-  label_search_for_users: Search for users to add
+  label_search_for_members: Search for members to add
 
   activerecord:
     errors:
