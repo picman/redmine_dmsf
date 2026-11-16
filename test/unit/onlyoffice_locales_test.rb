@@ -80,7 +80,7 @@ class OnlyOfficeLocalesTest < Minitest::Test
         value = translations.fetch(key)
         message = "#{File.basename(path)}: #{key}"
         assert_kind_of String, value, message
-        assert_not_empty value.strip, message
+        assert value.strip.present?, message
         assert_equal english.fetch(key).scan(/%\{[^}]+\}/).sort, value.scan(/%\{[^}]+\}/).sort, message
       end
     end
