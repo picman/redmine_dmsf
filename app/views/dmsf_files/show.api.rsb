@@ -1,18 +1,18 @@
 api.dmsf_file do
-  api.id @file.id
-  api.title @file.title
-  api.name @file.name
-  api.project_id @file.project_id
-  api.dmsf_folder_id @file.dmsf_folder_id if @file.dmsf_folder_id
-  api.content_url download_dmsf_file_url(@file)
+  api.id @dmsf_file.id
+  api.title @dmsf_file.title
+  api.name @dmsf_file.name
+  api.project_id @dmsf_file.project_id
+  api.dmsf_folder_id @dmsf_file.dmsf_folder_id if @dmsf_file.dmsf_folder_id
+  api.content_url @dmsf_file.download_url
   api.array :dmsf_file_revisions do
-    @file.dmsf_file_revisions.each do |r|
+    @dmsf_file.dmsf_file_revisions.each do |r|
       api.dmsf_file_revision do
         api.id r.id
         api.source_dmsf_file_revision_id r.source_dmsf_file_revision_id
         api.name r.name
-        api.dmsf_string "{{dmsf(#{@file.id},#{@file.name},#{r.id})}}"
-        api.content_url view_dmsf_file_url(@file, download: r)
+        api.dmsf_string "{{dmsf(#{@dmsf_file.id},#{@dmsf_file.name},#{r.id})}}"
+        api.content_url @dmsf_file.view_url(download: r)
         api.size r.size
         api.mime_type r.content_type
         api.title r.title

@@ -21,12 +21,14 @@
 
 <td class="<%= cls %>">
   <% file_view_url = url_for({ controller: :dmsf_files, action: 'view', id: dmsf_file }) %>
-  <% icon_name = icon_for_mime_type(Redmine::MimeType.css_class_of(dmsf_file.name)) %>
+  <% icon_name = icon_for_mime_type(Redmine::MimeType.of(dmsf_file.name)) %>
+  <% icon_class = Redmine::MimeType.css_class_of(dmsf_file.name) %>
   <%= link_to sprite_icon(icon_name, h(link ? link.name : dmsf_file.title)),
     file_view_url,
     target: '_blank',
     rel: 'noopener',
     title: h(dmsf_file.last_revision.try(:tooltip)),
+    class: "icon icon-#{icon_class}",
     'data-downloadurl' => "#{dmsf_file.last_revision.content_type}:#{h(dmsf_file.name)}:#{file_view_url}" %>
 </td>
 <td class="<%= cls %>">

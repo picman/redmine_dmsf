@@ -21,11 +21,14 @@ require File.expand_path('../../test_helper', __FILE__)
 
 # File tests
 class DmsfFileTest < RedmineDmsf::Test::UnitTest
+  include Rails.application.routes.url_helpers
+
   def setup
     super
     @issue1 = Issue.find 1
     @wf1 = DmsfWorkflow.find 1
     @wf2 = DmsfWorkflow.find 2
+    Rails.application.routes.default_url_options[:host] = 'www.example.com'
   end
 
   def test_project_file_count_differs_from_project_visibility_count
@@ -346,5 +349,39 @@ class DmsfFileTest < RedmineDmsf::Test::UnitTest
     assert @file4.save
     # to_i - exclude milliseconds (Postgres and SQLite)
     assert_equal @file4.dmsf_folder.reload.updated_at.to_i, @file4.updated_at.to_i
+  end
+
+  def test_visible
+    # jsmith - member
+    assert @file1.visible?(@jsmith)
+    assert @file3.visible?(@jsmith) # Deleted file
+    # dlopper2 - non-member
+    assert_not @file1.visible?(@someone)
+    assert_not @file3.visible?(@someone) # Deleted file
+    # Without the param
+    User.current = @jsmith
+    assert @file1.visible?
+  end
+
+  def test_created_on
+    assert_equal @file1.created_at, @file1.created_on
+  end
+
+  def test_updated_on
+    assert_equal @file1.updated_at, @file1.updated_on
+  end
+
+  def test_download_url
+    url = download_dmsf_file_url(@file1, host: Setting.host_name)
+    assert_equal url, @file1.download_url
+  end
+
+  def test_view_url
+    options = {
+      download: @file1.last_revision.id,
+      host: Setting.host_name
+    }
+    url = view_dmsf_file_url(@file1, options)
+    assert_equal url, @file1.view_url(options)
   end
 end

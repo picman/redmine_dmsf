@@ -22,10 +22,10 @@
       <a href="#" id="new_revision_form_content_toggle" data-cy="toggle__new_revision_from_content--dmsf">[+]</a>
     </strong>
   <div id="new_revision_form_content">
-    <% if @file.locked_for_user? %>
+    <% if @dmsf_file.locked_for_user? %>
       <p class="warning"><%= l(:info_file_locked) %></p>
     <% elsif @revision %>
-      <%= labelled_form_for(@revision, url: { action: 'create_revision', id: @file },
+      <%= labelled_form_for(@revision, url: { action: 'create_revision', id: @dmsf_file },
             html: { method: :post, multipart: true, id: 'new_revision_form' }) do |f| %>
         <%= hidden_field_tag 'back_url', params[:back_url] %>
         <div class="splitcontent">
@@ -51,7 +51,7 @@
                 select_tag_name_patch: 'version_patch',
                 select_tag_name_minor: 'version_minor',
                 select_tag_name_major: 'version_major',
-                revision_or_upload: @file.last_revision } %>
+                revision_or_upload: @dmsf_file.last_revision } %>
             </p>
           </div>
           <div class="splitcontentright">

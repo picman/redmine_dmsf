@@ -81,7 +81,7 @@
               <%= link_to_project file.project %>
             </td>
             <td class="title">
-              <% icon_name = icon_for_mime_type(Redmine::MimeType.css_class_of(file.name)) %>
+              <% icon_name = icon_for_mime_type(Redmine::MimeType.of(file.name)) %>
               <%= link_to sprite_icon(icon_name, h(file.title)), dmsf_file_path(id: file), class: 'icon icon-file' %>
             </td>
              <td class="title">

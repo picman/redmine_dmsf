@@ -36,6 +36,7 @@ module RedmineDmsf
         @admin = User.find_by(login: 'admin')
         @jsmith = User.find_by(login: 'jsmith')
         @dlopper = User.find_by(login: 'dlopper')
+        @someone = User.find_by(login: 'someone')
         @manager_role = Role.find_by(name: 'Manager')
         @developer_role = Role.find_by(name: 'Developer')
         [@manager_role, @developer_role].each do |role|

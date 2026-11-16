@@ -142,22 +142,30 @@ class DmsfConvertDocuments
 
   private
 
+  # Restored from redmine_dmsf <= v4.2.4. Both were removed from DmsfFileRevision
+  # during 5.0.0 development, but this task -- their only caller anywhere in the
+  # plugin -- was never updated, so every call raised NoMethodError.
+  def remove_extension(filename)
+    filename[0, (filename.length - File.extname(filename).length)]
+  end
+
+  def filename_to_title(filename)
+    remove_extension(filename).gsub(/_+/, ' ')
+  end
+
   def create_document_from_attachment(project, folder, attachment, files, container)
     file = DmsfFile.new
     file.project_id = project.id
     file.dmsf_folder = folder
-    file.name = attachment.filename
     i = 1
     suffix = ''
-    filename = DmsfFileRevision.remove_extension(file.name)
-    extname = File.extname(file.name)
-    while files.index { |f| f.name == "#{filename}#{suffix}#{extname}" }
+    filename = remove_extension(attachment.filename)
+    extname = File.extname(attachment.filename)
+    while files.index { |f| f == "#{filename}#{suffix}#{extname}" }
       i += 1
       suffix = "_#{i}"
     end
-    # Need to save file first to generate id for it in case of creation.
-    # File id is needed to properly generate revision disk filename
-    file.name = DmsfFileRevision.remove_extension(file.name) + suffix + File.extname(file.name)
+    name = "#{filename}#{suffix}#{extname}"
     unless File.exist?(attachment.diskfile)
       warn "Creating file: #{attachment.filename} failed, attachment file #{attachment.diskfile} doesn't exist"
       @fail = true
@@ -165,15 +173,15 @@ class DmsfConvertDocuments
     end
     if @dry_run
       file.id = attachment.id # Just to have an ID there
-      $stdout.puts "Dry run file: #{file.name}"
+      $stdout.puts "Dry run file: #{name}"
       warn(file.errors.full_messages.to_sentence) if file.invalid?
     else
       file.save!
     end
     revision = DmsfFileRevision.new
     revision.dmsf_file = file
-    revision.name = file.name
-    revision.title = DmsfFileRevision.filename_to_title(attachment.filename)
+    revision.name = name
+    revision.title = filename_to_title(attachment.filename)
     revision.description = attachment.description
     revision.user = attachment.author
     revision.created_at = attachment.created_on
@@ -185,7 +193,7 @@ class DmsfConvertDocuments
       $stdout.puts "Dry run revision: #{revision.title}"
       warn(revision.errors.full_messages.to_sentence) if revision.invalid?
     else
-      revision.size = a.filesize
+      revision.size = attachment.filesize
       revision.shared_file.attach(
         io: File.open(attachment.diskfile),
         filename: attachment.filename,
@@ -194,10 +202,10 @@ class DmsfConvertDocuments
       )
       revision.save!
     end
-    files << file
+    files << name
     unless @dry_run
       attachment.destroy
-      $stdout.puts "Created file: #{file.name}"
+      $stdout.puts "Created file: #{name}"
     end
   rescue StandardError => e
     warn "Creating file: #{attachment.filename} failed"

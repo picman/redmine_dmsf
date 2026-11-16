@@ -1,4 +1,4 @@
-# Redmine DMSF Plugin 5.1.2 devel
+# Redmine DMSF Plugin 5.2.1 devel
 
 [![GitHub CI](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml/badge.svg?branch=devel)](https://github.com/picman/redmine_dmsf/actions/workflows/rubyonrails.yml)
 [![Support Ukraine Badge](https://bit.ly/support-ukraine-now)](https://github.com/support-ukraine/support-ukraine)
@@ -6,7 +6,7 @@
 >IMPORTANT (for those migrating from a version < 5.0.0):
 >
 > For the sake of Active Storage are all the files, physically present in the filesystem, migrated to a new location in 
-> a completely diferent file structure!
+> a completely different file structure!
 > 
 >1. Active Storage requires some manual installation steps. Follow 
 >[Active Storage installation procedure](#active-storage).
@@ -52,6 +52,7 @@ Further information about the GPL license can be found at
   * [REST API](https://github.com/picman/redmine_dmsf/wiki/REST-API)
   * DMS Document revision as a custom field type
   * Compatible with Redmine 7.0
+  * Webhooks
 
 ## Dependencies
 

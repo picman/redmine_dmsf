@@ -230,6 +230,8 @@ class DmsfControllerTest < RedmineDmsf::Test::TestCase
       # 'Zero Size File' document and an expander is present
       assert_select 'a', text: @file10.title
       assert_select 'span.dmsf-expander'
+      # File 1 is present and has got the right icon
+      assert_select 'a.text-plain'
     end
   end
 

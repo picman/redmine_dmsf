@@ -622,6 +622,6 @@ class DmsfFolder < ApplicationRecord
   end
 
   def self.prune(timestamp)
-    DmsfFolder.deleted.where(updated_at: ..timestamp).destroy_all
+    DmsfFolder.where(deleted: STATUS_DELETED, updated_at: ..timestamp).destroy_all
   end
 end
