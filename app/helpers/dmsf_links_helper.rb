@@ -43,6 +43,6 @@ module DmsfLinksHelper
       project = Project.find_by(id: project_id)
       files = project.dmsf_files.visible.to_a if project
     end
-    files.to_a.reject{ |f| f.last_revision.nil? }
+    files.to_a.reject { |f| f.last_revision.nil? }
   end
 end

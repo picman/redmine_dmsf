@@ -241,14 +241,14 @@ module RedmineDmsf
       if onlyoffice_use_official_settings?
         extensions = Array(onlyoffice_official_settings['formats_editable'])
                      .map { |extension| extension.to_s.delete_prefix('.').downcase }
-                     .reject(&:blank?)
+                     .compact_blank
         return extensions.presence || RedmineDmsf::OnlyOffice::DEFAULT_EDITABLE_EXTENSIONS
       end
 
       value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_editable_extensions']
       extensions = value.to_s.split(/[\s,;]+/)
                         .map { |extension| extension.delete_prefix('.').downcase }
-                        .reject(&:blank?)
+                        .compact_blank
       extensions.presence || RedmineDmsf::OnlyOffice::DEFAULT_EDITABLE_EXTENSIONS
     end
 

@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require 'minitest/autorun'
 require 'yaml'
 
@@ -63,7 +80,7 @@ class OnlyOfficeLocalesTest < Minitest::Test
         value = translations.fetch(key)
         message = "#{File.basename(path)}: #{key}"
         assert_kind_of String, value, message
-        refute_empty value.strip, message
+        assert_not_empty value.strip, message
         assert_equal english.fetch(key).scan(/%\{[^}]+\}/).sort, value.scan(/%\{[^}]+\}/).sort, message
       end
     end
@@ -83,7 +100,7 @@ class OnlyOfficeLocalesTest < Minitest::Test
   private
 
   def locale_files
-    Dir.glob(File.join(LOCALES_PATH, '*.yml')).sort
+    Dir.glob File.join(LOCALES_PATH, '*.yml')
   end
 
   def load_locale(path)
