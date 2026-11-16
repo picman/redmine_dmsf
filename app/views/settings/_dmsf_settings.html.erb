@@ -63,6 +63,90 @@
   </em>
 </p>
 
+<p>
+  <%= content_tag :label, l(:label_physical_file_delete) %>
+  <%= check_box_tag 'settings[dmsf_really_delete_files]', '1', RedmineDmsf.physical_file_delete? %>
+  <em class="info">
+    <%= l(:label_default)%>: <%= l(:general_text_No)%>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_default_notifications) %>
+  <%= select_tag 'settings[dmsf_default_notifications]',
+                 options_for_select([
+                                      [l(:select_option_deactivated), '0'],
+                                      [l(:select_option_activated), '1']],
+                                    selected: RedmineDmsf.dmsf_default_notifications? ? '1' : '0') %>
+  <em class="info">
+    <%= l(:label_default) %>: <%= l(:select_option_deactivated) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_display_notified_recipients) %>
+  <%= select_tag 'settings[dmsf_display_notified_recipients]',
+                 options_for_select([
+                                      [l(:select_option_deactivated), '0'],
+                                      [l(:select_option_activated), '1']],
+                                    selected: RedmineDmsf.dmsf_display_notified_recipients? ? '1' : '0') %>
+  <em class="info">
+    <%= l(:note_display_notified_recipients) %><br>
+    <%= l(:label_default) %>: <%= l(:select_option_deactivated) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_title_format) %>
+  <%= text_field_tag 'settings[dmsf_global_title_format]', RedmineDmsf.dmsf_global_title_format, size: 10 %>
+  <em class="info">
+    <%= l(:text_title_format) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_act_as_attachable) %>
+  <%= check_box_tag 'settings[dmsf_act_as_attachable]', '1', RedmineDmsf.dmsf_act_as_attachable? %>
+  <em class="info">
+    <%= l(:note_dmsf_act_as_attachable) %><br>
+    <%= l(:label_default) %>: <%= l(:general_text_No) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_projects_as_subfolders) %>
+  <%= check_box_tag 'settings[dmsf_projects_as_subfolders]', '1', RedmineDmsf.dmsf_projects_as_subfolders? %>
+  <em class="info">
+    <%= l(:note_dmsf_projects_as_subfolders) %><br>
+    <%= l(:label_default) %>: <%= l(:general_text_No) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_dmsf_global_menu_disabled) %>
+  <%= check_box_tag 'settings[dmsf_global_menu_disabled]', '1', RedmineDmsf.dmsf_global_menu_disabled? %>
+  <em class="info">
+    <%= l(:note_dmsf_global_menu_disabled) %><br>
+    <%= l(:label_default) %>: <%= l(:general_text_No) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_empty_minor_version_by_default) %>
+  <%= check_box_tag 'settings[empty_minor_version_by_default]', '1', RedmineDmsf.empty_minor_version_by_default? %>
+  <em class="info">
+    <%= l(:label_default) %>: <%= l(:general_text_No) %>
+  </em>
+</p>
+
+<p>
+  <%= content_tag :label, l(:label_remove_original_documents_module) %>
+  <%= check_box_tag 'settings[remove_original_documents_module]', '1', RedmineDmsf.remove_original_documents_module? %>
+  <em class="info">
+    <%= l(:label_default) %>: <%= l(:general_text_No) %>
+  </em>
+</p>
+
 <hr>
 <em class="info">
   <%= l(:label_dmsf_onlyoffice) %>
@@ -151,90 +235,6 @@
   <%= number_field_tag 'settings[dmsf_onlyoffice_token_ttl]', RedmineDmsf.onlyoffice_token_ttl,
                        min: 300, max: 604800, step: 60 %>
   <em class="info"><%= l(:note_dmsf_onlyoffice_token_ttl) %></em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_physical_file_delete) %>
-  <%= check_box_tag 'settings[dmsf_really_delete_files]', '1', RedmineDmsf.physical_file_delete? %>
-  <em class="info">
-    <%= l(:label_default)%>: <%= l(:general_text_No)%>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_default_notifications) %>
-  <%= select_tag 'settings[dmsf_default_notifications]',
-                 options_for_select([
-                                      [l(:select_option_deactivated), '0'],
-                                      [l(:select_option_activated), '1']],
-                                    selected: RedmineDmsf.dmsf_default_notifications? ? '1' : '0') %>
-  <em class="info">
-    <%= l(:label_default) %>: <%= l(:select_option_deactivated) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_display_notified_recipients) %>
-  <%= select_tag 'settings[dmsf_display_notified_recipients]',
-                 options_for_select([
-                                      [l(:select_option_deactivated), '0'],
-                                      [l(:select_option_activated), '1']],
-                                    selected: RedmineDmsf.dmsf_display_notified_recipients? ? '1' : '0') %>
-  <em class="info">
-    <%= l(:note_display_notified_recipients) %><br>
-    <%= l(:label_default) %>: <%= l(:select_option_deactivated) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_title_format) %>
-  <%= text_field_tag 'settings[dmsf_global_title_format]', RedmineDmsf.dmsf_global_title_format, size: 10 %>
-  <em class="info">
-    <%= l(:text_title_format) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_act_as_attachable) %>
-  <%= check_box_tag 'settings[dmsf_act_as_attachable]', '1', RedmineDmsf.dmsf_act_as_attachable? %>
-  <em class="info">
-    <%= l(:note_dmsf_act_as_attachable) %><br>
-    <%= l(:label_default) %>: <%= l(:general_text_No) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_dmsf_projects_as_subfolders) %>
-  <%= check_box_tag 'settings[dmsf_projects_as_subfolders]', '1', RedmineDmsf.dmsf_projects_as_subfolders? %>
-  <em class="info">
-    <%= l(:note_dmsf_projects_as_subfolders) %><br>
-    <%= l(:label_default) %>: <%= l(:general_text_No) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_dmsf_global_menu_disabled) %>
-  <%= check_box_tag 'settings[dmsf_global_menu_disabled]', '1', RedmineDmsf.dmsf_global_menu_disabled? %>
-  <em class="info">
-    <%= l(:note_dmsf_global_menu_disabled) %><br>
-    <%= l(:label_default) %>: <%= l(:general_text_No) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_empty_minor_version_by_default) %>
-  <%= check_box_tag 'settings[empty_minor_version_by_default]', '1', RedmineDmsf.empty_minor_version_by_default? %>
-  <em class="info">
-    <%= l(:label_default) %>: <%= l(:general_text_No) %>
-  </em>
-</p>
-
-<p>
-  <%= content_tag :label, l(:label_remove_original_documents_module) %>
-  <%= check_box_tag 'settings[remove_original_documents_module]', '1', RedmineDmsf.remove_original_documents_module? %>
-  <em class="info">
-    <%= l(:label_default) %>: <%= l(:general_text_No) %>
-  </em>
 </p>
 
 <hr>
