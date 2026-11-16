@@ -20,9 +20,9 @@
 name: "GitHub CI"
 on:
   push:
-    branches: ["master", "onlyoffice", "feature/onlyoffice-dmsf-integration"]
+    branches: ["onlyoffice"]
   pull_request:
-    branches: ["master", "onlyoffice"]
+    branches: ["onlyoffice"]
   workflow_dispatch:
 permissions:
   contents: read

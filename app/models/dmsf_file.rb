@@ -472,7 +472,7 @@ class DmsfFile < ApplicationRecord
           next unless dmsf_file_revision
 
           dmsf_file = dmsf_file_revision.dmsf_file
-          next unless dmsf_file && DmsfFolder.permissions?(dmsf_file.dmsf_folder) &&
+          next unless dmsf_file && !dmsf_file.deleted? && DmsfFolder.permissions?(dmsf_file.dmsf_folder) &&
                       user.allowed_to?(:view_dmsf_files, dmsf_file.project) &&
                       (project_ids.blank? || project_ids.include?(dmsf_file.project_id))
 
