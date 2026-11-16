@@ -39,6 +39,8 @@ class DmsfContextMenusController < ApplicationController
           User.current.allowed_to?(:force_file_unlock, @project))
       @email_allowed = User.current.allowed_to?(:email_documents, @project)
       @preview = RedmineDmsf.office_bin.present? && RedmineDmsf::Preview.office_available?
+      @onlyoffice_view = RedmineDmsf::OnlyOffice.viewable?(@dmsf_file.name)
+      @onlyoffice_edit = @onlyoffice_view && RedmineDmsf::OnlyOffice.editable?(@dmsf_file.name)
     elsif @dmsf_folder
       @locked = @dmsf_folder.locked?
       @project = @dmsf_folder.project

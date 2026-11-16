@@ -117,6 +117,13 @@ if Redmine::Plugin.installed? 'redmine_dmsf'
     get '/dmsf/files/:id/revision/obsolete', controller: 'dmsf_files',
                                              action: 'obsolete_revision',
                                              as: 'obsolete_revision'
+    get '/dmsf/files/:id/onlyoffice/view', to: 'dmsf_onlyoffice#view', as: 'dmsf_onlyoffice_view'
+    get '/dmsf/files/:id/onlyoffice/edit', to: 'dmsf_onlyoffice#edit', as: 'dmsf_onlyoffice_edit'
+    get '/dmsf/files/:id/onlyoffice/download/:filename', to: 'dmsf_onlyoffice#download',
+                                                         as: 'dmsf_onlyoffice_download',
+                                                         filename: %r{[^/]+}
+    post '/dmsf/onlyoffice/callback', to: 'dmsf_onlyoffice#callback', as: 'dmsf_onlyoffice_callback'
+
     get '/dmsf/files/:id/download', to: 'dmsf_files#view',
                                     download: '',
                                     as: 'download_dmsf_file' # Otherwise will not route nil into the download param

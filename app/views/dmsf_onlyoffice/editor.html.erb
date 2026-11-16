@@ -1,0 +1,17 @@
+<% html_title "#{l(@mode == 'edit' ? :label_dmsf_onlyoffice_edit : :label_dmsf_onlyoffice_view)} - #{@revision.name}" %>
+
+<div class="contextual">
+  <%= link_to sprite_icon('back', l(:button_back)), dmsf_file_path(@file), class: 'icon icon-back' %>
+</div>
+
+<h2><%= l(@mode == 'edit' ? :label_dmsf_onlyoffice_edit : :label_dmsf_onlyoffice_view) %>: <%= h(@revision.name) %></h2>
+
+<div id="dmsf-onlyoffice-editor" style="width: 100%; height: calc(100vh - 180px); min-height: 650px;"></div>
+
+<%= javascript_include_tag @onlyoffice_api_url %>
+<% editor_javascript = <<~JAVASCRIPT
+  const dmsfOnlyOfficeConfig = #{json_escape(@onlyoffice_config.to_json)};
+  window.dmsfOnlyOfficeEditor = new DocsAPI.DocEditor('dmsf-onlyoffice-editor', dmsfOnlyOfficeConfig);
+JAVASCRIPT
+%>
+<%= javascript_tag editor_javascript.html_safe, nonce: true %>

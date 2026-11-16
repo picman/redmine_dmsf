@@ -442,6 +442,35 @@ en:
     to prevent previews of office documents, put an empty string here. After a change, you might have to restart the 
     application to take it any effect.
   note_dmsf_office_bin_not_available: "LibreOffice's command line binary '%{value}' not available"
+  label_dmsf_onlyoffice: ONLYOFFICE Docs
+  label_dmsf_onlyoffice_view: View in ONLYOFFICE
+  label_dmsf_onlyoffice_edit: Edit in ONLYOFFICE
+  label_dmsf_onlyoffice_use_official_settings: Use ONLYOFFICE Redmine plugin settings
+  note_dmsf_onlyoffice_use_official_settings: Reuse the Document Server, internal addresses, JWT and TLS settings configured by the official onlyoffice_redmine plugin.
+  label_dmsf_onlyoffice_document_server_url: Document Editing Service address
+  note_dmsf_onlyoffice_document_server_url: Public URL of your existing ONLYOFFICE Document Server. Leave empty to disable the DMSF integration.
+  label_dmsf_onlyoffice_document_server_internal_url: Document Server internal address
+  note_dmsf_onlyoffice_document_server_internal_url: Optional address used by Redmine to reach ONLYOFFICE inside the private network.
+  label_dmsf_onlyoffice_redmine_internal_url: Redmine internal address
+  note_dmsf_onlyoffice_redmine_internal_url: Optional address used by ONLYOFFICE to download DMSF files and send callbacks to Redmine.
+  label_dmsf_onlyoffice_jwt_secret: JWT secret
+  note_dmsf_onlyoffice_jwt_secret: Must match the secret configured in ONLYOFFICE Docs. Leave empty only when JWT is disabled on the Document Server.
+  label_dmsf_onlyoffice_jwt_algorithm: JWT algorithm
+  note_dmsf_onlyoffice_jwt_algorithm: HMAC algorithm configured in ONLYOFFICE Docs. HS256 is the standard default.
+  label_dmsf_onlyoffice_jwt_header: JWT authorization header
+  note_dmsf_onlyoffice_jwt_header: Header used by ONLYOFFICE for callback JWT tokens. The usual value is Authorization.
+  label_dmsf_onlyoffice_disable_certificate_verification: Disable TLS certificate verification
+  note_dmsf_onlyoffice_disable_certificate_verification: Insecure. Use only for testing with a self-signed Document Server certificate.
+  label_dmsf_onlyoffice_editable_extensions: Editable extensions
+  note_dmsf_onlyoffice_editable_extensions: Comma-separated extensions that may be opened in edit mode. All other supported formats are view-only.
+  label_dmsf_onlyoffice_version_type: Version increment after save
+  note_dmsf_onlyoffice_version_type: A completed ONLYOFFICE editing session creates a new DMSF revision and increments this version component.
+  label_dmsf_version_patch: Patch
+  label_dmsf_version_minor: Minor
+  label_dmsf_version_major: Major
+  label_dmsf_onlyoffice_token_ttl: Editor token lifetime (seconds)
+  note_dmsf_onlyoffice_token_ttl: Validity of signed download and callback URLs, from 300 seconds to 7 days.
+  comment_dmsf_onlyoffice_revision: Saved from ONLYOFFICE
 
   label_dmsf_columns: DMS Columns
   label_column_id: ID
