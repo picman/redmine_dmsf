@@ -360,3 +360,10 @@ div.dmsf-scroll {
 .jstb_dmsf {
     background-image: url("/document.png");
 }
+
+/* OnlyOffice */
+#dmsf-onlyoffice-editor {
+    width: 100%;
+    height: calc(100vh - 180px);
+    min-height: 650px;
+}

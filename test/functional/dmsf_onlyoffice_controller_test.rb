@@ -2,7 +2,7 @@
 
 # Redmine plugin for Document Management System "Features"
 #
-# Karel Pičman <karel.picman@kontron.com>
+# Marco Tenti <tentimarco0@gmail.com>, Karel Pičman <karel.picman@kontron.com>
 #
 # This file is part of Redmine DMSF plugin.
 #
