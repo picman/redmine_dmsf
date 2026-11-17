@@ -181,15 +181,15 @@ jobs:
          Run Litmus tests (Omit 'http' tests due to 'timeout waiting for interim response' and locks due to complex bogus conditional)
          Shutdown Puma
          Clean up Redmine's environment from WebDAV testing
-        # Let's skip Limus test for now
-#        run: |
-#          cd /opt/redmine
-#          bundle exec rake redmine:dmsf_webdav_test_on
-#          bundle exec rails server -u Puma -e test -d
-#          sleep 5
-#          litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
-#          kill $(pgrep -f puma)
-#          bundle exec rake redmine:dmsf_webdav_test_off
+        #Let's skip Limus test for now
+        #run: |
+          #cd /opt/redmine
+          #bundle exec rake redmine:dmsf_webdav_test_on
+          #bundle exec rails server -u Puma -e test -d
+          #sleep 5
+          #litmus http://localhost:3000/dmsf/webdav/dmsf_test_project admin admin
+          #kill $(pgrep -f puma)
+          #bundle exec rake redmine:dmsf_webdav_test_off
         env:
           TESTS: "basic copymove props"
       - name: Cleanup
