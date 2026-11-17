@@ -55,11 +55,6 @@ module RedmineDmsf
         raise NotFound unless RedmineDmsf.dmsf_webdav?
 
         super
-        # Remove fragment identifier from the path (Litmus)
-        uri = URI.parse(path)
-        uri.fragment = nil
-        path = uri.to_s
-        ###
         rc = get_resource_class(path)
         @resource_c = rc.new(path, request, response, options)
         @resource_c.accessor = self if @resource_c
