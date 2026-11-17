@@ -451,8 +451,6 @@ it: # Italian strings thx 2 Matteo Arceci!
   note_dmsf_onlyoffice_document_server_url: URL pubblico del Document Server ONLYOFFICE esistente. Lascia vuoto per disabilitare l'integrazione DMSF.
   label_dmsf_onlyoffice_document_server_internal_url: Indirizzo interno del Document Server
   note_dmsf_onlyoffice_document_server_internal_url: Indirizzo opzionale usato da Redmine per raggiungere ONLYOFFICE nella rete privata.
-  label_dmsf_onlyoffice_redmine_internal_url: Indirizzo interno di Redmine
-  note_dmsf_onlyoffice_redmine_internal_url: Indirizzo opzionale usato da ONLYOFFICE per scaricare i file DMSF e inviare le callback a Redmine.
   label_dmsf_onlyoffice_jwt_secret: Segreto JWT
   note_dmsf_onlyoffice_jwt_secret: Deve coincidere con il segreto configurato in ONLYOFFICE Docs. Lascia vuoto solo se JWT è disabilitato sul Document Server.
   label_dmsf_onlyoffice_jwt_algorithm: Algoritmo JWT
@@ -465,9 +463,6 @@ it: # Italian strings thx 2 Matteo Arceci!
   note_dmsf_onlyoffice_editable_extensions: Estensioni separate da virgola apribili in modifica. Gli altri formati supportati restano in sola visualizzazione.
   label_dmsf_onlyoffice_version_type: Incremento versione dopo il salvataggio
   note_dmsf_onlyoffice_version_type: Una sessione di modifica ONLYOFFICE completata crea una nuova revisione DMSF e incrementa questa parte della versione.
-  label_dmsf_version_patch: Patch
-  label_dmsf_version_minor: Minore
-  label_dmsf_version_major: Maggiore
   label_dmsf_onlyoffice_token_ttl: Durata token editor (secondi)
   note_dmsf_onlyoffice_token_ttl: Validità degli URL firmati di download e callback, da 300 secondi a 7 giorni.
   comment_dmsf_onlyoffice_revision: Salvato da ONLYOFFICE

@@ -178,14 +178,6 @@
 </p>
 
 <p>
-  <%= content_tag :label, l(:label_dmsf_onlyoffice_redmine_internal_url) %>
-  <%= text_field_tag 'settings[dmsf_onlyoffice_redmine_internal_url]',
-                     RedmineDmsf.onlyoffice_redmine_internal_url, size: 60,
-                     placeholder: 'http://redmine:3000' %>
-  <em class="info"><%= l(:note_dmsf_onlyoffice_redmine_internal_url) %></em>
-</p>
-
-<p>
   <%= content_tag :label, l(:label_dmsf_onlyoffice_jwt_secret) %>
   <%= password_field_tag 'settings[dmsf_onlyoffice_jwt_secret]', RedmineDmsf.onlyoffice_jwt_secret,
                          size: 60, autocomplete: 'new-password' %>
@@ -223,9 +215,9 @@
   <%= content_tag :label, l(:label_dmsf_onlyoffice_version_type) %>
   <%= select_tag 'settings[dmsf_onlyoffice_version_type]',
                  options_for_select([
-                                      [l(:label_dmsf_version_patch), 'patch'],
-                                      [l(:label_dmsf_version_minor), 'minor'],
-                                      [l(:label_dmsf_version_major), 'major']
+                                      [l(:option_version_patch), 'patch'],
+                                      [l(:option_version_minor), 'minor'],
+                                      [l(:option_version_major), 'major']
                                     ], RedmineDmsf.onlyoffice_version_type) %>
   <em class="info"><%= l(:note_dmsf_onlyoffice_version_type) %></em>
 </p>

@@ -447,34 +447,29 @@ cs:
 
   # ONLYOFFICE: English placeholders for translation.
   label_dmsf_onlyoffice: ONLYOFFICE Docs
-  label_dmsf_onlyoffice_view: View in ONLYOFFICE
-  label_dmsf_onlyoffice_edit: Edit in ONLYOFFICE
-  label_dmsf_onlyoffice_use_official_settings: Use ONLYOFFICE Redmine plugin settings
-  note_dmsf_onlyoffice_use_official_settings: Reuse the Document Server, internal addresses, JWT and TLS settings configured by the official onlyoffice_redmine plugin.
-  label_dmsf_onlyoffice_document_server_url: Document Editing Service address
-  note_dmsf_onlyoffice_document_server_url: Public URL of your existing ONLYOFFICE Document Server. Leave empty to disable the DMSF integration.
-  label_dmsf_onlyoffice_document_server_internal_url: Document Server internal address
-  note_dmsf_onlyoffice_document_server_internal_url: Optional address used by Redmine to reach ONLYOFFICE inside the private network.
-  label_dmsf_onlyoffice_redmine_internal_url: Redmine internal address
-  note_dmsf_onlyoffice_redmine_internal_url: Optional address used by ONLYOFFICE to download DMSF files and send callbacks to Redmine.
-  label_dmsf_onlyoffice_jwt_secret: JWT secret
-  note_dmsf_onlyoffice_jwt_secret: Must match the secret configured in ONLYOFFICE Docs. Leave empty only when JWT is disabled on the Document Server.
-  label_dmsf_onlyoffice_jwt_algorithm: JWT algorithm
-  note_dmsf_onlyoffice_jwt_algorithm: HMAC algorithm configured in ONLYOFFICE Docs. HS256 is the standard default.
-  label_dmsf_onlyoffice_jwt_header: JWT authorization header
-  note_dmsf_onlyoffice_jwt_header: Header used by ONLYOFFICE for callback JWT tokens. The usual value is Authorization.
-  label_dmsf_onlyoffice_disable_certificate_verification: Disable TLS certificate verification
-  note_dmsf_onlyoffice_disable_certificate_verification: Insecure. Use only for testing with a self-signed Document Server certificate.
-  label_dmsf_onlyoffice_editable_extensions: Editable extensions
-  note_dmsf_onlyoffice_editable_extensions: Comma-separated extensions that may be opened in edit mode. All other supported formats are view-only.
-  label_dmsf_onlyoffice_version_type: Version increment after save
-  note_dmsf_onlyoffice_version_type: A completed ONLYOFFICE editing session creates a new DMSF revision and increments this version component.
-  label_dmsf_version_patch: Patch
-  label_dmsf_version_minor: Minor
-  label_dmsf_version_major: Major
-  label_dmsf_onlyoffice_token_ttl: Editor token lifetime (seconds)
-  note_dmsf_onlyoffice_token_ttl: Validity of signed download and callback URLs, from 300 seconds to 7 days.
-  comment_dmsf_onlyoffice_revision: Saved from ONLYOFFICE
+  label_dmsf_onlyoffice_view: Zobrazit v ONLYOFFICE
+  label_dmsf_onlyoffice_edit: Upravit v ONLYOFFICE
+  label_dmsf_onlyoffice_use_official_settings: Použij nastavení ONLYOFFICE Redmine pluginu
+  note_dmsf_onlyoffice_use_official_settings: Použij nastavení dokument serveru, interní adresy, JWT a TLS z officiálního onlyoffice_redmine pluginu.
+  label_dmsf_onlyoffice_document_server_url: Adresa služby pro editování dokumentů
+  note_dmsf_onlyoffice_document_server_url: Veřejná URL ONLYOFFICE Dokument serveru. Ponech prázdné pro vypnutí DMSF integrace.
+  label_dmsf_onlyoffice_document_server_internal_url: Interní adresa dokument serveru
+  note_dmsf_onlyoffice_document_server_internal_url: Volitelná adresa, kterou Redmine použije pro přítup k ONLYOFFICE uvnitř soukromé sítě.
+  label_dmsf_onlyoffice_jwt_secret: Kód JWT
+  note_dmsf_onlyoffice_jwt_secret: Musí souhlasit s bezpečnostní kódem nastaveným v ONLYOFFICE. Ponech prázdné pokud JWT naní na straně ONLYOFFICE zapnuté.
+  label_dmsf_onlyoffice_jwt_algorithm: Algoritmus JWT
+  note_dmsf_onlyoffice_jwt_algorithm: HMAC algoritmus nakonfigurovaný v ONLYOFFICE. HS256 je standardní výchozí algoritmus.
+  label_dmsf_onlyoffice_jwt_header: Autorizační hlavička JWT
+  note_dmsf_onlyoffice_jwt_header: Hlavička, kterou ONLYOFFICE použije pro zpětné volání JWT tokenů. Obvyklá hodnota je 'Authorization'.
+  label_dmsf_onlyoffice_disable_certificate_verification: Vypnout ověření certifikátu TLS
+  note_dmsf_onlyoffice_disable_certificate_verification: Není bezpečné. Použij pouze pro testování se 'self-signed' certifikátem dokument serveru.
+  label_dmsf_onlyoffice_editable_extensions: Editovatelné přípony
+  note_dmsf_onlyoffice_editable_extensions: Přípony souborů oddělené čárkou, keré bude možné upravovat pomocí ONLYOFFICE. Ostatní podporované formáty umožní pouze náhled.
+  label_dmsf_onlyoffice_version_type: Verze, která se bude zvyšovat po uložení
+  note_dmsf_onlyoffice_version_type: Úspěšně dokončená úprava v ONLYOFFICE vytvoří při uložení novou revizi dokumentu editing a zvýší jeho příslušnou verzi.
+  label_dmsf_onlyoffice_token_ttl: Životnost tokenu editoru (sekund)
+  note_dmsf_onlyoffice_token_ttl: Platnost URL pro ztažení a zpětné volání, 300 sekund až 7 dní.
+  comment_dmsf_onlyoffice_revision: Upraveno v ONLYOFFICE
 
   label_dmsf_columns: DMS sloupce
   label_column_id: ID

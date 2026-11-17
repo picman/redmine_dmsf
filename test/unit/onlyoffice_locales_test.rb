@@ -34,8 +34,6 @@ class OnlyOfficeLocalesTest < Minitest::Test
     note_dmsf_onlyoffice_document_server_url
     label_dmsf_onlyoffice_document_server_internal_url
     note_dmsf_onlyoffice_document_server_internal_url
-    label_dmsf_onlyoffice_redmine_internal_url
-    note_dmsf_onlyoffice_redmine_internal_url
     label_dmsf_onlyoffice_jwt_secret
     note_dmsf_onlyoffice_jwt_secret
     label_dmsf_onlyoffice_jwt_algorithm
@@ -48,9 +46,6 @@ class OnlyOfficeLocalesTest < Minitest::Test
     note_dmsf_onlyoffice_editable_extensions
     label_dmsf_onlyoffice_version_type
     note_dmsf_onlyoffice_version_type
-    label_dmsf_version_patch
-    label_dmsf_version_minor
-    label_dmsf_version_major
     label_dmsf_onlyoffice_token_ttl
     note_dmsf_onlyoffice_token_ttl
     comment_dmsf_onlyoffice_revision
