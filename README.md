@@ -158,7 +158,7 @@ Configure the integration in **Administration → Plugins → DMSF → Configure
 * If the official `onlyoffice_redmine` plugin is installed, DMSF can reuse its server, JWT, internal URL, and TLS settings.
 * Leave `office_bin` empty when LibreOffice PDF previews are no longer required.
 
-After upgrading, run the plugin migration so the callback can record an idempotency key for each saved DMSF revision:
+After installing, don't forget to run the plugin migration so the callback can record an idempotency key for each saved DMSF revision:
 
 ```
 RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=redmine_dmsf
