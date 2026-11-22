@@ -451,6 +451,8 @@ it: # Italian strings thx 2 Matteo Arceci!
   note_dmsf_onlyoffice_document_server_url: URL pubblico del Document Server ONLYOFFICE esistente. Lascia vuoto per disabilitare l'integrazione DMSF.
   label_dmsf_onlyoffice_document_server_internal_url: Indirizzo interno del Document Server
   note_dmsf_onlyoffice_document_server_internal_url: Indirizzo opzionale usato da Redmine per raggiungere ONLYOFFICE nella rete privata.
+  label_dmsf_onlyoffice_redmine_internal_url: Indirizzo interno di Redmine
+  note_dmsf_onlyoffice_redmine_internal_url: Indirizzo opzionale usato dal Document Server per raggiungere Redmine per callback e download.
   label_dmsf_onlyoffice_jwt_secret: Segreto JWT
   note_dmsf_onlyoffice_jwt_secret: Deve coincidere con il segreto configurato in ONLYOFFICE Docs. Lascia vuoto solo se JWT è disabilitato sul Document Server.
   label_dmsf_onlyoffice_jwt_algorithm: Algoritmo JWT

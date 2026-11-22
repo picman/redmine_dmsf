@@ -453,6 +453,8 @@ zh-TW:
   note_dmsf_onlyoffice_document_server_url: Public URL of your existing ONLYOFFICE Document Server. Leave empty to disable the DMSF integration.
   label_dmsf_onlyoffice_document_server_internal_url: Document Server internal address
   note_dmsf_onlyoffice_document_server_internal_url: Optional address used by Redmine to reach ONLYOFFICE inside the private network.
+  label_dmsf_onlyoffice_redmine_internal_url: Redmine 內部位址
+  note_dmsf_onlyoffice_redmine_internal_url: Document Server 在回呼與下載時存取 Redmine 所用的選用位址。
   label_dmsf_onlyoffice_jwt_secret: JWT secret
   note_dmsf_onlyoffice_jwt_secret: Must match the secret configured in ONLYOFFICE Docs. Leave empty only when JWT is disabled on the Document Server.
   label_dmsf_onlyoffice_jwt_algorithm: JWT algorithm
