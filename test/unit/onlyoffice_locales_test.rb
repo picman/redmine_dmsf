@@ -75,7 +75,7 @@ class OnlyOfficeLocalesTest < Minitest::Test
         value = translations.fetch(key)
         message = "#{File.basename(path)}: #{key}"
         assert_kind_of String, value, message
-        refute_empty value.strip, message
+        assert_not_empy value.strip, message
         assert_equal english.fetch(key).scan(/%\{[^}]+\}/).sort, value.scan(/%\{[^}]+\}/).sort, message
       end
     end
