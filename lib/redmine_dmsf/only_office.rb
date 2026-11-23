@@ -279,6 +279,33 @@ module RedmineDmsf
         URI.join(normalize_base_url(base), path).to_s
       end
 
+      # The Document Server and Redmine must reach each other. A loopback
+      # address on either side otherwise fails later as a generic editor error.
+      def warn_unreachable_endpoints
+        if RedmineDmsf.onlyoffice_redmine_internal_url.blank? && loopback_host?(Setting.host_name)
+          Rails.logger.warn 'ONLYOFFICE: Setting.host_name is a loopback address and ' \
+                            'dmsf_onlyoffice_redmine_internal_url is empty; the Document Server ' \
+                            'cannot download the document or send the callback'
+        end
+        return unless RedmineDmsf.onlyoffice_document_server_internal_url.blank? &&
+                      loopback_host?(RedmineDmsf.onlyoffice_document_server_url)
+
+        Rails.logger.warn 'ONLYOFFICE: dmsf_onlyoffice_document_server_internal_url is empty and the ' \
+                          'Document Server address is a loopback address; Redmine cannot download ' \
+                          'the saved document'
+      end
+
+      # Accepts a URL or a bare host:port pair.
+      def loopback_host?(value)
+        text = value.to_s.strip
+        return false if text.empty?
+
+        host = text.include?('://') ? URI.parse(text).host : text.split(':').first
+        %w[localhost 127.0.0.1 0.0.0.0 ::1 [::1]].include?(host.to_s.downcase)
+      rescue URI::InvalidURIError
+        false
+      end
+
       private
 
       def base64url(value)

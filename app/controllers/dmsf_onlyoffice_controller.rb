@@ -124,6 +124,16 @@ class DmsfOnlyofficeController < ApplicationController
     User.find(claims.fetch('user_id'))
   end
 
+  # The context menu passes the page the user came from as a local path. The
+  # editor opens goback in a new tab, so an absolute URL would be an open
+  # redirect and is ignored.
+  def absolute_back_url(candidate)
+    path = candidate.to_s
+    return nil unless path.start_with?('/') && !path.start_with?('//') && !path.match?(/[\r\n]/)
+
+    "#{Setting.protocol}://#{Setting.host_name}#{path}"
+  end
+
   def render_editor(mode)
     @revision = @file.last_revision
     raise ActiveRecord::RecordNotFound unless @revision&.file&.attached?
@@ -152,11 +162,12 @@ class DmsfOnlyofficeController < ApplicationController
       protocol: Setting.protocol,
       host: Setting.host_name
     )
-    back_url = dmsf_file_url(
-      @file,
-      protocol: Setting.protocol,
-      host: Setting.host_name
-    )
+    back_url = absolute_back_url(params[:back_url]) ||
+               dmsf_file_url(
+                 @file,
+                 protocol: Setting.protocol,
+                 host: Setting.host_name
+               )
 
     @onlyoffice_api_url = RedmineDmsf::OnlyOffice.api_url
     @onlyoffice_config = RedmineDmsf::OnlyOffice.editor_config(
@@ -168,6 +179,7 @@ class DmsfOnlyofficeController < ApplicationController
       callback_url: RedmineDmsf::OnlyOffice.internal_redmine_url(public_callback_url),
       back_url: back_url
     )
+    RedmineDmsf::OnlyOffice.warn_unreachable_endpoints
     @mode = mode
     response.headers['Cache-Control'] = 'no-store'
     render action: 'editor'

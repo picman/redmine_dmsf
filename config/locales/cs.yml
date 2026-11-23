@@ -455,6 +455,8 @@ cs:
   note_dmsf_onlyoffice_document_server_url: Veřejná URL ONLYOFFICE Dokument serveru. Ponech prázdné pro vypnutí DMSF integrace.
   label_dmsf_onlyoffice_document_server_internal_url: Interní adresa dokument serveru
   note_dmsf_onlyoffice_document_server_internal_url: Volitelná adresa, kterou Redmine použije pro přítup k ONLYOFFICE uvnitř soukromé sítě.
+  label_dmsf_onlyoffice_redmine_internal_url: Interní adresa Redmine
+  note_dmsf_onlyoffice_redmine_internal_url: Volitelná adresa, kterou Document Server používá pro přístup k Redmine při callebacích a stahování.
   label_dmsf_onlyoffice_jwt_secret: Kód JWT
   note_dmsf_onlyoffice_jwt_secret: Musí souhlasit s bezpečnostní kódem nastaveným v ONLYOFFICE. Ponech prázdné pokud JWT naní na straně ONLYOFFICE zapnuté.
   label_dmsf_onlyoffice_jwt_algorithm: Algoritmus JWT
