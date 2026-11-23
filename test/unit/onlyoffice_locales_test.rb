@@ -66,6 +66,8 @@ class OnlyOfficeLocalesTest < Minitest::Test
     end
   end
 
+  # rubocop:disable Rails/RefuteMethods
+  # assert_not_empy is not available in Minitest::Test
   def test_all_values_are_nonempty_strings_with_matching_interpolation
     english = load_locale(File.join(LOCALES_PATH, 'en.yml'))
 
@@ -75,11 +77,12 @@ class OnlyOfficeLocalesTest < Minitest::Test
         value = translations.fetch(key)
         message = "#{File.basename(path)}: #{key}"
         assert_kind_of String, value, message
-        assert_not_empy value.strip, message
+        refute_empty value.strip, message
         assert_equal english.fetch(key).scan(/%\{[^}]+\}/).sort, value.scan(/%\{[^}]+\}/).sort, message
       end
     end
   end
+  # rubocop:enable Rails/RefuteMethods
 
   def test_each_new_key_occurs_exactly_once
     locale_files.each do |path|
