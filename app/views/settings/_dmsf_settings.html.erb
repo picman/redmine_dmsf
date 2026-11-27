@@ -237,6 +237,49 @@
   <em class="info"><%= l(:note_dmsf_onlyoffice_token_ttl) %></em>
 </p>
 
+<p>
+  <%= label_tag 'settings_dmsf_onlyoffice_session_ttl', l(:label_dmsf_onlyoffice_session_ttl) %>
+  <%= number_field_tag 'settings[dmsf_onlyoffice_session_ttl]', RedmineDmsf.onlyoffice_session_ttl, min: 300, max: 2592000 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_session_ttl) %></em>
+</p>
+<p>
+  <%= label_tag 'settings_dmsf_onlyoffice_force_save_enabled', l(:label_dmsf_onlyoffice_force_save_enabled) %>
+  <%= hidden_field_tag 'settings[dmsf_onlyoffice_force_save_enabled]', '0', id: nil %>
+  <%= check_box_tag 'settings[dmsf_onlyoffice_force_save_enabled]', '1', RedmineDmsf.onlyoffice_force_save_enabled? %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_force_save_enabled) %></em>
+</p>
+<p>
+  <%= label_tag 'settings_dmsf_onlyoffice_snapshot_limit', l(:label_dmsf_onlyoffice_snapshot_limit) %>
+  <%= number_field_tag 'settings[dmsf_onlyoffice_snapshot_limit]', RedmineDmsf.onlyoffice_snapshot_limit, min: 1, max: 100 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_snapshot_limit) %></em>
+</p>
+<p>
+  <%= label_tag 'settings_dmsf_onlyoffice_mobile_mode', l(:label_dmsf_onlyoffice_mobile_mode) %>
+  <%= select_tag 'settings[dmsf_onlyoffice_mobile_mode]', options_for_select(%w[auto desktop mobile], RedmineDmsf.onlyoffice_mobile_mode) %>
+</p>
+<p>
+  <%= label_tag 'settings_dmsf_onlyoffice_template_revision_ids', l(:label_dmsf_onlyoffice_template_revision_ids) %>
+  <%= text_field_tag 'settings[dmsf_onlyoffice_template_revision_ids]', RedmineDmsf.onlyoffice_template_revision_ids.join(', '), size: 60 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_template_revision_ids) %></em>
+</p>
+<p>
+  <%= label_tag 'settings_dmsf_onlyoffice_form_field_mapping', l(:label_dmsf_onlyoffice_form_field_mapping) %>
+  <%= text_area_tag 'settings[dmsf_onlyoffice_form_field_mapping]', @settings['dmsf_onlyoffice_form_field_mapping'].presence || '{}', rows: 4, cols: 60 %>
+  <em class="info"><%= l(:note_dmsf_onlyoffice_form_field_mapping) %></em>
+</p>
+<p><%= link_to l(:label_dmsf_onlyoffice_diagnostics), dmsf_onlyoffice_admin_path %></p>
+
+<hr>
+<p>
+  <%= label_tag 'settings_dmsf_minor_revision_retention_enabled', l(:label_dmsf_minor_revision_retention_enabled) %>
+  <%= hidden_field_tag 'settings[dmsf_minor_revision_retention_enabled]', '0', id: nil %>
+  <%= check_box_tag 'settings[dmsf_minor_revision_retention_enabled]', '1', RedmineDmsf.minor_revision_retention_enabled? %>
+  <%= number_field_tag 'settings[dmsf_minor_revision_retention_limit]', RedmineDmsf.minor_revision_retention_limit,
+                       min: 1, max: 100000, step: 1, 'aria-label': l(:label_dmsf_minor_revision_retention_limit) %>
+  <%= l(:label_dmsf_minor_revision_retention_limit) %>
+  <em class="info"><%= l(:note_dmsf_minor_revision_retention) %></em>
+</p>
+
 <hr>
 <em class="info">
   <%= l(:label_dmsf_columns) %>

@@ -123,6 +123,45 @@ if Redmine::Plugin.installed? 'redmine_dmsf'
                                                          as: 'dmsf_onlyoffice_download',
                                                          filename: %r{[^/]+}
     post '/dmsf/onlyoffice/callback', to: 'dmsf_onlyoffice#callback', as: 'dmsf_onlyoffice_callback'
+    get '/dmsf/files/:id/onlyoffice/refresh', to: 'dmsf_onlyoffice#refresh', as: 'dmsf_onlyoffice_refresh'
+    get '/dmsf/files/:id/onlyoffice/history', to: 'dmsf_onlyoffice_history#index', as: 'dmsf_onlyoffice_history'
+    get '/dmsf/files/:id/onlyoffice/history/data', to: 'dmsf_onlyoffice_history#show', as: 'dmsf_onlyoffice_history_data'
+    get '/dmsf/files/:id/onlyoffice/history/asset', to: 'dmsf_onlyoffice_history#asset', as: 'dmsf_onlyoffice_history_asset'
+    get '/dmsf/files/:id/onlyoffice/compare', to: 'dmsf_onlyoffice_history#compare', as: 'dmsf_onlyoffice_compare'
+    post '/dmsf/files/:id/onlyoffice/restore', to: 'dmsf_onlyoffice_history#restore', as: 'dmsf_onlyoffice_restore'
+    get '/dmsf/files/:id/onlyoffice/session', to: 'dmsf_onlyoffice_actions#session_status', as: 'dmsf_onlyoffice_session'
+    post '/dmsf/files/:id/onlyoffice/forcesave', to: 'dmsf_onlyoffice_actions#forcesave', as: 'dmsf_onlyoffice_forcesave'
+    post '/dmsf/files/:id/onlyoffice/rename', to: 'dmsf_onlyoffice_actions#rename', as: 'dmsf_onlyoffice_rename'
+    post '/dmsf/files/:id/onlyoffice/save-as', to: 'dmsf_onlyoffice_actions#save_as', as: 'dmsf_onlyoffice_save_as'
+    post '/dmsf/files/:id/onlyoffice/pdf', to: 'dmsf_onlyoffice_actions#publish_pdf', as: 'dmsf_onlyoffice_publish_pdf'
+    get '/dmsf/files/:id/onlyoffice/templates', to: 'dmsf_onlyoffice_actions#templates', as: 'dmsf_onlyoffice_templates'
+    post '/dmsf/files/:id/onlyoffice/from-template', to: 'dmsf_onlyoffice_actions#create_from_template',
+                                                 as: 'dmsf_onlyoffice_create_from_template'
+    get '/dmsf/onlyoffice/builder-script', to: 'dmsf_onlyoffice_actions#builder_script', as: 'dmsf_onlyoffice_builder_script'
+    get '/dmsf/files/:id/onlyoffice/destinations', to: 'dmsf_onlyoffice_actions#destinations', as: 'dmsf_onlyoffice_destinations'
+    get '/dmsf/files/:id/onlyoffice/users', to: 'dmsf_onlyoffice_actions#users', as: 'dmsf_onlyoffice_users'
+    post '/dmsf/files/:id/onlyoffice/notify', to: 'dmsf_onlyoffice_actions#notify', as: 'dmsf_onlyoffice_notify'
+    post '/dmsf/files/:id/onlyoffice/action-link', to: 'dmsf_onlyoffice_actions#action_link', as: 'dmsf_onlyoffice_action_link'
+    get '/dmsf/files/:id/onlyoffice/recovery', to: 'dmsf_onlyoffice_recovery#index', as: 'dmsf_onlyoffice_recovery'
+    get '/dmsf/files/:id/onlyoffice/recovery/:recovery_id/download', to: 'dmsf_onlyoffice_recovery#download',
+                                                                 as: 'dmsf_onlyoffice_recovery_download'
+    post '/dmsf/files/:id/onlyoffice/recovery/:recovery_id/restore', to: 'dmsf_onlyoffice_recovery#restore',
+                                                                 as: 'dmsf_onlyoffice_recovery_restore'
+    post '/dmsf/files/:id/onlyoffice/recovery/:recovery_id/copy', to: 'dmsf_onlyoffice_recovery#save_copy',
+                                                              as: 'dmsf_onlyoffice_recovery_copy'
+    get '/dmsf/files/:id/onlyoffice/recovery/:recovery_id/form', to: 'dmsf_onlyoffice_recovery#form_preview',
+                                                             as: 'dmsf_onlyoffice_recovery_form_preview'
+    post '/dmsf/files/:id/onlyoffice/recovery/:recovery_id/form', to: 'dmsf_onlyoffice_recovery#apply_form',
+                                                              as: 'dmsf_onlyoffice_recovery_form'
+    get '/dmsf/onlyoffice/admin', to: 'dmsf_onlyoffice_admin#index', as: 'dmsf_onlyoffice_admin'
+    get '/dmsf/onlyoffice/admin/recovery/:recovery_id/download', to: 'dmsf_onlyoffice_admin#download',
+                                                              as: 'dmsf_onlyoffice_admin_download'
+    post '/dmsf/onlyoffice/admin/diagnostics', to: 'dmsf_onlyoffice_admin#diagnostics', as: 'dmsf_onlyoffice_diagnostics'
+    post '/dmsf/onlyoffice/admin/forgotten', to: 'dmsf_onlyoffice_admin#forgotten', as: 'dmsf_onlyoffice_forgotten'
+    post '/dmsf/onlyoffice/admin/forgotten/:session_id/recover', to: 'dmsf_onlyoffice_admin#recover_forgotten',
+                                                             as: 'dmsf_onlyoffice_recover_forgotten'
+    post '/dmsf/onlyoffice/admin/forgotten/:session_id/delete', to: 'dmsf_onlyoffice_admin#delete_forgotten',
+                                                            as: 'dmsf_onlyoffice_delete_forgotten'
 
     get '/dmsf/files/:id/download', to: 'dmsf_files#view',
                                     download: '',

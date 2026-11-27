@@ -34,9 +34,13 @@ class DmsfFileRevision < ApplicationRecord
 
   has_many :dmsf_file_revision_access, dependent: :destroy
   has_many :dmsf_workflow_step_assignment, dependent: :destroy
+  has_one :onlyoffice_history, class_name: 'DmsfOnlyofficeHistory', dependent: :destroy
 
   before_destroy :delete_source_revision
   after_save :update_parent_folder
+  after_commit :prune_old_minor_revisions, on: :create
+  after_destroy_commit :purge_deleted_file
+  after_rollback :reset_pending_file_deletion
 
   STATUS_DELETED = 1
   STATUS_ACTIVE = 0
@@ -359,27 +363,60 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def delete_source_revision
-    derived_revisions = []
-    DmsfFileRevision.where(source_dmsf_file_revision_id: id).find_each do |d|
-      # Derived revision without its own file
-      derived_revisions << d unless d.shared_file.attached?
-      # Replace the source revision
-      d.source_revision = source_revision
-      d.save!
+    derived_revisions = DmsfFileRevision.where(source_dmsf_file_revision_id: id).order(:id).lock.to_a
+    inherited_revisions = derived_revisions.reject { |revision| revision.shared_file.attached? }
+    file_owner = inherited_revisions.first if shared_file.attached?
+    file_owner.shared_file.attach(shared_file.blob) if file_owner
+
+    derived_revisions.each do |revision|
+      # Every branch that inherited our bytes must continue to reference those
+      # bytes, not the older source file. One descendant owns the shared blob.
+      revision.source_revision = if file_owner && revision != file_owner && inherited_revisions.include?(revision)
+                                   file_owner
+                                 else
+                                   source_revision
+                                 end
+      revision.save!
     end
     return unless shared_file.attached?
 
-    if derived_revisions.empty?
-      # Remove the file from Xapian index
-      RemoveFromIndexJob.schedule file.blob.key if file.blob.metadata['xapian'] && RedmineDmsf.xapian_available
-      # Remove the file
-      shared_file.purge if RedmineDmsf.physical_file_delete?
-    else
-      # Move the shared file to an unattached derived revision
-      d = derived_revisions.first
-      d.shared_file.attach shared_file.blob
+    if file_owner
       shared_file.detach
+    else
+      @deleted_file_blob = shared_file.blob
+      @physically_delete_file = RedmineDmsf.physical_file_delete?
+      # Removing bytes inside the destroy transaction would corrupt a restored
+      # revision if a later deletion failed and the transaction rolled back.
+      shared_file.detach if @physically_delete_file
     end
+  end
+
+  def purge_deleted_file
+    blob = @deleted_file_blob
+    return unless blob
+    return if blob.attachments.where.not(record_type: self.class.name, record_id: id).exists?
+
+    RemoveFromIndexJob.schedule(blob.key) if blob.metadata['xapian'] && RedmineDmsf.xapian_available
+    blob.purge_later if @physically_delete_file
+  rescue StandardError => e
+    Rails.logger.error "Could not clean up deleted DMSF revision #{id}: #{e.class}: #{e.message}"
+  ensure
+    reset_pending_file_deletion
+  end
+
+  def reset_pending_file_deletion
+    @deleted_file_blob = nil
+    @physically_delete_file = nil
+  end
+
+  def prune_old_minor_revisions
+    return unless RedmineDmsf.minor_revision_retention_enabled?
+
+    DmsfRevisionRetention.prune(dmsf_file)
+  rescue StandardError => e
+    # Retention is maintenance after a successful commit. An unavailable cleanup
+    # must never turn the completed upload into an apparent save failure.
+    Rails.logger.error "Could not prune DMSF file #{dmsf_file_id}: #{e.class}: #{e.message}"
   end
 
   def copy_custom_field_values(values, source_revision = nil)
