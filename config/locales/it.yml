@@ -443,8 +443,10 @@ it: # Italian strings thx 2 Matteo Arceci!
     application to take it any effect.
   note_dmsf_office_bin_not_available: "LibreOffice's command line binary '%{value}' not available"
   label_dmsf_onlyoffice: ONLYOFFICE Docs
-  label_dmsf_onlyoffice_view: Visualizza in ONLYOFFICE
+  label_dmsf_onlyoffice_view: Leggi in ONLYOFFICE
   label_dmsf_onlyoffice_edit: Modifica in ONLYOFFICE
+  label_dmsf_onlyoffice_read_action: Leggi
+  label_dmsf_onlyoffice_edit_action: Modifica
   label_dmsf_onlyoffice_use_official_settings: Usa le impostazioni del plugin ONLYOFFICE per Redmine
   note_dmsf_onlyoffice_use_official_settings: Riutilizza Document Server, indirizzi interni, JWT e TLS configurati nel plugin ufficiale onlyoffice_redmine.
   label_dmsf_onlyoffice_document_server_url: Indirizzo del servizio di modifica documenti

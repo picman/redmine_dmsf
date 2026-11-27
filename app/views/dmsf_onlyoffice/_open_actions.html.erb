@@ -1,0 +1,16 @@
+<% if file && RedmineDmsf::OnlyOffice.viewable?(file.name) &&
+      DmsfOnlyofficeSession.allowed_mode?(file: file, user: User.current, mode: 'view') %>
+  <span class="dmsf-onlyoffice-open-actions" role="group" aria-label="<%= l(:label_dmsf_onlyoffice) %>">
+    <%= link_to sprite_icon('zoom-in', l(:label_dmsf_onlyoffice_read_action)),
+                dmsf_onlyoffice_view_path(file, back_url: back_url),
+                class: 'icon icon-zoom-in dmsf-onlyoffice-read',
+                title: l(:label_dmsf_onlyoffice_view), 'aria-label': l(:label_dmsf_onlyoffice_view) %>
+    <% if RedmineDmsf::OnlyOffice.editable?(file.name) && !file.locked_for_user? &&
+          DmsfOnlyofficeSession.allowed_mode?(file: file, user: User.current, mode: 'edit') %>
+      <%= link_to sprite_icon('edit', l(:label_dmsf_onlyoffice_edit_action)),
+                  dmsf_onlyoffice_edit_path(file, back_url: back_url),
+                  class: 'icon icon-edit dmsf-onlyoffice-edit',
+                  title: l(:label_dmsf_onlyoffice_edit), 'aria-label': l(:label_dmsf_onlyoffice_edit) %>
+    <% end %>
+  </span>
+<% end %>

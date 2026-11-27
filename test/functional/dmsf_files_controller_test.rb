@@ -29,9 +29,13 @@ class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
 
   def test_show_file_ok
     # Permissions OK
+    RedmineDmsf.stubs(:onlyoffice_document_server_url).returns('https://office.example.test')
+    RedmineDmsf.stubs(:onlyoffice_editable_extensions).returns(%w[txt docx])
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
     get "/dmsf/files/#{@file1.id}", params: { id: @file1.id }
     assert_response :success
+    assert_select 'a.dmsf-onlyoffice-read[href^=?]', dmsf_onlyoffice_view_path(@file1), count: 1
+    assert_select 'a.dmsf-onlyoffice-edit[href^=?]', dmsf_onlyoffice_edit_path(@file1), count: 1
   end
 
   def test_show_formatting_html

@@ -75,6 +75,11 @@ The task reports candidates and protected exceptions. It is not installed as a s
 
 ## Collaboration and save semantics
 
+Document rows and the document details page show separate **Read** and **Edit** buttons for supported files.
+Read always opens the viewer, including for users who can edit. Edit opens the editor and is shown only when the
+format is editable, the user has permission and the document is not locked against that user. The context menu
+also retains separate view/edit entries. Unsupported formats and deleted documents have neither button.
+
 Every editor, reviewer and commenter opening the same retained revision uses the same collaborative key. The key includes
 an installation namespace, preventing independent Redmine instances sharing a Document Server from colliding. Viewers have
 a separate key so they cannot replace the callback selected for an editing session. Form filling has an individual key.
