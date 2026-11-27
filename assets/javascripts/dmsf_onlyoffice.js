@@ -22,7 +22,7 @@
       snapshotRequestId: null,
       activeDialog: null,
       copyRequest: null,
-      pendingUsers: null
+      pendingUsers: []
     };
     const notice = doc.getElementById('dmsf-onlyoffice-notice');
     const editorStatus = doc.getElementById('dmsf-onlyoffice-editor-status');
@@ -500,9 +500,10 @@
     events.onDocumentReady = function () {
       state.editorReady = true;
       if (editorStatus) editorStatus.textContent = message('editorSynced');
-      if (state.pendingUsers) {
-        state.editor.setUsers(state.pendingUsers);
-        state.pendingUsers = null;
+      if (state.pendingUsers.length) {
+        const pendingUsers = state.pendingUsers;
+        state.pendingUsers = [];
+        pendingUsers.forEach(function (payload) { state.editor.setUsers(payload); });
       }
     };
     events.onDocumentStateChange = function (event) {
@@ -562,10 +563,12 @@
         }
         const payload = { c: event.data.c, users: users };
         // The Document Server asks for the user list before onDocumentReady fires.
+        // It may ask for more than one context: every answer is buffered, not just
+        // the last one, and all of them reach the editor once it is ready.
         if (state.editor && state.editorReady) {
           state.editor.setUsers(payload);
         } else {
-          state.pendingUsers = payload;
+          state.pendingUsers.push(payload);
         }
       };
     }

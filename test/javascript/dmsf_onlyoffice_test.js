@@ -386,3 +386,32 @@ test('a failed user list request answers the document server with an empty list 
   assert.equal(applied[0].value.c, 'shared-editing-key');
   assert.equal(applied[0].value.users.length, 0);
 });
+
+test('user lists requested for two contexts before the editor is ready are all applied', async () => {
+  const pending = {};
+  const gate = key => {
+    if (!pending[key]) {
+      let resolve;
+      const promise = new Promise(done => { resolve = done; });
+      pending[key] = { promise, resolve };
+    }
+    return pending[key];
+  };
+  const env = environment({ ready: false, urls: { users: '/users' },
+    respond: item => gate(item.url.searchParams.get('c')).promise });
+  const first = env.events.onRequestUsers({ data: { c: 'context-one' } });
+  const second = env.events.onRequestUsers({ data: { c: 'context-two' } });
+  gate('context-one').resolve({ body: { users: [{ id: '1', name: 'User One' }] } });
+  gate('context-two').resolve({ body: { users: [{ id: '2', name: 'User Two' }] } });
+  await Promise.all([first, second]);
+  // Both answers are buffered: the second one must not replace the first.
+  assert.equal(env.editorCalls.filter(item => item.method === 'setUsers').length, 0);
+  env.events.onDocumentReady();
+  const applied = env.editorCalls.filter(item => item.method === 'setUsers');
+  assert.equal(applied.length, 2);
+  assert.deepEqual(applied.map(item => item.value.c).sort(), ['context-one', 'context-two']);
+  const byContext = {};
+  applied.forEach(item => { byContext[item.value.c] = item.value.users.map(user => user.id); });
+  assert.deepEqual(byContext, { 'context-one': ['1'], 'context-two': ['2'] });
+});
+

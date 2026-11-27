@@ -4,6 +4,15 @@ Changelog for Redmine DMSF
 5.2.1 *????-??-??*
 ------------------
 
+    ONLYOFFICE Docs integration
+
+* New: ONLYOFFICE Docs integration with collaborative editing, recovery snapshots and configurable revision retention
+* Bug: The editor canvas collapsed to 150 pixels when the Document Server replaced the placeholder element
+* Bug: The user list requested before the editor was ready raised an uncaught JavaScript error
+* Bug: Saving a revision failed with a NOT NULL violation on lock_scope_cd because with_lock created a DMSF lock
+* Bug: The pre-ready user list buffer kept a single context, so a second request overwrote the first
+* Bug: The editor placeholder was taller than the canvas while the Document Server was loading
+
 5.2.0 *2026-10-07*
 ------------------
 
