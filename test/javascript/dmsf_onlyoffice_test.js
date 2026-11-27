@@ -137,7 +137,9 @@ function environment(overrides = {}) {
       sessionParticipants: 'Session participants' }
   };
   const integration = win.DmsfOnlyoffice.mount(config, options);
-  currentConfig.events.onDocumentReady();
+  // The Document Server asks for the user list before onDocumentReady fires.
+  // Tests covering that window pass ready: false and fire the event themselves.
+  if (overrides.ready !== false) currentConfig.events.onDocumentReady();
   async function settle() { await new Promise(resolve => setImmediate(resolve)); }
   async function timer(delay) {
     const item = [...timers.entries()].find(([, value]) => value.delay === delay);
@@ -351,4 +353,36 @@ test('browser operations reject an endpoint outside the Redmine origin', async (
   await env.events.onRequestRename({ data: 'Name.docx' });
   assert.equal(env.requests.length, 0);
   assert.equal(env.document.getElementById('dmsf-onlyoffice-notice').dataset.error, 'true');
+});
+
+test('a user list requested before the editor is ready is applied when the document becomes ready', async () => {
+  const env = environment({ ready: false, urls: { users: '/users' },
+    respond: () => ({ body: { users: [{ id: '7', name: 'Dmsf User' }] } }) });
+  await env.events.onRequestUsers({ data: { c: 'shared-editing-key' } });
+  assert.equal(env.requests.length, 1);
+  assert.equal(env.requests[0].url.pathname, '/users');
+  assert.equal(env.requests[0].url.searchParams.get('c'), 'shared-editing-key');
+  // The editor is not ready yet: answering now would throw and lose the list.
+  assert.equal(env.editorCalls.filter(item => item.method === 'setUsers').length, 0);
+  env.events.onDocumentReady();
+  const applied = env.editorCalls.filter(item => item.method === 'setUsers');
+  assert.equal(applied.length, 1);
+  assert.equal(applied[0].value.c, 'shared-editing-key');
+  assert.equal(applied[0].value.users.length, 1);
+  assert.equal(applied[0].value.users[0].id, '7');
+  assert.equal(env.document.getElementById('dmsf-onlyoffice-notice').dataset.error, undefined);
+});
+
+test('a failed user list request answers the document server with an empty list and no uncaught error', async () => {
+  const env = environment({ ready: false, urls: { users: '/users' },
+    respond: () => ({ status: 500, body: { error: 'users unavailable' } }) });
+  await env.events.onRequestUsers({ data: { c: 'shared-editing-key' } });
+  const notice = env.document.getElementById('dmsf-onlyoffice-notice');
+  assert.equal(notice.dataset.error, 'true');
+  assert.match(notice.textContent, /users unavailable/);
+  env.events.onDocumentReady();
+  const applied = env.editorCalls.filter(item => item.method === 'setUsers');
+  assert.equal(applied.length, 1);
+  assert.equal(applied[0].value.c, 'shared-editing-key');
+  assert.equal(applied[0].value.users.length, 0);
 });

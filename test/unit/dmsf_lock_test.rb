@@ -101,4 +101,36 @@ class DmsfLockTest < RedmineDmsf::Test::UnitTest
     lock.expires_at = 1.hour.from_now
     assert_not lock.expired?
   end
+
+  # ActiveRecord#with_lock passes its own lock clause (true by default) as the first argument.
+  # Delegating it to ActiveRecord must not create a DMSF lock: a lock row without a scope
+  # leaves lock_scope_cd NULL and breaks the save with a NOT NULL violation.
+  def test_with_lock_takes_a_row_lock_and_creates_no_dmsf_lock
+    User.current = @admin
+    assert_no_difference('DmsfLock.count') do
+      @file1.with_lock do
+        assert_equal 0, @file1.lock(tree: false).count
+      end
+    end
+    assert_equal 0, @file1.lock(tree: false).count
+  end
+
+  def test_lock_with_a_non_symbol_argument_is_delegated_to_active_record
+    User.current = @admin
+    assert_no_difference('DmsfLock.count') do
+      assert_nothing_raised { @file1.lock!(false) }
+    end
+    assert_equal 0, @file1.lock(tree: false).count
+  end
+
+  def test_lock_with_a_scope_symbol_still_creates_a_dmsf_lock
+    User.current = @admin
+    assert_difference('DmsfLock.count') do
+      assert_nothing_raised { @file1.lock!(:scope_exclusive) }
+    end
+    assert_equal 1, @file1.lock(tree: false).count
+  ensure
+    User.current = @admin
+    @file1.unlock! if @file1.locked?
+  end
 end
