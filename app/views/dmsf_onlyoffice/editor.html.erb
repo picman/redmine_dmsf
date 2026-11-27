@@ -161,7 +161,11 @@
     <span id="dmsf-onlyoffice-participants"></span>
   </div>
   <div id="dmsf-onlyoffice-notice" class="dmsf-onlyoffice-notice" hidden></div>
-  <div id="dmsf-onlyoffice-editor" class="dmsf-onlyoffice-canvas"></div>
+  <%# The Document Server replaces the placeholder with its own iframe: the canvas
+      wrapper keeps the editor height because the placeholder element is removed. %>
+  <div class="dmsf-onlyoffice-canvas">
+    <div id="dmsf-onlyoffice-editor"></div>
+  </div>
 </section>
 
 <%= javascript_include_tag 'dmsf_onlyoffice', plugin: 'redmine_dmsf' %>

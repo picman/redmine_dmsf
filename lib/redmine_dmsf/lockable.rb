@@ -40,7 +40,12 @@ module RedmineDmsf
       ret
     end
 
+    # ActiveRecord#with_lock passes its own lock clause (true by default) as the
+    # first argument. Only a Symbol selects a DMSF lock scope, so every other
+    # value is delegated to ActiveRecord to take a database row lock.
     def lock!(scope = :scope_exclusive, type = :type_write, expire = nil, owner = nil)
+      return super(scope) unless scope.is_a?(Symbol)
+
       # Raise a lock error if entity is locked, but its not at resource level
       existing = lock(tree: false)
       raise DmsfLockError, l(:error_resource_or_parent_locked) if locked? && existing.empty?

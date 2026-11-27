@@ -21,7 +21,8 @@
       lastError: null,
       snapshotRequestId: null,
       activeDialog: null,
-      copyRequest: null
+      copyRequest: null,
+      pendingUsers: null
     };
     const notice = doc.getElementById('dmsf-onlyoffice-notice');
     const editorStatus = doc.getElementById('dmsf-onlyoffice-editor-status');
@@ -499,6 +500,10 @@
     events.onDocumentReady = function () {
       state.editorReady = true;
       if (editorStatus) editorStatus.textContent = message('editorSynced');
+      if (state.pendingUsers) {
+        state.editor.setUsers(state.pendingUsers);
+        state.pendingUsers = null;
+      }
     };
     events.onDocumentStateChange = function (event) {
       state.dirty = event.data === true;
@@ -548,12 +553,19 @@
     if (urls.back) events.onRequestClose = function () { global.location.assign(localUrl(urls.back).toString()); };
     if (urls.users) {
       events.onRequestUsers = async function (event) {
+        let users = [];
         try {
           const data = await request(urls.users, 'GET', { c: event.data.c });
-          editor().setUsers({ c: event.data.c, users: data.users });
+          users = data.users || [];
         } catch (error) {
-          editor().setUsers({ c: event.data.c, users: [] });
           showError(error);
+        }
+        const payload = { c: event.data.c, users: users };
+        // The Document Server asks for the user list before onDocumentReady fires.
+        if (state.editor && state.editorReady) {
+          state.editor.setUsers(payload);
+        } else {
+          state.pendingUsers = payload;
         }
       };
     }
