@@ -439,6 +439,25 @@ class DmsfOnlyofficeControllerTest < RedmineDmsf::Test::TestCase
     assert_equal @jsmith, User.current
   end
 
+  def test_conversion_download_rechecks_history_access_without_breaking_an_open_editor
+    conversion = RedmineDmsf::OnlyOffice.storage_token(
+      file: @file1, revision: @revision, user: @jsmith,
+      purpose: 'download', extra: { check_history_permission: true }
+    )
+    editor_token = storage_token('download')
+    newer = @revision.clone
+    newer.user = @admin
+    newer.minor_version += 1
+    newer.save!
+    @role_manager.remove_permission! :view_dmsf_file_revisions
+    path = "/dmsf/files/#{@file1.id}/onlyoffice/download/#{@revision.name}"
+
+    get path, params: { token: conversion }
+    assert_response :not_found
+    get path, params: { token: editor_token }
+    assert_response :success
+  end
+
   private
 
   def storage_token(purpose, mode: 'edit', user: @jsmith)

@@ -66,7 +66,9 @@ class DmsfOnlyofficeAdminController < ApplicationController
     recovery = DmsfOnlyofficeRecovery.store!(session: session, kind: 'forgotten', io: tempfile,
                                              filename: filename, content_type: content_type,
                                              reason: 'Imported from ONLYOFFICE forgotten storage')
-    session.update!(state: 'recovery') unless session.state == 'saved'
+    session.with_lock do
+      session.update!(state: 'recovery') unless %w[saved submitted].include?(session.state)
+    end
     flash[:notice] = l(:notice_dmsf_onlyoffice_recovered, id: recovery.id)
     redirect_to dmsf_onlyoffice_admin_path
   rescue RedmineDmsf::OnlyOffice::Error, ActiveRecord::RecordInvalid => e

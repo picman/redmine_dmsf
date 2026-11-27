@@ -13,7 +13,7 @@ class DmsfOnlyofficeActionsControllerTest < RedmineDmsf::Test::TestCase
     RedmineDmsf.stubs(:onlyoffice_jwt_secret).returns('onlyoffice-test-secret')
     RedmineDmsf.stubs(:onlyoffice_redmine_internal_url).returns('')
     RedmineDmsf.stubs(:onlyoffice_force_save_enabled?).returns(true)
-    Redmine::Hook.stubs(:call_hook)
+    Redmine::Hook.stubs(:call_hook).returns([])
     DmsfMailer.stubs(:deliver_files_updated)
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
   end
@@ -71,7 +71,7 @@ class DmsfOnlyofficeActionsControllerTest < RedmineDmsf::Test::TestCase
   end
 
   def test_copy_does_not_commit_a_document_if_its_bytes_cannot_be_uploaded
-    ActiveStorage::Blob.expects(:create_and_upload!).raises(IOError, 'storage unavailable')
+    DmsfOnlyofficeBlob.expects(:upload!).raises(IOError, 'storage unavailable')
 
     assert_no_difference ['DmsfFile.count', 'DmsfFileRevision.count'] do
       assert_raises IOError do
@@ -229,6 +229,107 @@ class DmsfOnlyofficeActionsControllerTest < RedmineDmsf::Test::TestCase
     assert_response :success
     assert_equal first.id, second.id
     assert_equal true, JSON.parse(response.body).fetch('pending')
+  end
+
+  def test_pdf_of_a_historical_revision_requires_history_permission
+    @revision.update!(workflow: DmsfWorkflow::STATE_APPROVED)
+    newer = @revision.clone
+    newer.minor_version = 2
+    newer.reset_workflow
+    newer.save!
+    @role_manager.remove_permission! :view_dmsf_file_revisions
+    RedmineDmsf::OnlyOffice.expects(:convert).never
+
+    assert_no_difference 'DmsfOnlyofficeOperation.count' do
+      post "/dmsf/files/#{@file1.id}/onlyoffice/pdf", params: { revision_id: @revision.id }
+    end
+    assert_response :unprocessable_entity
+  end
+
+  def test_pdf_poll_rechecks_history_permission_after_the_source_is_superseded
+    @revision.update!(workflow: DmsfWorkflow::STATE_APPROVED)
+    RedmineDmsf::OnlyOffice.expects(:convert).once.returns('endConvert' => false)
+    post "/dmsf/files/#{@file1.id}/onlyoffice/pdf", params: { revision_id: @revision.id }
+    operation_id = JSON.parse(response.body).fetch('operation_id')
+    newer = @revision.clone
+    newer.minor_version = 2
+    newer.reset_workflow
+    newer.save!
+    @role_manager.remove_permission! :view_dmsf_file_revisions
+
+    post "/dmsf/files/#{@file1.id}/onlyoffice/pdf", params: { operation_id: operation_id }
+    assert_response :unprocessable_entity
+    assert_nil DmsfOnlyofficeOperation.find(operation_id).result_file_id
+  end
+
+  def test_pdf_provenance_is_the_approved_source_even_with_a_newer_head
+    @role_manager.add_permission! :view_dmsf_file_revisions
+    @revision.update!(workflow: DmsfWorkflow::STATE_APPROVED)
+    newer = @revision.clone
+    newer.minor_version = 2
+    newer.reset_workflow
+    newer.save!
+    RedmineDmsf::OnlyOffice.stubs(:convert).returns('endConvert' => true,
+                                                    'fileUrl' => 'https://office.example.test/result.pdf')
+    RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile('%PDF-1.7 approved source'))
+
+    post "/dmsf/files/#{@file1.id}/onlyoffice/pdf", params: { revision_id: @revision.id }
+    assert_response :success
+    result = DmsfFile.find(JSON.parse(response.body).fetch('file_id'))
+    assert_equal @revision.id, result.last_revision.source_dmsf_file_revision_id
+  end
+
+  def test_a_stale_operation_cannot_replace_a_completed_result_with_an_error
+    operation = DmsfOnlyofficeOperation.create!(
+      kind: 'pdf', request_key: SecureRandom.uuid,
+      dmsf_file: @file1, source_revision: @revision, user: @jsmith, filename: 'export.pdf'
+    )
+    stale = DmsfOnlyofficeOperation.find(operation.id)
+    operation.update!(state: 'completed', result_file: @file2)
+
+    stale.update_if_pending!(state: 'failed', last_error: 'Late remote error')
+    assert_equal 'completed', stale.reload.state
+    assert_equal @file2.id, stale.result_file_id
+    assert_nil stale.last_error
+  end
+
+  def test_late_remote_errors_return_the_already_completed_operation
+    @revision.update!(workflow: DmsfWorkflow::STATE_APPROVED)
+    responses = [{ 'error' => 5 }, { 'endConvert' => 'invalid' }, { 'endConvert' => true }]
+    responses.each do |remote_response|
+      operation = DmsfOnlyofficeOperation.create!(
+        kind: 'pdf', request_key: SecureRandom.uuid,
+        dmsf_file: @file1, source_revision: @revision, user: @jsmith, filename: 'export.pdf'
+      )
+      RedmineDmsf::OnlyOffice.expects(:convert).with do |_parameters|
+        DmsfOnlyofficeOperation.find(operation.id).update!(state: 'completed', result_file: @file1)
+        true
+      end.returns(remote_response)
+
+      post "/dmsf/files/#{@file1.id}/onlyoffice/pdf", params: { operation_id: operation.id }
+      assert_response :success
+      assert_equal @file1.id, JSON.parse(response.body).fetch('file_id')
+      assert_equal 'completed', operation.reload.state
+      assert_nil operation.last_error
+    end
+  end
+
+  def test_template_provenance_and_destination_are_independent
+    post '/login', params: { username: 'admin', password: 'admin' }
+    template = @file2.last_revision
+    template.update!(name: 'source-template.docx')
+    RedmineDmsf.stubs(:onlyoffice_template_revision_ids).returns([template.id])
+    RedmineDmsf::OnlyOffice.stubs(:build_document).returns(
+      'end' => true, 'urls' => { 'output.docx' => 'https://office.example.test/cache/output.docx' }
+    )
+    RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile('Generated template content'))
+
+    post "/dmsf/files/#{@file1.id}/onlyoffice/from-template",
+         params: { template_id: template.id, title: 'Document from external template' }
+    assert_response :success
+    result = DmsfFile.find(JSON.parse(response.body).fetch('file_id'))
+    assert_equal @file1.project_id, result.project_id
+    assert_equal template.id, result.last_revision.source_dmsf_file_revision_id
   end
 
   private

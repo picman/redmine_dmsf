@@ -2,7 +2,8 @@
 
 # Creates an independent document; editor copies and recovered files never overwrite a head implicitly.
 class DmsfOnlyofficeDocumentCreator
-  def self.call(source:, user:, io:, filename:, folder: source.dmsf_file.dmsf_folder, comment: nil)
+  def self.call(source:, user:, io:, filename:, folder: source.dmsf_file.dmsf_folder, comment: nil,
+                provenance: source)
     previous_user = User.current
     User.current = user
     project = source.dmsf_file.project
@@ -22,7 +23,7 @@ class DmsfOnlyofficeDocumentCreator
       revision.user = user
       revision.name = filename
       revision.title = File.basename(filename, '.*')
-      revision.source_revision = source
+      revision.source_revision = provenance
       revision.onlyoffice_key = nil
       revision.major_version = 1
       revision.minor_version = 0

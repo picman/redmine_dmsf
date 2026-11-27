@@ -41,6 +41,29 @@ class DmsfOnlyofficeBlobTest < ActiveSupport::TestCase
     assert_not upload[:service].exist?(upload[:key])
   end
 
+  def test_upload_failure_removes_bytes_even_when_the_outer_transaction_continues
+    service = ActiveStorage::Blob.service
+    original_upload = service.method(:upload)
+    failed_key = nil
+    service.define_singleton_method(:upload) do |key, io, **options|
+      original_upload.call(key, io, **options)
+      failed_key = key
+      raise IOError, 'storage failed after writing bytes'
+    end
+
+    ActiveRecord::Base.transaction do
+      assert_raises(IOError) { upload_document('incomplete upload') }
+      assert_not_nil failed_key
+      assert_not ActiveStorage::Blob.exists?(key: failed_key)
+      assert_not service.exist?(failed_key)
+    end
+    assert_not ActiveStorage::Blob.exists?(key: failed_key)
+    assert_not service.exist?(failed_key)
+  ensure
+    service&.singleton_class&.remove_method(:upload)
+    service&.delete(failed_key) if failed_key
+  end
+
   def test_committing_an_inner_transaction_does_not_survive_an_outer_rollback
     upload = nil
     ActiveRecord::Base.transaction do

@@ -141,6 +141,23 @@ class DmsfWebdavPutTest < RedmineDmsf::Test::IntegrationTest
     end
   end
 
+  def test_failed_upload_preserves_history_and_does_not_create_an_orphan_document
+    file = DmsfFile.find_file_by_name(@project1, nil, 'test.txt')
+    original = file.last_revision
+    content = original.file.download
+    DmsfOnlyofficeBlob.stubs(:upload!).raises(IOError, 'storage unavailable')
+    DmsfMailer.expects(:deliver_files_updated).never
+
+    ['test.txt', 'failed-upload.txt'].each do |name|
+      assert_no_difference ['DmsfFile.count', 'DmsfFileRevision.count', 'ActiveStorage::Blob.count'] do
+        put "/dmsf/webdav/#{@project1.identifier}/#{name}", params: 'replacement', headers: @jsmith
+        assert_response :internal_server_error
+      end
+    end
+    assert_equal original.id, file.reload.last_revision.id
+    assert_equal content, original.reload.file.download
+  end
+
   def test_put_fails_revision_when_file_is_locked
     log_user 'admin', 'admin' # login as admin
     file = DmsfFile.find_file_by_name @project1, nil, 'test.txt'

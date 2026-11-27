@@ -57,6 +57,9 @@ class DmsfOnlyofficeController < ApplicationController
     raise ActiveRecord::RecordNotFound unless revision.dmsf_file_id == file.id && revision.file.attached?
 
     User.current = user
+    if claims['check_history_permission'] && !revision.history_accessible_to?(user)
+      raise RedmineDmsf::OnlyOffice::InvalidToken, 'The historical source is no longer accessible'
+    end
     unless DmsfOnlyofficeSession.allowed_mode?(file: file, user: user, mode: 'view')
       raise RedmineDmsf::OnlyOffice::InvalidToken, 'The user is no longer allowed to download this DMSF file'
     end

@@ -36,6 +36,7 @@ class DmsfFileRevision < ApplicationRecord
   has_many :dmsf_workflow_step_assignment, dependent: :destroy
   has_one :onlyoffice_history, class_name: 'DmsfOnlyofficeHistory', dependent: :destroy
 
+  before_create :lock_parent_file
   before_destroy :delete_source_revision
   after_save :update_parent_folder
   after_commit :prune_old_minor_revisions, on: :create
@@ -139,6 +140,24 @@ class DmsfFileRevision < ApplicationRecord
 
   def visible?(_user = nil)
     deleted == STATUS_ACTIVE
+  end
+
+  # Callers also check access to the file/folder. Historical content needs its
+  # dedicated permission even when reached through export or a direct download.
+  def history_accessible_to?(candidate)
+    visible? && (dmsf_file.dmsf_file_revisions.visible.first&.id == id ||
+      candidate.allowed_to?(:view_dmsf_file_revisions, project))
+  end
+
+  # All revision insertions, including ordinary uploads and WebDAV, participate
+  # in the same row-lock protocol as ONLYOFFICE publication and retention.
+  def lock_parent_file
+    DmsfFile.lock.find(dmsf_file_id)
+  end
+
+  def version_available?
+    !dmsf_file.dmsf_file_revisions.visible.exists?(major_version: major_version,
+                                                   minor_version: minor_version, patch_version: patch_version)
   end
 
   def project
@@ -289,7 +308,10 @@ class DmsfFileRevision < ApplicationRecord
   end
 
   def copy_file_content(open_file)
-    shared_file.attach io: open_file, filename: dmsf_file.name
+    self.class.transaction do
+      blob = DmsfOnlyofficeBlob.upload!(io: open_file, filename: name, identify: true)
+      shared_file.attach(blob)
+    end
   end
 
   # Overrides Redmine::Acts::Customizable::InstanceMethods#available_custom_fields

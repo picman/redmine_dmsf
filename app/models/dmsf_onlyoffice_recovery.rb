@@ -16,6 +16,11 @@ class DmsfOnlyofficeRecovery < ApplicationRecord
 
   scope :pending, -> { where(state: 'pending') }
 
+  def form_submission?
+    kind == 'form' || dmsf_onlyoffice_session.mode == 'fill' ||
+      metadata['forcesavetype'].to_i == 3 || dmsf_onlyoffice_session.recoveries.exists?(kind: 'form')
+  end
+
   def self.checksum_for(io)
     digest = Digest::SHA256.new
     io.rewind

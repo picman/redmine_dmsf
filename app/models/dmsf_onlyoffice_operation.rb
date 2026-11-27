@@ -16,4 +16,10 @@ class DmsfOnlyofficeOperation < ApplicationRecord
   def finished?
     state == 'completed'
   end
+
+  # Responses can arrive out of order from concurrent browser polls.
+  # Reload under the lock before changing a pending operation.
+  def update_if_pending!(**attributes)
+    with_lock { update!(**attributes) if state == 'pending' }
+  end
 end

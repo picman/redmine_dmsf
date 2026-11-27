@@ -53,9 +53,10 @@ class DmsfOnlyofficeBlob
   end
 
   def self.upload!(**parameters)
-    ActiveStorage::Blob.transaction do
-      blob = ActiveStorage::Blob.create_and_upload!(**parameters)
+    ActiveStorage::Blob.transaction(requires_new: true) do
+      blob = ActiveStorage::Blob.create_after_unfurling!(**parameters)
       ActiveStorage::Blob.connection.add_transaction_record(Upload.new(blob))
+      blob.upload_without_unfurling(parameters.fetch(:io))
       blob
     end
   end

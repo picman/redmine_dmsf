@@ -53,6 +53,11 @@ conversion/template operations started in the last 24 hours, and assigned, waiti
 are skipped. Retention runs after a new revision is committed; a cleanup failure is logged without undoing the saved
 revision. A protected overflow is reconsidered by a later save or by the maintenance task.
 
+Browser uploads and WebDAV PUTs keep revision metadata and synchronous byte acquisition in one transaction.
+Failed uploads preserve the previous head and retryable temporary attachments; retention only follows a successful
+commit. Ordinary revision creation takes the same file row lock as editor publication. Browser uploads reject a
+version already present in the visible history and ask the user to refresh.
+
 The ordinary DMSF deletion lifecycle transfers inherited content and source references before removal. Shared blobs are
 purged only after a committed destruction and only when no attachment still references them. Physical byte deletion
 continues to respect `dmsf_really_delete_files`. History sidecars are removed with their revision; recovery copies are not
@@ -132,6 +137,10 @@ The forgotten inventory is intersected with locally registered session keys. Key
 unknown documents are not exposed or imported. A source filename/type is recorded with the session so removal of an old
 base revision does not prevent recovery. Recovery deduplicates by session, kind and SHA-256 content digest.
 
+Recoveries from form-filling sessions, including forgotten files and sessions with a recorded form submission, can
+only be saved as independent documents. They cannot replace the template. Late snapshots preserve the error/recovery
+state and diagnostic reason of a closed session; importing forgotten bytes does not reopen a saved or submitted session.
+
 Recovering a forgotten file does **not** delete it from ONLYOFFICE. The separate deletion action requires a local receipt,
 an intact stored payload, an inactive editing session, and a fresh download matching that receipt. If the remote contents
 changed, recover again first. The command protocol has no compare-and-delete primitive: perform cleanup only when users
@@ -150,14 +159,19 @@ reported without silently undoing a successful storage rename.
 
 **Publish approved revision as PDF** converts an immutable, approved source revision through `/converter`, then saves a
 new DMSF file whose provenance records the source revision. Unapproved/live content is not published as an approved PDF.
+Historical PDF sources and direct DMSF revision downloads require the history permission. PDF operations recheck it
+during polling, source download and publication; an editor already open on its base revision retains its normal token
+semantics. Soft-deleted revisions cannot be fetched by the direct DMSF revision download route.
 Async operations have durable IDs and can resume polling without duplicating the final file.
 Transient service failures retain that operation ID. Terminal service failures are marked failed; unfinished operations
 expire after 24 hours and no longer protect a source revision from retention.
+Late errors cannot replace an already completed result.
 
 **New from template** uses administrator-selected DOCX revision IDs. Template permissions are rechecked. Add tagged block
 content controls using `project.id`, `project.name`, `author.name`, `date`, `issue.id`, `issue.subject`, `issue.description`
 or `issue.cf.ID`. Selecting an issue copies only fields visible to the user and places the generated document in the
 issue's DMSF folder. Generation is one-time: later manual text changes are not overwritten by field synchronization.
+The new revision records the selected template as its source while destination metadata follows the current context.
 The signed builder script contains only fixed code and JSON-encoded values; users cannot submit arbitrary scripts.
 
 **PDF forms** preserve submitted PDFs and `formsdataurl` JSON. Configure a mapping such as `{"customer":12}`. On the recovery

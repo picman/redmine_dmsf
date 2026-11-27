@@ -18,6 +18,7 @@
 # <https://www.gnu.org/licenses/>.
 
 require File.expand_path('../../test_helper', __FILE__)
+require 'tempfile'
 
 # DmsfFiles controller
 class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
@@ -79,6 +80,34 @@ class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
     @role_manager.remove_permission! :view_dmsf_files
     get "/dmsf/files/#{@file1.id}/view", params: { id: @file1.id }
     assert_response :forbidden
+  end
+
+  def test_historical_download_requires_history_permission
+    original = @file1.last_revision
+    newer = original.clone
+    newer.user = @admin
+    newer.minor_version += 1
+    newer.save!
+    @role_manager.remove_permission! :view_dmsf_file_revisions
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+
+    get "/dmsf/files/#{@file1.id}/view", params: { download: original.id }
+    assert_response :forbidden
+    get "/dmsf/files/#{@file1.id}/view", params: { download: newer.id }
+    assert_response :success
+  end
+
+  def test_deleted_revision_cannot_be_downloaded_by_id
+    original = @file1.last_revision
+    newer = original.clone
+    newer.user = @admin
+    newer.minor_version += 1
+    newer.save!
+    original.update!(deleted: DmsfFileRevision::STATUS_DELETED)
+    post '/login', params: { username: 'admin', password: 'admin' }
+
+    get "/dmsf/files/#{@file1.id}/view", params: { download: original.id }
+    assert_response :not_found
   end
 
   def test_view_preview
@@ -151,5 +180,61 @@ class DmsfFilesControllerTest < RedmineDmsf::Test::TestCase
     end
     assert_redirected_to dmsf_folder_path(id: @file1.project)
     assert_not_nil @file1.last_revision.checksum
+  end
+
+  def test_create_revision_rejects_a_missing_attachment_token
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    original = @file1.last_revision
+    assert_no_difference ['DmsfFileRevision.count', 'ActiveStorage::Blob.count'] do
+      post "/dmsf/files/#{@file1.id}/revision/create",
+           params: revision_parameters(original).merge(dmsf_attachments: { '0' => { token: 'missing-token' } })
+    end
+    assert flash[:error].present?
+    assert_equal original.id, @file1.reload.last_revision.id
+  end
+
+  def test_create_revision_rejects_a_duplicate_version
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    original = @file1.last_revision
+    assert_no_difference 'DmsfFileRevision.count' do
+      post "/dmsf/files/#{@file1.id}/revision/create",
+           params: revision_parameters(original).merge(version_minor: original.minor_version)
+    end
+    assert flash[:error].present?
+    assert_equal original.id, @file1.reload.last_revision.id
+  end
+
+  def test_create_revision_storage_failure_preserves_the_temporary_attachment
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    original = @file1.last_revision
+    io = Tempfile.new('dmsf-revision-test')
+    io.write('replacement')
+    io.flush
+    attachment = mock
+    attachment.stubs(:diskfile).returns(io.path)
+    attachment.stubs(:filesize).returns(11)
+    attachment.stubs(:filename).returns(original.name)
+    attachment.stubs(:content_type).returns('text/plain')
+    attachment.expects(:delete_from_disk).never
+    attachment.expects(:destroy).never
+    Attachment.stubs(:find_by_token).returns(attachment)
+    DmsfOnlyofficeBlob.expects(:upload!).raises(IOError, 'storage unavailable')
+
+    assert_no_difference ['DmsfFileRevision.count', 'ActiveStorage::Blob.count'] do
+      post "/dmsf/files/#{@file1.id}/revision/create",
+           params: revision_parameters(original).merge(dmsf_attachments: { '0' => { token: 'test-token' } })
+      assert_response :internal_server_error
+    end
+    assert_equal original.id, @file1.reload.last_revision.id
+  ensure
+    io&.close!
+  end
+
+  private
+
+  def revision_parameters(revision)
+    { version_major: revision.major_version, version_minor: revision.minor_version + 1,
+      version_patch: revision.patch_version,
+      dmsf_file_revision: { title: revision.title, name: revision.name, comment: 'Atomic revision' } }
   end
 end

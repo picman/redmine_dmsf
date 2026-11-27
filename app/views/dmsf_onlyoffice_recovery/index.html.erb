@@ -15,7 +15,7 @@
           <%= link_to l(:button_download), dmsf_onlyoffice_recovery_download_path(@file, recovery_id: recovery.id) %>
           <% unless recovery.restored_revision_id %>
             <%= button_to l(:label_dmsf_onlyoffice_save_copy), dmsf_onlyoffice_recovery_copy_path(@file, recovery_id: recovery.id), method: :post %>
-            <% unless recovery.kind == 'form' %>
+            <% unless recovery.form_submission? %>
               <%= button_to l(:label_dmsf_onlyoffice_restore), dmsf_onlyoffice_recovery_restore_path(@file, recovery_id: recovery.id), method: :post,
                             params: { expected_revision_id: @file.last_revision.id }, data: { confirm: l(:text_are_you_sure) } %>
             <% end %>

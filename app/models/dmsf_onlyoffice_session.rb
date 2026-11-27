@@ -189,8 +189,11 @@ class DmsfOnlyofficeSession < ApplicationRecord
       # A delayed force-save or close callback must not regress a published final
       # revision or a submitted form to an in-progress state. Presence is not a
       # successful save and cannot resolve a recovery warning or reopen a key.
-      self.state = next_state unless %w[saved submitted].include?(state) || (presence_only && closed_at.present?)
-      self.last_error = error unless presence_only
+      preserve_failure = %w[error recovery].include?(state) &&
+                         (presence_only || (next_state == 'snapshot' && closed_at.present?))
+      self.state = next_state unless preserve_failure || %w[saved submitted].include?(state) ||
+                                     (presence_only && closed_at.present?)
+      self.last_error = error unless presence_only || preserve_failure
       self.last_callback_at = Time.current
       self.closed_at ||= Time.current if closed
       if connected_users.is_a?(Array)

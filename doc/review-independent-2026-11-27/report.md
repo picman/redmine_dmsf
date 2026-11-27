@@ -1,5 +1,8 @@
 # Revisione indipendente DMSF / ONLYOFFICE
 
+> Documento diagnostico precedente alle correzioni. Per lo stato successivo, le modifiche applicate
+> e i risultati dei test del 27 novembre 2026, vedere [Correzioni e verifiche](fixes.md).
+
 Data: 27 novembre 2026. Commit: `adc69d359ff54394408d889d5a303f76a5453dac`.
 
 Ho individuato e riprodotto **tre problemi aggiuntivi**, non elencati fra D1–D5/D1b

@@ -10,7 +10,7 @@ class DmsfOnlyofficeRecoveryControllerTest < RedmineDmsf::Test::TestCase
     @revision = @file1.last_revision
     RedmineDmsf.stubs(:onlyoffice_document_server_url).returns('https://office.example.test')
     RedmineDmsf.stubs(:onlyoffice_version_constant).returns(DmsfFileRevision::MINOR_VERSION)
-    Redmine::Hook.stubs(:call_hook)
+    Redmine::Hook.stubs(:call_hook).returns([])
     DmsfMailer.stubs(:deliver_files_updated)
     @session = DmsfOnlyofficeSession.register!(file: @file1, revision: @revision, user: @jsmith,
                                                mode: 'edit', document_key: 'explicit-recovery-session')
@@ -75,6 +75,40 @@ class DmsfOnlyofficeRecoveryControllerTest < RedmineDmsf::Test::TestCase
     assert_equal newer.id, @file1.dmsf_file_revisions.visible.first.id
     assert_nil recovery.reload.restored_revision_id
     assert_equal 'Recovered work', recovery.payload.download
+  end
+
+  def test_forgotten_from_a_fill_session_cannot_overwrite_its_template
+    @session.update!(mode: 'fill')
+    recovery = store_recovery(kind: 'forgotten')
+    assert_no_difference 'DmsfFileRevision.count' do
+      post "/dmsf/files/#{@file1.id}/onlyoffice/recovery/#{recovery.id}/restore",
+           params: { expected_revision_id: @revision.id }
+    end
+    assert flash[:error].present?
+    assert_nil recovery.reload.restored_revision_id
+    assert_equal @revision.id, @file1.reload.last_revision.id
+  end
+
+  def test_forgotten_after_a_form_submission_cannot_overwrite_its_template
+    store_recovery(kind: 'form')
+    recovery = store_recovery(kind: 'forgotten')
+    assert_no_difference 'DmsfFileRevision.count' do
+      post "/dmsf/files/#{@file1.id}/onlyoffice/recovery/#{recovery.id}/restore",
+           params: { expected_revision_id: @revision.id }
+    end
+    assert flash[:error].present?
+    assert_nil recovery.reload.restored_revision_id
+  end
+
+  def test_forgotten_from_a_fill_session_can_be_saved_as_an_independent_document
+    @session.update!(mode: 'fill')
+    recovery = store_recovery(kind: 'forgotten')
+    assert_difference 'DmsfFile.count', 1 do
+      post "/dmsf/files/#{@file1.id}/onlyoffice/recovery/#{recovery.id}/copy",
+           params: { title: 'Independent filled form' }
+    end
+    assert_equal @revision.id, @file1.reload.last_revision.id
+    assert_not_equal @file1.id, recovery.reload.restored_revision.dmsf_file_id
   end
 
   def test_restore_retry_creates_only_one_revision_and_keeps_the_original_bytes

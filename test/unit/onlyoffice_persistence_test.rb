@@ -72,6 +72,18 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
     assert_equal 'active', joined.state
   end
 
+  def test_late_snapshots_preserve_failure_state_and_reason
+    session = register_session
+    %w[error recovery].each do |state|
+      session.update!(state: state, last_error: 'Unresolved final save', closed_at: Time.current)
+      closed_at = session.closed_at
+      session.record_callback!(next_state: 'snapshot')
+      assert_equal state, session.reload.state
+      assert_equal 'Unresolved final save', session.last_error
+      assert_equal closed_at, session.closed_at
+    end
+  end
+
   def test_a_form_uses_a_new_generation_only_after_the_terminal_callback
     key = editor_key(@jsmith, 'fill')
     session = DmsfOnlyofficeSession.register!(file: @file1, revision: @source, user: @jsmith,
@@ -130,13 +142,13 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
     form = store_capture(session, 'form', 'submitted form')
     error = store_capture(session, 'error', 'recoverable error')
 
-    ActiveStorage::Blob.stubs(:create_and_upload!).raises(IOError, 'Storage unavailable')
+    DmsfOnlyofficeBlob.stubs(:upload!).raises(IOError, 'Storage unavailable')
     assert_raises IOError do
       store_capture(session, 'snapshot', 'failed draft')
     end
     assert DmsfOnlyofficeRecovery.exists?(oldest.id)
     assert DmsfOnlyofficeRecovery.exists?(second.id)
-    ActiveStorage::Blob.unstub(:create_and_upload!)
+    DmsfOnlyofficeBlob.unstub(:upload!)
 
     newest = store_capture(session, 'snapshot', 'third draft')
     assert_not DmsfOnlyofficeRecovery.exists?(oldest.id)

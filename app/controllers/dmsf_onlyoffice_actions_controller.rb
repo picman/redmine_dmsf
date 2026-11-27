@@ -106,6 +106,8 @@ class DmsfOnlyofficeActionsController < ApplicationController
   def publish_pdf
     operation = find_operation('pdf') do
       revision = @file.dmsf_file_revisions.visible.find(params[:revision_id].presence || @file.last_revision.id)
+      raise RedmineDmsf::OnlyOffice::Error, 'The historical source is not accessible' unless
+        revision.history_accessible_to?(User.current)
       raise RedmineDmsf::OnlyOffice::Error, 'Only an approved revision can be published as PDF' unless
         revision.workflow == DmsfWorkflow::STATE_APPROVED
 
@@ -308,12 +310,18 @@ class DmsfOnlyofficeActionsController < ApplicationController
     if operation.kind == 'pdf' && source.workflow != DmsfWorkflow::STATE_APPROVED
       raise RedmineDmsf::OnlyOffice::Error, 'The source revision is no longer approved'
     end
+    return unless operation.kind == 'pdf' && !source.history_accessible_to?(operation.user)
+
+    raise RedmineDmsf::OnlyOffice::Error, 'The historical source is no longer accessible'
   end
 
   def run_operation(operation)
     return created_response(operation.result_file) if operation.finished?
+
     if operation.state == 'failed' || operation.created_at < 24.hours.ago
-      operation.update!(state: 'failed', last_error: 'The document operation expired; start a new operation')
+      operation.update_if_pending!(state: 'failed', last_error: 'The document operation expired; start a new operation')
+      return created_response(operation.result_file) if operation.finished?
+
       raise RedmineDmsf::OnlyOffice::Error, operation.last_error
     end
     validate_operation_access!(operation)
@@ -322,7 +330,8 @@ class DmsfOnlyofficeActionsController < ApplicationController
     source = operation.source_revision
     if operation.kind == 'pdf'
       token = RedmineDmsf::OnlyOffice.storage_token(file: source.dmsf_file, revision: source,
-                                                    user: User.current, purpose: 'download')
+                                                    user: User.current, purpose: 'download',
+                                                    extra: { check_history_permission: true })
       result = RedmineDmsf::OnlyOffice.convert(async: true, key: "dmsf-pdf-#{operation.request_key}",
                                                filetype: RedmineDmsf::OnlyOffice.extension(source.name),
                                                outputtype: 'pdf', url: document_download_url(source, token))
@@ -334,20 +343,21 @@ class DmsfOnlyofficeActionsController < ApplicationController
       request = { async: true, url: RedmineDmsf::OnlyOffice.internal_redmine_url(script_url) }
       request[:key] = operation.remote_key if operation.remote_key.present?
       result = RedmineDmsf::OnlyOffice.build_document(request)
-      operation.update!(remote_key: result['key']) if result['key'].present?
+      operation.update_if_pending!(remote_key: result['key']) if result['key'].present?
       output_url = result['urls']&.fetch('output.docx', nil) if result['end'] == true
     end
     unless result['error'].to_i.zero?
-      operation.update!(state: 'failed', last_error: "ONLYOFFICE #{operation.kind} error #{result['error']}")
+      operation.update_if_pending!(state: 'failed', last_error: "ONLYOFFICE #{operation.kind} error #{result['error']}")
       raise RedmineDmsf::OnlyOffice::Error, "ONLYOFFICE #{operation.kind} error #{result['error']}"
     end
     completed = operation.kind == 'pdf' ? result['endConvert'] : result['end']
     unless [true, false].include?(completed)
-      operation.update!(state: 'failed', last_error: 'Invalid ONLYOFFICE document operation response')
+      operation.update_if_pending!(state: 'failed', last_error: 'Invalid ONLYOFFICE document operation response')
       raise RedmineDmsf::OnlyOffice::Error, 'Invalid ONLYOFFICE document operation response'
     end
     if completed && output_url.blank?
-      operation.update!(state: 'failed', last_error: 'ONLYOFFICE completed without returning the generated file')
+      operation.update_if_pending!(state: 'failed',
+                                   last_error: 'ONLYOFFICE completed without returning the generated file')
       raise RedmineDmsf::OnlyOffice::Error, 'ONLYOFFICE completed without returning the generated file'
     end
     return render json: { pending: true, operation_id: operation.id }, status: :accepted if output_url.blank?
@@ -356,24 +366,36 @@ class DmsfOnlyofficeActionsController < ApplicationController
     created = nil
     operation.with_lock do
       unless operation.finished?
+        raise RedmineDmsf::OnlyOffice::Error, 'The document operation is no longer pending' unless
+          operation.state == 'pending'
+
         validate_operation_access!(operation)
         # Destination metadata follows the current project, while provenance identifies the exact source revision.
-        created = DmsfOnlyofficeDocumentCreator.call(source: operation.dmsf_file.last_revision, user: User.current,
-                                                      io: tempfile, filename: operation.filename, folder: operation.folder,
-                                                      comment: "ONLYOFFICE #{operation.kind} from DMSF revision ##{source.id}")
-        operation.update!(state: 'completed', result_file: created)
+        created = DmsfOnlyofficeDocumentCreator.call(
+          source: operation.dmsf_file.last_revision, user: User.current,
+          io: tempfile, filename: operation.filename, folder: operation.folder, provenance: source,
+          comment: "ONLYOFFICE #{operation.kind} from DMSF revision ##{source.id}"
+        )
+        operation.update!(state: 'completed', result_file: created, last_error: nil)
       end
     end
     created_response(operation.result_file, notify_hook: created.present?)
   rescue RedmineDmsf::OnlyOffice::Error => e
     # A transient HTTP/download failure still returns the durable operation ID,
     # allowing the browser to resume the same job rather than starting a duplicate.
+    operation.reload
+    return created_response(operation.result_file) if operation.finished?
     raise unless remote_started && operation.state == 'pending'
 
-    operation.update!(last_error: e.message)
+    operation.update_if_pending!(last_error: e.message)
+    return created_response(operation.result_file) if operation.finished?
+    raise unless operation.state == 'pending'
+
     render json: { pending: true, operation_id: operation.id, last_error: e.message }, status: :accepted
   rescue ActiveRecord::RecordInvalid => e
-    operation.update!(state: 'failed', last_error: e.message) if operation.persisted? && !operation.finished?
+    operation.update_if_pending!(state: 'failed', last_error: e.message) if operation.persisted?
+    return created_response(operation.result_file) if operation.finished?
+
     raise
   ensure
     tempfile&.close!

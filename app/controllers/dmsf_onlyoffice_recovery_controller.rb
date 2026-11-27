@@ -26,10 +26,10 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
 
   def restore
     return render_403 unless User.current.allowed_to?(:file_manipulation, @project)
-    # Forms belong in a new document; restoring a submission over its template is forbidden.
-    raise RedmineDmsf::OnlyOffice::Error, 'Save this form as a new document' if @recovery.kind == 'form'
-
     with_recovery_lock do
+      # Check under the session lock: a submission can arrive during recovery.
+      raise RedmineDmsf::OnlyOffice::Error, 'Save this form as a new document' if @recovery.form_submission?
+
       unless @recovery.restored_revision_id
         source = @file.dmsf_file_revisions.visible.first
         @recovery.payload.open do |io|
