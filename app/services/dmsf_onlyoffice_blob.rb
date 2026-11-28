@@ -1,8 +1,26 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 # Uploads are synchronous, but their storage keys must follow the outer database
 # transaction: a rolled-back Blob row must not leave unreachable document bytes.
 class DmsfOnlyofficeBlob
+  # Upload class
   class Upload
     def initialize(blob)
       # ActiveRecord can clear the new record's id on rollback, so retain the
@@ -29,6 +47,7 @@ class DmsfOnlyofficeBlob
     end
   end
 
+  # Purge class
   class Purge
     def initialize(blob)
       @key = blob.key

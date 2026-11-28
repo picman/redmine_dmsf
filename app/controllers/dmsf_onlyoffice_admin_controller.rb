@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 # Global Document Server inventory is restricted to administrators and intersected with this instance's registry.
 class DmsfOnlyofficeAdminController < ApplicationController
   layout 'admin'
@@ -21,7 +38,10 @@ class DmsfOnlyofficeAdminController < ApplicationController
 
   def diagnostics
     result = RedmineDmsf::OnlyOffice.command('version')
-    raise RedmineDmsf::OnlyOffice::Error, "ONLYOFFICE version error #{result['error']}" unless result['error'].to_i.zero?
+    unless result['error'].to_i.zero?
+      raise RedmineDmsf::OnlyOffice::Error,
+            "ONLYOFFICE version error #{result['error']}"
+    end
 
     @diagnostics = { version: result['version'], jwt: RedmineDmsf.onlyoffice_jwt_secret.present?,
                      tls_verification: !RedmineDmsf.onlyoffice_ssl_verification_disabled?,
@@ -35,9 +55,12 @@ class DmsfOnlyofficeAdminController < ApplicationController
 
   def forgotten
     result = RedmineDmsf::OnlyOffice.command('getForgottenList')
-    raise RedmineDmsf::OnlyOffice::Error, "ONLYOFFICE forgotten error #{result['error']}" unless result['error'].to_i.zero?
+    unless result['error'].to_i.zero?
+      raise RedmineDmsf::OnlyOffice::Error,
+            "ONLYOFFICE forgotten error #{result['error']}"
+    end
 
-    keys = Array(result['keys']).select { |key| key.is_a?(String) }
+    keys = Array(result['keys']).grep(String)
     @forgotten = DmsfOnlyofficeSession.where(document_key: keys).includes(:dmsf_file).to_a
     @unknown_count = keys.size - @forgotten.size
     index
@@ -83,10 +106,12 @@ class DmsfOnlyofficeAdminController < ApplicationController
     if %w[active snapshot].include?(session.state) && session.expires_at > Time.current
       raise RedmineDmsf::OnlyOffice::Error, 'Close the editing session before deleting its forgotten copy'
     end
+
     info = RedmineDmsf::OnlyOffice.command('info', key: session.document_key)
     unless info['error'] == 1 || (info['error'].zero? && info['users'].is_a?(Array) && info['users'].empty?)
       raise RedmineDmsf::OnlyOffice::Error, 'The Document Server has not confirmed an inactive editing session'
     end
+
     recovery = DmsfOnlyofficeRecovery.where(dmsf_onlyoffice_session: session, kind: 'forgotten')
                                      .order(created_at: :desc).first!
     # Re-read durable storage and check its digest before deleting the server's recovery copy.
@@ -105,6 +130,7 @@ class DmsfOnlyofficeAdminController < ApplicationController
     unless Digest::SHA256.file(current.path).hexdigest == recovery.checksum
       raise RedmineDmsf::OnlyOffice::Error, 'The forgotten file changed; recover the new copy before deleting it'
     end
+
     result = RedmineDmsf::OnlyOffice.command('deleteForgotten', key: session.document_key)
     raise RedmineDmsf::OnlyOffice::Error, "ONLYOFFICE delete error #{result['error']}" unless result['error'].to_i.zero?
 

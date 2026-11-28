@@ -188,8 +188,11 @@ module RedmineDmsf
         request.body = payload.to_json
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = uri.scheme == 'https'
-        http.verify_mode = RedmineDmsf.onlyoffice_ssl_verification_disabled? ?
-          OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
+        http.verify_mode = if RedmineDmsf.onlyoffice_ssl_verification_disabled?
+                             OpenSSL::SSL::VERIFY_NONE
+                           else
+                             OpenSSL::SSL::VERIFY_PEER
+                           end
         http.open_timeout = 15
         http.read_timeout = 60
         body = +''
@@ -240,6 +243,7 @@ module RedmineDmsf
           validate_callback_operation!(decoded)
           payload = decoded['payload']
           raise InvalidToken, 'Missing callback payload in ONLYOFFICE JWT header' unless payload.is_a?(Hash)
+
           validate_callback_operation!(payload)
 
           return payload.deep_stringify_keys
@@ -389,9 +393,9 @@ module RedmineDmsf
 
       def validate_callback_operation!(payload)
         raise InvalidToken, 'Invalid callback token payload' unless payload.is_a?(Hash)
-        if payload['operation'].present? && payload['operation'] != 'callback'
-          raise InvalidToken, 'Unexpected ONLYOFFICE token operation'
-        end
+        return unless payload['operation'].present? && payload['operation'] != 'callback'
+
+        raise InvalidToken, 'Unexpected ONLYOFFICE token operation'
       end
 
       def base64url(value)

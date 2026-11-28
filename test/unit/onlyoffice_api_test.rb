@@ -1,7 +1,25 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require File.expand_path('../test_helper', __dir__)
 
+# ONLYOFFICE API tests
 class OnlyOfficeApiTest < ActiveSupport::TestCase
   def setup
     RedmineDmsf.stubs(:onlyoffice_document_server_url).returns('https://office.example.test/docs')
@@ -67,8 +85,10 @@ class OnlyOfficeApiTest < ActiveSupport::TestCase
     revision = Struct.new(:name).new('example.docx')
     %w[review comment fill].each do |mode|
       config = RedmineDmsf::OnlyOffice.editor_config(revision: revision, user: user, mode: mode,
-                                                    key: 'same-collaborative-key', download_url: 'https://redmine.test/file',
-                                                    callback_url: 'https://redmine.test/callback', back_url: '/', type: 'mobile')
+                                                     key: 'same-collaborative-key',
+                                                     download_url: 'https://redmine.test/file',
+                                                     callback_url: 'https://redmine.test/callback', back_url: '/',
+                                                     type: 'mobile')
       assert_equal false, config[:document][:permissions][:edit]
       assert_equal(mode == 'review', config[:document][:permissions][:review])
       assert_equal(mode == 'fill', config[:document][:permissions][:fillForms])
@@ -103,7 +123,10 @@ class OnlyOfficeApiTest < ActiveSupport::TestCase
     %i[use_ssl= verify_mode= open_timeout= read_timeout=].each { |setter| http.stubs(setter) }
     response = Net::HTTPOK.new('1.1', '200', 'OK')
     response.stubs(:read_body).yields(body)
-    http.expects(:request).with { |request| yield request; true }.yields(response)
+    http.expects(:request).with do |request|
+      yield request
+      true
+    end.yields(response)
     http
   end
 end

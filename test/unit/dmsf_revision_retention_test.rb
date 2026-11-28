@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require File.expand_path('../test_helper', __dir__)
 require 'stringio'
 
@@ -25,7 +42,7 @@ class DmsfRevisionRetentionTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_disabled_retention_does_not_delete_revisions
-    revisions = 3.times.map { |index| create_revision(minor: index + 1) }
+    revisions = Array.new(3) { |index| create_revision(minor: index + 1) }
 
     result = DmsfRevisionRetention.prune(@file1, limit: 1)
 
@@ -35,9 +52,9 @@ class DmsfRevisionRetentionTest < RedmineDmsf::Test::UnitTest
   end
 
   def test_keeps_latest_one_hundred_minor_revisions_across_major_releases
-    first_minors = 55.times.map { |index| create_revision(minor: index + 1) }
+    first_minors = Array.new(55) { |index| create_revision(minor: index + 1) }
     release = create_revision(major: 2, minor: 0)
-    later_minors = 50.times.map { |index| create_revision(major: 2, minor: index + 1) }
+    later_minors = Array.new(50) { |index| create_revision(major: 2, minor: index + 1) }
     all_minors = first_minors + later_minors
     enable_retention
 

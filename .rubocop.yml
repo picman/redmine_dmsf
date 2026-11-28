@@ -87,6 +87,11 @@ Naming/PredicatePrefix:
   Exclude:
     - patches/attachable_patch.rb
 
+Style/GlobalVars:
+  Exclude:
+    - doc/review-independent-2026-11-27/probe.rb
+    - doc/review-independent-2026-11-27/probe_transport.rb
+
 Style/HashSyntax:
   EnforcedShorthandSyntax: either
 

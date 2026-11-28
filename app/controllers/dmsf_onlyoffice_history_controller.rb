@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require 'securerandom'
 
 # Serves DMSF's retained revisions to the native ONLYOFFICE history UI. History
@@ -20,8 +37,8 @@ class DmsfOnlyofficeHistoryController < ApplicationController
   def index
     revisions = retained_revisions(@file).to_a
     records = DmsfOnlyofficeHistory.where(dmsf_file_revision_id: revisions.map(&:id))
-                                  .includes(changes_archive_attachment: :blob)
-                                  .index_by(&:dmsf_file_revision_id)
+                                   .includes(changes_archive_attachment: :blob)
+                                   .index_by(&:dmsf_file_revision_id)
     current = @file.last_revision
     render json: {
       currentVersion: current&.id,
@@ -84,7 +101,10 @@ class DmsfOnlyofficeHistoryController < ApplicationController
     end
 
     expected = Integer(params[:expected_revision_id].to_s, 10)
-    return render_history_error(:error_dmsf_onlyoffice_expected_revision, :unprocessable_entity) unless expected.positive?
+    unless expected.positive?
+      return render_history_error(:error_dmsf_onlyoffice_expected_revision,
+                                  :unprocessable_entity)
+    end
 
     source = retained_revisions(@file).find(params[:revision_id])
     raise ActiveRecord::RecordNotFound unless source.file.attached?
@@ -130,7 +150,7 @@ class DmsfOnlyofficeHistoryController < ApplicationController
       raise ActiveRecord::RecordNotFound unless history_source(record, file)
 
       send_data record.changes_archive.download, filename: "dmsf-#{file.id}-#{revision.id}-changes.zip",
-                                                type: 'application/zip', disposition: 'attachment'
+                                                 type: 'application/zip', disposition: 'attachment'
     end
   rescue RedmineDmsf::OnlyOffice::InvalidToken, ActiveRecord::RecordNotFound, KeyError
     not_found
@@ -187,6 +207,7 @@ class DmsfOnlyofficeHistoryController < ApplicationController
   # different predecessor after retention has removed the original base.
   def history_source(record, file)
     return unless record&.changes_archive&.attached? && record.source_revision_id.present?
+
     metadata = history_metadata(record)
     return unless metadata['changes'].is_a?(Array) && metadata['changes'].present? && metadata['serverVersion'].present?
 
@@ -203,13 +224,13 @@ class DmsfOnlyofficeHistoryController < ApplicationController
 
   def revision_payload(file, revision)
     raise ActiveRecord::RecordNotFound unless revision.file.attached? &&
-                                             RedmineDmsf::OnlyOffice.viewable?(revision.name)
+                                              RedmineDmsf::OnlyOffice.viewable?(revision.name)
 
     token = RedmineDmsf::OnlyOffice.storage_token(
       file: file, revision: revision, user: User.current, purpose: 'history_document'
     )
     public_url = dmsf_onlyoffice_history_asset_url(file, kind: 'document', token: token,
-                                                       protocol: Setting.protocol, host: Setting.host_name)
+                                                         protocol: Setting.protocol, host: Setting.host_name)
     {
       fileType: RedmineDmsf::OnlyOffice.extension(revision.name),
       key: RedmineDmsf::OnlyOffice.document_key(file, revision),
@@ -225,7 +246,7 @@ class DmsfOnlyofficeHistoryController < ApplicationController
     # frame, so this URL must remain public even when document downloads use an
     # internal Redmine address.
     dmsf_onlyoffice_history_asset_url(file, kind: 'changes', token: token,
-                                          protocol: Setting.protocol, host: Setting.host_name)
+                                            protocol: Setting.protocol, host: Setting.host_name)
   end
 
   def comparison_files
@@ -233,7 +254,7 @@ class DmsfOnlyofficeHistoryController < ApplicationController
     return [[@file], false] if query.blank?
 
     names = DmsfFileRevision.visible.where('LOWER(name) LIKE :q OR LOWER(title) LIKE :q',
-                                          q: "%#{DmsfFileRevision.sanitize_sql_like(query.downcase)}%")
+                                           q: "%#{DmsfFileRevision.sanitize_sql_like(query.downcase)}%")
     files = DmsfFile.visible.where(project_id: @project.id, id: names.select(:dmsf_file_id))
     matches = []
     files.find_each do |file|

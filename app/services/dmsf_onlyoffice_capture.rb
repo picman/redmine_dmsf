@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require 'json'
 
 # Acquire bytes durably before deciding whether they may become a new revision.
@@ -45,7 +62,7 @@ class DmsfOnlyofficeCapture
     metadata['actor_id'] = @user&.id
     metadata['mode'] = @mode
     acquired = @session.with_lock do
-      kind = 'form' if status == 2 && (@session.state == 'submitted' || @session.recoveries.where(kind: 'form').exists?)
+      kind = 'form' if status == 2 && (@session.state == 'submitted' || @session.recoveries.exists?(kind: 'form'))
       if kind == 'snapshot' && @session.state == 'saved'
         capture_late_snapshot(io, filename, content_type, metadata)
       else
@@ -118,7 +135,7 @@ class DmsfOnlyofficeCapture
   def capture_late_snapshot(io, filename, content_type, metadata)
     checksum = DmsfOnlyofficeRecovery.checksum_for(io)
     final = @session.recoveries.find_by(kind: 'final', state: 'imported',
-                                       restored_revision_id: @session.saved_revision_id)
+                                        restored_revision_id: @session.saved_revision_id)
     final_checksum = final&.checksum
     if final_checksum.nil? && @session.saved_revision&.file&.attached?
       @session.saved_revision.file.open { |saved| final_checksum = DmsfOnlyofficeRecovery.checksum_for(saved) }
@@ -131,8 +148,8 @@ class DmsfOnlyofficeCapture
 
     reason = 'A late force-save differs from the published final revision; retained for manual recovery'
     recovery = DmsfOnlyofficeRecovery.store!(session: @session, kind: 'conflict', io: io,
-                                            filename: filename, content_type: content_type,
-                                            reason: reason, metadata: metadata)
+                                             filename: filename, content_type: content_type,
+                                             reason: reason, metadata: metadata)
     @session.update!(last_callback_at: Time.current, last_error: reason)
     Result.new(recovery: recovery, published: false, state: 'saved')
   end
@@ -140,9 +157,7 @@ class DmsfOnlyofficeCapture
   def capture_forms(recovery)
     io = download(@payload['formsdataurl'], max_bytes: FORMS_MAX_BYTES)
     values = JSON.parse(io.read)
-    unless values.is_a?(Array) || values.is_a?(Hash)
-      raise RedmineDmsf::OnlyOffice::Error, 'Invalid submitted form data'
-    end
+    raise RedmineDmsf::OnlyOffice::Error, 'Invalid submitted form data' unless values.is_a?(Array) || values.is_a?(Hash)
 
     recovery.with_lock { recovery.update!(metadata: recovery.metadata.merge('forms_data' => values)) }
   rescue JSON::ParserError => e
@@ -164,10 +179,10 @@ class DmsfOnlyofficeCapture
     # Always lock the file before its session, matching registration/retention.
     file.with_lock do
       @session.with_lock do
-        if @session.state == 'submitted' || @session.recoveries.where(kind: 'form').exists?
+        if @session.state == 'submitted' || @session.recoveries.exists?(kind: 'form')
           recovery = recovery.as_kind!('form')
           @session.update!(state: 'submitted', closed_at: @session.closed_at || Time.current,
-                            last_callback_at: Time.current)
+                           last_callback_at: Time.current)
           result = Result.new(recovery: recovery, published: false, state: 'submitted')
         else
           existing = DmsfFileRevision.find_by(onlyoffice_key: @session.document_key)
@@ -183,7 +198,8 @@ class DmsfOnlyofficeCapture
             )
             DmsfOnlyofficeHistory.store!(revision: revision, source: source, metadata: @payload['history'], io: changes)
             finish_publication(recovery, revision)
-            result = Result.new(revision: revision, recovery: recovery, published: true, duplicate: false, state: 'saved')
+            result = Result.new(revision: revision, recovery: recovery, published: true, duplicate: false,
+                                state: 'saved')
           end
         end
       end
@@ -207,7 +223,7 @@ class DmsfOnlyofficeCapture
       reason = 'Another final callback published different bytes; this copy was retained for manual recovery'
       recovery = recovery.as_conflict!(reason)
       @session.update!(state: 'saved', saved_revision_id: revision_id, last_error: reason,
-                        closed_at: @session.closed_at || Time.current, last_callback_at: Time.current)
+                       closed_at: @session.closed_at || Time.current, last_callback_at: Time.current)
       return Result.new(revision: revision, recovery: recovery, published: false, state: 'saved')
     end
 
@@ -215,7 +231,7 @@ class DmsfOnlyofficeCapture
     # missing legacy history record is filled in. Never recreate pruned history.
     if revision && !DmsfOnlyofficeHistory.exists?(dmsf_file_revision_id: revision.id)
       DmsfOnlyofficeHistory.store!(revision: revision, source: @session.source_revision,
-                                  metadata: @payload['history'], io: changes)
+                                   metadata: @payload['history'], io: changes)
     end
     finish_publication(recovery, revision, revision_id: revision_id)
     Result.new(revision: revision, recovery: recovery, published: false, duplicate: true, state: 'saved')
@@ -229,6 +245,6 @@ class DmsfOnlyofficeCapture
     DmsfOnlyofficeRecovery.remove_completed_snapshots!(@session, final: recovery)
     warning = @session.recoveries.pending.where.not(reason: [nil, '']).order(id: :desc).pick(:reason)
     @session.update!(state: 'saved', saved_revision_id: revision_id, last_error: warning,
-                      closed_at: @session.closed_at || Time.current, last_callback_at: Time.current)
+                     closed_at: @session.closed_at || Time.current, last_callback_at: Time.current)
   end
 end

@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require 'digest'
 
 # An acquired working copy can be retained without becoming a DMSF revision.
@@ -47,9 +64,9 @@ class DmsfOnlyofficeRecovery < ApplicationRecord
         # upload to after_commit, which could leave a database row without bytes.
         restored_blob = result.restored_revision&.file&.blob if result.state == 'imported'
         blob = restored_blob || DmsfOnlyofficeBlob.upload!(io: io, filename: result.filename,
-                                                         content_type: content_type, identify: false)
+                                                           content_type: content_type, identify: false)
         result.size = blob.byte_size
-        result.payload.attach(blob)
+        result.payload.attach blob
       end
       result.save!
       result.prune_older_snapshots! if kind == 'snapshot' && result.state == 'pending' && result.reason.blank?
@@ -60,20 +77,20 @@ class DmsfOnlyofficeRecovery < ApplicationRecord
   end
 
   def mark_imported!(revision)
-    update!(state: 'imported', restored_revision: revision)
+    update! state: 'imported', restored_revision: revision
   end
 
   def self.request_receipts(*entries)
     entries.flat_map { |entry| Array(entry['request_ids']) + Array(entry['userdata']) }
-           .map(&:to_s).reject(&:blank?).uniq.last(20)
+           .map(&:to_s).compact_blank.uniq.last 20
   end
 
   def record_request_receipts!(incoming)
-    update!(metadata: metadata.merge('request_ids' => self.class.request_receipts(metadata, incoming)))
+    update! metadata: metadata.merge('request_ids' => self.class.request_receipts(metadata, incoming))
   end
 
   def as_conflict!(reason)
-    as_kind!('conflict', reason: reason)
+    as_kind! 'conflict', reason: reason
   end
 
   def as_kind!(kind, reason: nil)

@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require File.expand_path('../test_helper', __dir__)
 require 'tempfile'
 
@@ -116,7 +133,7 @@ class DmsfOnlyofficeActionsControllerTest < RedmineDmsf::Test::TestCase
   def test_pdf_publication_retry_returns_the_same_document_without_a_second_upload_hook
     @revision.update!(workflow: DmsfWorkflow::STATE_APPROVED)
     RedmineDmsf::OnlyOffice.expects(:convert).once
-                          .returns('endConvert' => true, 'fileUrl' => 'https://office.example.test/cache/export.pdf')
+                           .returns('endConvert' => true, 'fileUrl' => 'https://office.example.test/cache/export.pdf')
     RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile('%PDF-1.7 retained output'))
     Redmine::Hook.expects(:call_hook).with(:dmsf_helper_upload_after_commit, kind_of(Hash)).once
 
@@ -216,11 +233,11 @@ class DmsfOnlyofficeActionsControllerTest < RedmineDmsf::Test::TestCase
   def test_second_collaborator_can_request_a_force_save_on_the_shared_key
     key = 'shared-authors-session'
     first = DmsfOnlyofficeSession.register!(file: @file1, revision: @revision, user: @admin,
-                                           mode: 'edit', document_key: key)
-    second = DmsfOnlyofficeSession.register!(file: @file1, revision: @revision, user: @jsmith,
                                             mode: 'edit', document_key: key)
+    second = DmsfOnlyofficeSession.register!(file: @file1, revision: @revision, user: @jsmith,
+                                             mode: 'edit', document_key: key)
     RedmineDmsf::OnlyOffice.expects(:command).with('forcesave', has_entries(key: key))
-                          .returns('error' => 0, 'key' => key)
+                           .returns('error' => 0, 'key' => key)
 
     assert_no_difference 'DmsfFileRevision.count' do
       post "/dmsf/files/#{@file1.id}/onlyoffice/forcesave", params: { key: key }

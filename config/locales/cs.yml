@@ -449,6 +449,8 @@ cs:
   label_dmsf_onlyoffice: ONLYOFFICE Docs
   label_dmsf_onlyoffice_view: Zobrazit v ONLYOFFICE
   label_dmsf_onlyoffice_edit: Upravit v ONLYOFFICE
+  label_dmsf_onlyoffice_read_action: Číst
+  label_dmsf_onlyoffice_edit_action: Upravit
   label_dmsf_onlyoffice_use_official_settings: Použij nastavení ONLYOFFICE Redmine pluginu
   note_dmsf_onlyoffice_use_official_settings: Použij nastavení dokument serveru, interní adresy, JWT a TLS z officiálního onlyoffice_redmine pluginu.
   label_dmsf_onlyoffice_document_server_url: Adresa služby pro editování dokumentů

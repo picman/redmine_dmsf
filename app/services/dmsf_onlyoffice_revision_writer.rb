@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 # Shared publication path for callbacks, restored revisions and recovered files.
 class DmsfOnlyofficeRevisionWriter
   class Conflict < RedmineDmsf::OnlyOffice::Error; end
@@ -30,14 +47,15 @@ class DmsfOnlyofficeRevisionWriter
     end
   end
 
-  def self.call(file:, source:, user:, io: nil, filename: nil, content_type: nil, comment: nil, key: nil,
-                expected_revision_id:, major: false, permission: :file_manipulation)
+  def self.call(file:, source:, user:, expected_revision_id:, io: nil, filename: nil, content_type: nil, comment: nil,
+                key: nil, major: false, permission: :file_manipulation)
     new.call(file: file, source: source, user: user, io: io, filename: filename, content_type: content_type,
              comment: comment, key: key, expected_revision_id: expected_revision_id, major: major,
              permission: permission)
   end
 
-  def call(file:, source:, user:, io:, filename:, content_type:, comment:, key:, expected_revision_id:, major:, permission:)
+  def call(file:, source:, user:, io:, filename:, content_type:, comment:, key:, expected_revision_id:, major:,
+           permission:)
     DmsfOnlyofficeSession.with_user(user) do
       revision = nil
       DmsfFile.transaction do
@@ -55,6 +73,7 @@ class DmsfOnlyofficeRevisionWriter
         unless current && current.id == expected_revision_id.to_i
           raise Conflict, 'A newer DMSF revision was created while the document was open'
         end
+
         begin
           source&.reload
         rescue ActiveRecord::RecordNotFound
@@ -104,9 +123,9 @@ class DmsfOnlyofficeRevisionWriter
 
   def check_permission!(file, user, permission)
     mode = DmsfOnlyofficeSession::MODE_PERMISSIONS.key(permission.to_sym)
-    unless mode && DmsfOnlyofficeSession.allowed_mode?(file: file, user: user, mode: mode)
-      raise PermissionDenied, 'The user is no longer allowed to publish this document'
-    end
+    return if mode && DmsfOnlyofficeSession.allowed_mode?(file: file, user: user, mode: mode)
+
+    raise PermissionDenied, 'The user is no longer allowed to publish this document'
   end
 
   def increase_version(revision, component)
@@ -128,7 +147,7 @@ class DmsfOnlyofficeRevisionWriter
     elsif io
       io.rewind
       blob = DmsfOnlyofficeBlob.upload!(io: io, filename: revision.name,
-                                       content_type: content_type || source.content_type, identify: false)
+                                        content_type: content_type || source.content_type, identify: false)
       revision.size = blob.byte_size
       revision.shared_file.attach(blob)
     else

@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 # Recovery copies have their own lifetime and are never part of minor-revision retention.
 class DmsfOnlyofficeRecoveryController < ApplicationController
   menu_item :dmsf
@@ -10,7 +27,7 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
 
   def index
     scope = DmsfOnlyofficeRecovery.joins(:dmsf_onlyoffice_session)
-                                 .where(dmsf_onlyoffice_sessions: { dmsf_file_id: @file.id })
+                                  .where(dmsf_onlyoffice_sessions: { dmsf_file_id: @file.id })
     @page = [params[:page].to_i, 1].max
     @total = scope.count
     @recoveries = scope.order(created_at: :desc).offset((@page - 1) * 50).limit(50)
@@ -20,12 +37,13 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
     response.headers['Cache-Control'] = 'no-store'
     @recovery.payload.open do |io|
       send_data io.read, filename: @recovery.filename, type: @recovery.content_type,
-                        disposition: 'attachment'
+                         disposition: 'attachment'
     end
   end
 
   def restore
     return render_403 unless User.current.allowed_to?(:file_manipulation, @project)
+
     with_recovery_lock do
       # Check under the session lock: a submission can arrive during recovery.
       raise RedmineDmsf::OnlyOffice::Error, 'Save this form as a new document' if @recovery.form_submission?
@@ -57,10 +75,13 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
           RedmineDmsf::OnlyOffice.extension(@recovery.filename)
         )
         @recovery.payload.open do |io|
-          created = DmsfOnlyofficeDocumentCreator.call(source: @file.dmsf_file_revisions.visible.first, user: User.current,
-                                                       io: io, filename: filename,
-                                                       comment: "Recovered ONLYOFFICE #{@recovery.kind} ##{@recovery.id}")
-          @recovery.update!(state: 'imported', restored_revision_id: created.last_revision.id)
+          comment = "Recovered ONLYOFFICE #{@recovery.kind} ##{@recovery.id}"
+          created = DmsfOnlyofficeDocumentCreator.call(source: @file.dmsf_file_revisions.visible.first,
+                                                       user: User.current,
+                                                       io: io,
+                                                       filename: filename,
+                                                       comment: comment)
+          @recovery.update! state: 'imported', restored_revision_id: created.last_revision.id
         end
       end
     end
@@ -118,7 +139,8 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
 
     @file = DmsfFile.visible.find(params[:id])
     @project = @file.project
-    return if User.current.active? && DmsfOnlyofficeSession.allowed_mode?(file: @file, user: User.current, mode: 'view') &&
+    return if User.current.active? && DmsfOnlyofficeSession.allowed_mode?(file: @file, user: User.current,
+                                                                          mode: 'view') &&
               User.current.allowed_to?(:file_manipulation, @project) &&
               DmsfFolder.permissions?(@file.dmsf_folder, allow_system: true, file: true)
 
@@ -129,8 +151,8 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
 
   def load_recovery
     @recovery = DmsfOnlyofficeRecovery.joins(:dmsf_onlyoffice_session)
-                                     .where(dmsf_onlyoffice_sessions: { dmsf_file_id: @file.id })
-                                     .find(params[:recovery_id])
+                                      .where(dmsf_onlyoffice_sessions: { dmsf_file_id: @file.id })
+                                      .find(params[:recovery_id])
     raise ActiveRecord::RecordNotFound unless @recovery.payload.attached?
   rescue ActiveRecord::RecordNotFound
     render_404
@@ -142,6 +164,7 @@ class DmsfOnlyofficeRecoveryController < ApplicationController
 
     items.first(1000).each_with_object({}) do |item, result|
       next unless item.is_a?(Hash) && item['key'].is_a?(String)
+
       value = item['value']
       next unless value.is_a?(String) || value.is_a?(Numeric) || [true, false].include?(value)
 

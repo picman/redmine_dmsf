@@ -1,3 +1,22 @@
+# frozen_string_literal: true
+
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 # Run with rails runner against the existing disposable qa_r3 database only.
 # Controller methods and their authorization filters are invoked directly;
 # presentation and ONLYOFFICE transport are replaced, not permission checks.
@@ -5,6 +24,7 @@ require 'stringio'
 require 'tmpdir'
 require 'json'
 require 'action_dispatch/testing/test_request'
+require 'probe_transport'
 
 raise 'Use qa_r3, never the application database' unless
   ActiveRecord::Base.connection_db_config.database == 'qa_r3'
@@ -12,6 +32,7 @@ raise 'Use qa_r3, never the application database' unless
 Rails.logger.level = Logger::ERROR
 storage = ActiveStorage::Blob.service
 raise 'Expected Disk storage' unless storage.is_a?(ActiveStorage::Service::DiskService)
+
 original_root = storage.root
 probe_root = Dir.mktmpdir('dmsf-independent-review-')
 storage.instance_variable_set(:@root, probe_root)
@@ -27,42 +48,20 @@ def controller(klass, parameters)
   instance.params = ActionController::Parameters.new(parameters)
   instance.define_singleton_method(:render) { |**options| @probe_response = options }
   instance.define_singleton_method(:redirect_to) { |*args| @probe_redirect = args }
-  instance.define_singleton_method(:flash) { @probe_flash ||= {} }
+  instance.define_singleton_method(:flash) { @flash ||= {} }
   instance
 end
 
 def document(project, user, name, bytes)
   file = DmsfFile.create!(project: project)
   revision = DmsfFileRevision.new(dmsf_file: file, user: user, name: name,
-                                 title: name, major_version: 1, minor_version: 0, size: bytes.bytesize)
+                                  title: name, major_version: 1, minor_version: 0, size: bytes.bytesize)
   blob = DmsfOnlyofficeBlob.upload!(io: StringIO.new(bytes), filename: name,
-                                   content_type: Redmine::MimeType.of(name), identify: false)
+                                    content_type: Redmine::MimeType.of(name), identify: false)
   revision.shared_file.attach(blob)
   revision.save!
   [file, revision]
 end
-
-module ProbeTransport
-  def convert(parameters)
-    $probe_conversion = parameters
-    { 'error' => 0, 'endConvert' => false }
-  end
-
-  def command(command, **parameters)
-    raise "Unexpected command #{command}" unless command == 'getForgotten'
-    { 'error' => 0, 'url' => 'https://office.example.test/forgotten.pdf' }
-  end
-
-  def download_to_tempfile(url, **parameters)
-    raise 'Unexpected download' unless url == 'https://office.example.test/forgotten.pdf'
-    io = Tempfile.new(['independent-forgotten-', '.pdf'])
-    io.binmode
-    io.write('%PDF-1.7 Filled personal data')
-    io.rewind
-    io
-  end
-end
-RedmineDmsf::OnlyOffice.singleton_class.prepend(ProbeTransport)
 
 before = [DmsfFile.count, DmsfFileRevision.count, DmsfOnlyofficeSession.count, DmsfOnlyofficeOperation.count]
 ActiveRecord::Base.transaction do
@@ -78,6 +77,7 @@ ActiveRecord::Base.transaction do
   project.enable_module!(:dmsf)
   author = User.find_by!(login: 'jsmith')
   raise 'Expected a non-admin author' if author.admin?
+
   author.roles_for_project(project).each do |role|
     role.remove_permission!(:view_dmsf_file_revisions)
     role.add_permission!(:view_dmsf_files)
@@ -97,6 +97,7 @@ ActiveRecord::Base.transaction do
   actions.send(:load_file)
   actions.send(:require_file_writer)
   raise 'Unexpected authorization rejection' if actions.instance_variable_get(:@probe_response)
+
   history = controller(DmsfOnlyofficeHistoryController, id: file.id)
   history_allowed = history.send(:history_allowed?, DmsfFile.find(file.id))
   actions.publish_pdf
@@ -106,7 +107,7 @@ ActiveRecord::Base.transaction do
   download_token = URI.decode_www_form(URI.parse($probe_conversion.fetch(:url)).query).to_h.fetch('token')
   download = controller(DmsfOnlyofficeController, id: file.id, token: download_token)
   download.set_response!(ActionDispatch::Response.new)
-  download.define_singleton_method(:send_file) { |path, **options| @probe_bytes = File.binread(path) }
+  download.define_singleton_method(:send_file) { |path, **_options| @probe_bytes = File.binread(path) }
   download.send(:require_onlyoffice)
   download.download
   report('N1', history_allowed: history_allowed,
@@ -120,16 +121,17 @@ ActiveRecord::Base.transaction do
   User.current = admin
   template, base = document(project, admin, "form-#{SecureRandom.hex(6)}.pdf", '%PDF-1.7 Blank template')
   session = DmsfOnlyofficeSession.register!(file: template, revision: base, user: admin,
-                                          mode: 'fill', document_key: "review-fill-#{SecureRandom.uuid}")
+                                            mode: 'fill', document_key: "review-fill-#{SecureRandom.uuid}")
   recovery_admin = controller(DmsfOnlyofficeAdminController, session_id: session.id)
   recovery_admin.send(:require_admin)
   recovery_admin.recover_forgotten
   receipt = session.recoveries.first!
   recovery_controller = controller(DmsfOnlyofficeRecoveryController,
-    id: template.id, recovery_id: receipt.id, expected_revision_id: base.id)
+                                   id: template.id, recovery_id: receipt.id, expected_revision_id: base.id)
   recovery_controller.send(:load_file)
   recovery_controller.send(:load_recovery)
   raise 'Unexpected recovery authorization rejection' if recovery_controller.instance_variable_get(:@probe_response)
+
   recovery_controller.restore
   head = DmsfFile.find(template.id).last_revision
   report('N2', mode: session.mode, recovery_kind: receipt.kind,

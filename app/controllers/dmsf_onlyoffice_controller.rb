@@ -190,7 +190,7 @@ class DmsfOnlyofficeController < ApplicationController
 
       key = DmsfOnlyofficeSession.key_for_editor(file: @file, revision: @revision, user: User.current, mode: mode)
       @onlyoffice_session = DmsfOnlyofficeSession.register!(file: @file, revision: @revision,
-                                                          user: User.current, mode: mode, document_key: key)
+                                                            user: User.current, mode: mode, document_key: key)
     end
     download_token = RedmineDmsf::OnlyOffice.storage_token(
       file: @file, revision: @revision, user: User.current, purpose: 'download', key: key

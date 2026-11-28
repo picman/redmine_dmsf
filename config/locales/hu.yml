@@ -446,6 +446,8 @@ hu:
   label_dmsf_onlyoffice: ONLYOFFICE Docs
   label_dmsf_onlyoffice_view: View in ONLYOFFICE
   label_dmsf_onlyoffice_edit: Edit in ONLYOFFICE
+  label_dmsf_onlyoffice_read_action: Read
+  label_dmsf_onlyoffice_edit_action: Edit
   label_dmsf_onlyoffice_use_official_settings: Use ONLYOFFICE Redmine plugin settings
   note_dmsf_onlyoffice_use_official_settings: Reuse the Document Server, internal addresses, JWT and TLS settings configured by the official onlyoffice_redmine plugin.
   label_dmsf_onlyoffice_document_server_url: Document Editing Service address

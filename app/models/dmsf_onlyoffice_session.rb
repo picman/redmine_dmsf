@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require 'securerandom'
 
 # A key identifies one collaborative editing session, not one browser or author.
@@ -18,7 +35,7 @@ class DmsfOnlyofficeSession < ApplicationRecord
   belongs_to :saved_revision, class_name: 'DmsfFileRevision', optional: true
   belongs_to :user, optional: true
   has_many :recoveries, class_name: 'DmsfOnlyofficeRecovery', dependent: :destroy,
-                       inverse_of: :dmsf_onlyoffice_session
+                        inverse_of: :dmsf_onlyoffice_session
 
   serialize :participants, coder: JSON, type: Array
   serialize :connected_users, coder: JSON, type: Array
@@ -92,6 +109,7 @@ class DmsfOnlyofficeSession < ApplicationRecord
       unless allowed_mode?(file: file, user: user, mode: mode)
         raise RedmineDmsf::OnlyOffice::InvalidToken, 'The editor mode is no longer permitted'
       end
+
       revision.reload
       unless revision.dmsf_file_id == file.id && revision.visible? && revision.file.attached?
         raise ActiveRecord::RecordNotFound, 'The editor source is no longer available'
@@ -148,7 +166,7 @@ class DmsfOnlyofficeSession < ApplicationRecord
         source = DmsfFileRevision.find(claims.fetch('revision_id'))
         raise ActiveRecord::RecordNotFound unless source.dmsf_file_id == file.id
 
-        deadline = Time.at(claims.fetch('exp').to_i)
+        deadline = Time.zone.at(claims.fetch('exp').to_i)
         session.assign_attributes(dmsf_file: file, source_revision: source, user_id: claims['user_id'],
                                   mode: mode, expires_at: deadline, state: 'active', participants: [],
                                   source_filename: source.name, source_content_type: source.content_type)

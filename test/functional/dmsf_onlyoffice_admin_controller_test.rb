@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require File.expand_path('../test_helper', __dir__)
 require 'stringio'
 require 'tempfile'
@@ -17,7 +34,7 @@ class DmsfOnlyofficeAdminControllerTest < RedmineDmsf::Test::TestCase
     @session.update!(state: 'recovery')
     # Document Server presence is queried before any destructive cleanup.
     RedmineDmsf::OnlyOffice.stubs(:command).with('info', key: @session.document_key)
-                          .returns('error' => 0, 'key' => @session.document_key, 'users' => [])
+                           .returns('error' => 0, 'key' => @session.document_key, 'users' => [])
     post '/login', params: { username: 'admin', password: 'admin' }
   end
 
@@ -40,7 +57,7 @@ class DmsfOnlyofficeAdminControllerTest < RedmineDmsf::Test::TestCase
   def test_inventory_only_exposes_keys_registered_by_this_redmine_instance
     foreign_key = 'foreign-redmine-sensitive-document-key'
     RedmineDmsf::OnlyOffice.expects(:command).with('getForgottenList')
-                          .returns('error' => 0, 'keys' => [@session.document_key, foreign_key])
+                           .returns('error' => 0, 'keys' => [@session.document_key, foreign_key])
 
     post '/dmsf/onlyoffice/admin/forgotten'
 
@@ -73,7 +90,7 @@ class DmsfOnlyofficeAdminControllerTest < RedmineDmsf::Test::TestCase
   def test_importing_forgotten_bytes_does_not_delete_the_remote_copy
     content = 'Work recovered from the Document Server'
     RedmineDmsf::OnlyOffice.expects(:command).with('getForgotten', key: @session.document_key)
-                          .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
+                           .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
     RedmineDmsf::OnlyOffice.expects(:command).with('deleteForgotten', key: @session.document_key).never
     RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile(content))
 
@@ -91,7 +108,7 @@ class DmsfOnlyofficeAdminControllerTest < RedmineDmsf::Test::TestCase
   def test_a_changed_remote_copy_cannot_be_deleted_using_an_older_receipt
     store_recovery('Previously recovered contents')
     RedmineDmsf::OnlyOffice.expects(:command).with('getForgotten', key: @session.document_key)
-                          .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
+                           .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
     RedmineDmsf::OnlyOffice.expects(:command).with('deleteForgotten', key: @session.document_key).never
     RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile('Newer unrecovered contents'))
 
@@ -105,9 +122,9 @@ class DmsfOnlyofficeAdminControllerTest < RedmineDmsf::Test::TestCase
     content = 'Durably recovered document'
     recovery = store_recovery(content)
     RedmineDmsf::OnlyOffice.expects(:command).with('getForgotten', key: @session.document_key)
-                          .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
+                           .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
     RedmineDmsf::OnlyOffice.expects(:command).with('deleteForgotten', key: @session.document_key)
-                          .returns('error' => 0, 'key' => @session.document_key)
+                           .returns('error' => 0, 'key' => @session.document_key)
     RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile(content))
 
     assert_no_difference 'DmsfOnlyofficeRecovery.count' do
@@ -124,7 +141,7 @@ class DmsfOnlyofficeAdminControllerTest < RedmineDmsf::Test::TestCase
     @session.reload
     assert_nil @session.source_revision
     RedmineDmsf::OnlyOffice.expects(:command).with('getForgotten', key: @session.document_key)
-                          .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
+                           .returns('error' => 0, 'url' => 'https://office.example.test/cache/forgotten.txt')
     RedmineDmsf::OnlyOffice.stubs(:download_to_tempfile).returns(tempfile('Recoverable after retention'))
 
     assert_difference 'DmsfOnlyofficeRecovery.count', 1 do

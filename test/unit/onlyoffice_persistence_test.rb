@@ -1,8 +1,26 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require File.expand_path('../test_helper', __dir__)
 require 'stringio'
 
+# ONLYOFFICE Persistence tests
 class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
   def setup
     super
@@ -21,10 +39,10 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
 
   def test_collaborators_share_a_key_without_replacing_its_owner_or_shortening_expiry
     first = DmsfOnlyofficeSession.register!(file: @file1, revision: @source, user: @jsmith,
-                                           mode: 'edit', document_key: @key, expires_at: 1.hour.from_now)
+                                            mode: 'edit', document_key: @key, expires_at: 1.hour.from_now)
     first_expiry = first.reload.expires_at
     joined = DmsfOnlyofficeSession.register!(file: @file1, revision: @source, user: @admin,
-                                            mode: 'comment', document_key: @key, expires_at: 1.minute.from_now)
+                                             mode: 'comment', document_key: @key, expires_at: 1.minute.from_now)
     assert_equal first.id, joined.id
     assert_equal @jsmith.id, joined.user_id
     assert_equal 'edit', joined.mode
@@ -67,7 +85,7 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
     assert_nil session.closed_at
     assert_equal session.document_key, editor_key(@admin, 'edit')
     joined = DmsfOnlyofficeSession.register!(file: @file1, revision: @source, user: @admin,
-                                            mode: 'edit', document_key: editor_key(@admin, 'edit'))
+                                             mode: 'edit', document_key: editor_key(@admin, 'edit'))
     assert_equal session.id, joined.id
     assert_equal 'active', joined.state
   end
@@ -87,7 +105,7 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
   def test_a_form_uses_a_new_generation_only_after_the_terminal_callback
     key = editor_key(@jsmith, 'fill')
     session = DmsfOnlyofficeSession.register!(file: @file1, revision: @source, user: @jsmith,
-                                             mode: 'fill', document_key: key)
+                                              mode: 'fill', document_key: key)
     assert_not_equal key, editor_key(@admin, 'fill')
     session.record_callback!(next_state: 'submitted')
     assert_equal key, editor_key(@jsmith, 'fill')
@@ -95,7 +113,7 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
     new_key = editor_key(@jsmith, 'fill')
     assert_not_equal key, new_key
     reopened = DmsfOnlyofficeSession.register!(file: @file1, revision: @source, user: @jsmith,
-                                              mode: 'fill', document_key: new_key)
+                                               mode: 'fill', document_key: new_key)
     assert_not_equal session.id, reopened.id
     assert_equal @source.id, reopened.source_revision_id
     assert_equal new_key, editor_key(@jsmith, 'fill')
@@ -125,7 +143,7 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
     @file1.save!
 
     restored = DmsfOnlyofficeRevisionWriter.call(file: @file1, source: @source, user: @jsmith,
-                                                expected_revision_id: newer.id, key: 'restore-monotonic')
+                                                 expected_revision_id: newer.id, key: 'restore-monotonic')
     assert_equal 8, restored.major_version
     assert_equal 6, restored.minor_version
     assert_nil restored.patch_version
@@ -175,8 +193,8 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
     revision = nil
     assert_no_difference 'ActiveStorage::Blob.count' do
       revision = DmsfOnlyofficeRevisionWriter.call(file: @file1, source: @source, user: @jsmith,
-                                                  io: capture.payload.blob, filename: capture.filename,
-                                                  expected_revision_id: @source.id, key: @key)
+                                                   io: capture.payload.blob, filename: capture.filename,
+                                                   expected_revision_id: @source.id, key: @key)
     end
     assert_equal capture.payload.blob.id, revision.file.blob.id
     assert_equal 'captured bytes', revision.file.download
@@ -213,8 +231,8 @@ class OnlyofficePersistenceTest < RedmineDmsf::Test::UnitTest
                                         expected_revision_id: @source.id)
     end
     revision = DmsfOnlyofficeRevisionWriter.call(file: @file1, source: @source, user: @jsmith,
-                                                expected_revision_id: @source.id,
-                                                permission: :review_dmsf_files)
+                                                 expected_revision_id: @source.id,
+                                                 permission: :review_dmsf_files)
     assert_equal @jsmith.id, revision.user_id
   end
 

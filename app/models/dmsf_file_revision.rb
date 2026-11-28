@@ -388,7 +388,7 @@ class DmsfFileRevision < ApplicationRecord
     derived_revisions = DmsfFileRevision.where(source_dmsf_file_revision_id: id).order(:id).lock.to_a
     inherited_revisions = derived_revisions.reject { |revision| revision.shared_file.attached? }
     file_owner = inherited_revisions.first if shared_file.attached?
-    file_owner.shared_file.attach(shared_file.blob) if file_owner
+    file_owner&.shared_file&.attach(shared_file.blob)
 
     derived_revisions.each do |revision|
       # Every branch that inherited our bytes must continue to reference those
@@ -415,8 +415,7 @@ class DmsfFileRevision < ApplicationRecord
 
   def purge_deleted_file
     blob = @deleted_file_blob
-    return unless blob
-    return if blob.attachments.where.not(record_type: self.class.name, record_id: id).exists?
+    return unless blob&.attachments&.exists?(record_type: self.class.name, record_id: id)
 
     RemoveFromIndexJob.schedule(blob.key) if blob.metadata['xapian'] && RedmineDmsf.xapian_available
     blob.purge_later if @physically_delete_file

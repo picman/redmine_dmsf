@@ -1,5 +1,22 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 # Browser-initiated operations require a live Redmine session and CSRF protection.
 class DmsfOnlyofficeActionsController < ApplicationController
   menu_item :dmsf
@@ -41,11 +58,13 @@ class DmsfOnlyofficeActionsController < ApplicationController
     return render_403 unless User.current.active? && item.participants.include?(User.current.id.to_s) && can_save
     raise RedmineDmsf::OnlyOffice::Error, 'This editing session has ended; reopen the editor' unless
       %w[active snapshot error recovery submitted].include?(item.state) &&
-        item.closed_at.nil? && item.expires_at > Time.current
+      item.closed_at.nil? && item.expires_at > Time.current
 
     request_id = SecureRandom.uuid
-    result = RedmineDmsf::OnlyOffice.command('forcesave', key: item.document_key,
-                                            userdata: { request_id: request_id, user_id: User.current.id }.to_json)
+    result = RedmineDmsf::OnlyOffice.command(
+      'forcesave',
+      key: item.document_key, userdata: { request_id: request_id, user_id: User.current.id }.to_json
+    )
     raise RedmineDmsf::OnlyOffice::Error, "ONLYOFFICE forcesave error #{result['error']}" unless
       [0, 4].include?(result['error'].to_i)
 
@@ -81,8 +100,8 @@ class DmsfOnlyofficeActionsController < ApplicationController
     filename = DmsfOnlyofficeDocumentCreator.filename(params[:title], params[:file_type] || params[:fileType])
     tempfile = RedmineDmsf::OnlyOffice.download_to_tempfile(params.require(:url), max_bytes: max_bytes)
     created = DmsfOnlyofficeDocumentCreator.call(source: source, user: User.current, io: tempfile,
-                                                filename: filename, folder: destination_folder,
-                                                comment: "ONLYOFFICE copy of DMSF revision ##{source.id}")
+                                                 filename: filename, folder: destination_folder,
+                                                 comment: "ONLYOFFICE copy of DMSF revision ##{source.id}")
     created_response(created, notify_hook: true)
   ensure
     tempfile&.close!
@@ -126,7 +145,8 @@ class DmsfOnlyofficeActionsController < ApplicationController
       fields = { 'project.id' => @project.id, 'project.name' => @project.name,
                  'author.name' => User.current.name, 'date' => Date.current.iso8601 }
       if issue
-        fields.merge!('issue.id' => issue.id, 'issue.subject' => issue.subject, 'issue.description' => issue.description)
+        fields.merge!('issue.id' => issue.id, 'issue.subject' => issue.subject,
+                      'issue.description' => issue.description)
         issue.visible_custom_field_values(User.current).each do |value|
           fields["issue.cf.#{value.custom_field_id}"] = Array(value.value).join(', ')
         end
@@ -144,8 +164,8 @@ class DmsfOnlyofficeActionsController < ApplicationController
     claims = RedmineDmsf::OnlyOffice.decode_storage_token(params[:token], purpose: 'builder_script')
     operation = DmsfOnlyofficeOperation.find(claims.fetch('operation_id'))
     raise ActiveRecord::RecordNotFound unless operation.kind == 'template' && operation.state == 'pending' &&
-                                             operation.user_id == claims['user_id'] &&
-                                             operation.source_revision_id == claims['revision_id']
+                                              operation.user_id == claims['user_id'] &&
+                                              operation.source_revision_id == claims['revision_id']
 
     User.current = operation.user
     validate_operation_access!(operation)
@@ -181,8 +201,10 @@ class DmsfOnlyofficeActionsController < ApplicationController
       user.allowed_to?(:view_dmsf_files, @project) && folder_visible_to?(user)
     end
     # Opaque addresses avoid exposing project members' actual email addresses to the editor.
-    render json: { users: candidates.map { |user| { id: user.id.to_s, name: user.name,
-                                                   email: "dmsf-user-#{user.id}@redmine.invalid" } } }
+    render json: { users: candidates.map do |user|
+      { id: user.id.to_s, name: user.name,
+        email: "dmsf-user-#{user.id}@redmine.invalid" }
+    end }
   end
 
   def action_link
@@ -276,6 +298,7 @@ class DmsfOnlyofficeActionsController < ApplicationController
       if kind == 'pdf' && revision.workflow != DmsfWorkflow::STATE_APPROVED
         raise RedmineDmsf::OnlyOffice::Error, 'The source revision is no longer approved'
       end
+
       DmsfOnlyofficeOperation.create!(kind: kind, request_key: SecureRandom.uuid, dmsf_file: @file,
                                       source_revision: revision, user: User.current, folder: folder,
                                       filename: filename, parameters: {})
@@ -294,7 +317,8 @@ class DmsfOnlyofficeActionsController < ApplicationController
     source = operation.source_revision
     unless RedmineDmsf::OnlyOffice.enabled? && operation.user&.active? && file && !file.deleted? &&
            file.project.active? && DmsfOnlyofficeSession.folder_available?(operation.folder) &&
-           (!operation.folder || (operation.folder.project_id == file.project_id && !operation.folder.locked_for_user?)) &&
+           (!operation.folder ||
+             (operation.folder.project_id == file.project_id && !operation.folder.locked_for_user?)) &&
            source&.visible? && !source.dmsf_file.deleted? &&
            DmsfOnlyofficeSession.allowed_mode?(file: source.dmsf_file, user: operation.user, mode: 'view') &&
            operation.user.allowed_to?(:file_manipulation, file.project) &&
@@ -304,7 +328,7 @@ class DmsfOnlyofficeActionsController < ApplicationController
            DmsfFolder.permissions?(operation.folder, allow_system: true, file: true)
       raise RedmineDmsf::OnlyOffice::Error, 'The operation is no longer authorized'
     end
-    if operation.kind == 'template' && !RedmineDmsf.onlyoffice_template_revision_ids.include?(source.id)
+    if operation.kind == 'template' && RedmineDmsf.onlyoffice_template_revision_ids.exclude?(source.id)
       raise RedmineDmsf::OnlyOffice::Error, 'This template is no longer enabled'
     end
     if operation.kind == 'pdf' && source.workflow != DmsfWorkflow::STATE_APPROVED
@@ -404,14 +428,17 @@ class DmsfOnlyofficeActionsController < ApplicationController
   def document_download_url(revision, token)
     RedmineDmsf::OnlyOffice.internal_redmine_url(
       dmsf_onlyoffice_download_url(revision.dmsf_file, filename: revision.name, token: token,
-                                   protocol: Setting.protocol, host: Setting.host_name)
+                                                       protocol: Setting.protocol, host: Setting.host_name)
     )
   end
 
   def document_action_link
     link = params[:action_link] || params[:actionLink] || {}
     link = link.to_unsafe_h if link.is_a?(ActionController::Parameters)
-    raise RedmineDmsf::OnlyOffice::Error, 'Invalid document action link' unless link.is_a?(Hash) && link.to_json.bytesize <= 4096
+    unless link.is_a?(Hash) && link.to_json.bytesize <= 4096
+      raise RedmineDmsf::OnlyOffice::Error,
+            'Invalid document action link'
+    end
 
     dmsf_onlyoffice_view_url(@file, action_link: link.to_json, protocol: Setting.protocol, host: Setting.host_name)
   end
@@ -432,14 +459,15 @@ class DmsfOnlyofficeActionsController < ApplicationController
 
   def created_response(file, notify_hook: false)
     raise ActiveRecord::RecordNotFound unless file && !file.deleted? &&
-                                             DmsfOnlyofficeSession.allowed_mode?(file: file, user: User.current, mode: 'view')
+                                              DmsfOnlyofficeSession.allowed_mode?(file: file, user: User.current,
+                                                                                  mode: 'view')
 
     call_hook :dmsf_helper_upload_after_commit, { file: file } if notify_hook
     render json: { file_id: file.id, url: dmsf_file_path(file) }
   end
 
   def operation_error(error)
-    render json: { error: error.message }, status: :unprocessable_entity
+    render json: { error: error.message }, status: :unprocessable_content
   end
 
   def missing_record

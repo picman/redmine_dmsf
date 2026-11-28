@@ -1,10 +1,28 @@
 # frozen_string_literal: true
 
+# Redmine plugin for Document Management System "Features"
+#
+# Karel Pičman <karel.picman@kontron.com>
+#
+# This file is part of Redmine DMSF plugin.
+#
+# Redmine DMSF plugin is free software: you can redistribute it and/or modify it under the terms of the GNU General
+# Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# Redmine DMSF plugin is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with Redmine DMSF plugin. If not, see
+# <https://www.gnu.org/licenses/>.
+
 require File.expand_path('../test_helper', __dir__)
 require 'active_job/test_helper'
 require 'stringio'
 require 'digest'
 
+# ONLYOFFICE Blob tests
 class DmsfOnlyofficeBlobTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
@@ -140,7 +158,7 @@ class DmsfOnlyofficeBlobTest < ActiveSupport::TestCase
 
   def upload_document(bytes)
     blob = DmsfOnlyofficeBlob.upload!(io: StringIO.new(bytes), filename: 'test.docx',
-                                     content_type: 'application/octet-stream', identify: false)
+                                      content_type: 'application/octet-stream', identify: false)
     upload = { blob: blob, key: blob.key, service: blob.service }
     @uploaded << upload
     upload
