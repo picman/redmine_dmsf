@@ -1,0 +1,39 @@
+<% html_title l(:label_dmsf_onlyoffice) %>
+<h2><%= l(:label_dmsf_onlyoffice) %> — <%= l(:label_dmsf_onlyoffice_recovery) %></h2>
+<p><%= l(:note_dmsf_onlyoffice_admin_recovery) %></p>
+<p><%= l(:label_dmsf_onlyoffice_pending_copies) %>: <%= @pending_count %></p>
+<%= button_to l(:label_dmsf_onlyoffice_diagnostics), dmsf_onlyoffice_diagnostics_path, method: :post %>
+<%= button_to l(:label_dmsf_onlyoffice_find_forgotten), dmsf_onlyoffice_forgotten_path, method: :post %>
+<% if @diagnostics %>
+  <pre><%= JSON.pretty_generate(@diagnostics) %></pre>
+  <p><%= l(:note_dmsf_onlyoffice_diagnostics) %></p>
+<% end %>
+<% if @forgotten %>
+  <h3><%= l(:label_dmsf_onlyoffice_forgotten) %></h3>
+  <p><%= l(:note_dmsf_onlyoffice_unknown_keys, count: @unknown_count) %></p>
+  <table class="list"><tbody>
+    <% @forgotten.each do |item| %>
+      <tr><td><%= item.dmsf_file&.title || "##{item.dmsf_file_id}" %></td><td><%= item.document_key %></td><td>
+        <%= button_to l(:label_dmsf_onlyoffice_recover), dmsf_onlyoffice_recover_forgotten_path(session_id: item.id), method: :post %>
+        <% if DmsfOnlyofficeRecovery.exists?(dmsf_onlyoffice_session: item, kind: 'forgotten') %>
+          <%= button_to l(:label_dmsf_onlyoffice_delete_forgotten), dmsf_onlyoffice_delete_forgotten_path(session_id: item.id), method: :post,
+                        data: { confirm: l(:text_are_you_sure) } %>
+        <% end %>
+      </td></tr>
+    <% end %>
+  </tbody></table>
+<% end %>
+<h3><%= l(:label_dmsf_onlyoffice_sessions_to_recover) %></h3>
+<table class="list"><tbody>
+  <% @sessions.each do |item| %>
+    <tr><td><%= item.dmsf_file&.title || "##{item.dmsf_file_id}" %></td><td><%= item.state %></td><td><%= item.last_error %></td>
+      <td><%= link_to l(:label_dmsf_onlyoffice_recovery), dmsf_onlyoffice_recovery_path(item.dmsf_file_id) %></td></tr>
+  <% end %>
+</tbody></table>
+<h3><%= l(:label_dmsf_onlyoffice_pending_copies) %></h3>
+<table class="list"><tbody>
+  <% @recoveries.each do |recovery| %>
+    <tr><td>#<%= recovery.id %></td><td><%= recovery.filename %></td><td><%= recovery.kind %></td><td><%= recovery.reason %></td>
+      <td><%= link_to l(:button_download), dmsf_onlyoffice_admin_download_path(recovery_id: recovery.id) %></td></tr>
+  <% end %>
+</tbody></table>

@@ -68,6 +68,14 @@ Redmine::Plugin.register :redmine_dmsf do
              'dmsf_onlyoffice_editable_extensions' => RedmineDmsf::OnlyOffice::DEFAULT_EDITABLE_EXTENSIONS.join(','),
              'dmsf_onlyoffice_version_type' => 'minor',
              'dmsf_onlyoffice_token_ttl' => 86_400,
+             'dmsf_minor_revision_retention_enabled' => '0',
+             'dmsf_minor_revision_retention_limit' => 100,
+             'dmsf_onlyoffice_force_save_enabled' => '1',
+             'dmsf_onlyoffice_snapshot_limit' => 3,
+             'dmsf_onlyoffice_session_ttl' => 2_592_000,
+             'dmsf_onlyoffice_mobile_mode' => 'auto',
+             'dmsf_onlyoffice_template_revision_ids' => '',
+             'dmsf_onlyoffice_form_field_mapping' => '{}',
              'dmsf_global_menu_disabled' => '0',
              'dmsf_default_query' => '0',
              'empty_minor_version_by_default' => '0',
@@ -85,6 +93,9 @@ Redmine::MenuManager.map :admin_menu do |menu|
             icon: 'workflows',
             html: { class: 'icon icon-workflows' },
             if: proc { |_| User.current.admin? }
+  menu.push :dmsf_onlyoffice, :dmsf_onlyoffice_admin_path,
+            caption: :label_dmsf_onlyoffice,
+            if: proc { |_| User.current.admin? && RedmineDmsf::OnlyOffice.enabled? }
 end
 # Project menu extension
 Redmine::MenuManager.map :project_menu do |menu|
@@ -124,6 +135,8 @@ Redmine::AccessControl.map do |map|
                                autocomplete_for_user],
                       dmsf_files: %i[show view thumbnail],
                       dmsf_onlyoffice: [:view],
+                      dmsf_onlyoffice_actions: %i[session_status users action_link destinations templates],
+                      dmsf_onlyoffice_history: %i[index show asset compare],
                       dmsf_workflows: [:log]
                     },
                     read: true)
@@ -141,6 +154,9 @@ Redmine::AccessControl.map do |map|
                       dmsf_files: %i[create_revision lock unlock delete_revision obsolete_revision notify_activate
                                      notify_deactivate restore],
                       dmsf_onlyoffice: [:edit],
+                      dmsf_onlyoffice_actions: %i[forcesave rename save_as publish_pdf create_from_template notify],
+                      dmsf_onlyoffice_history: [:restore],
+                      dmsf_onlyoffice_recovery: %i[index download restore save_copy form_preview apply_form],
                       dmsf_upload: %i[upload_files upload commit_files commit delete_dmsf_attachment
                                       delete_dmsf_link_attachment multi_upload],
                       dmsf_links: %i[new create destroy restore autocomplete_for_project autocomplete_for_folder],
@@ -153,6 +169,9 @@ Redmine::AccessControl.map do |map|
                       dmsf_trash_context_menus: [:trash]
                     }
     pmap.permission :force_file_unlock, {}
+    pmap.permission :review_dmsf_files, {}
+    pmap.permission :comment_dmsf_files, {}
+    pmap.permission :fill_dmsf_forms, {}
     pmap.permission :file_approval,
                     { dmsf_workflows: %i[action new_action autocomplete_for_user start assign assignment] }
     pmap.permission :manage_workflows,

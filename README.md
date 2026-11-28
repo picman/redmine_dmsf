@@ -158,7 +158,8 @@ Configure the integration in **Administration → Plugins → DMSF → Configure
 * If the official `onlyoffice_redmine` plugin is installed, DMSF can reuse its server, JWT, internal URL, and TLS settings.
 * Leave `office_bin` empty when LibreOffice PDF previews are no longer required.
 
-After installing, don't forget to run the plugin migration so the callback can record an idempotency key for each saved DMSF revision:
+After installing or updating, run the plugin migrations for revision keys, collaborative sessions, recovery copies,
+history archives and document operations:
 
 ```
 RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=redmine_dmsf
@@ -167,9 +168,18 @@ RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=redmine_dmsf
 The Document Server must be able to download signed DMSF URLs and POST callbacks to Redmine. Redmine must be able to
 download the saved file URL returned by the Document Server.
 
-DMSF persists the final ONLYOFFICE callback (status `2`) as a new revision. Force-save callbacks are deliberately not
-stored as revisions, which avoids creating a new DMSF version for every automatic save. If another DMSF revision is
-uploaded while the editor is open, the callback is rejected rather than replacing newer work.
+DMSF persists the final ONLYOFFICE callback (status `2`) as a new revision. Force-save callbacks (`6`) are acquired as
+bounded recovery snapshots, separate from revision history. Collaborators editing the same revision share one document
+key; duplicate final callbacks create only one revision. If the current revision, lock or permissions have changed,
+the received work is retained for explicit recovery. Submitted PDF forms are kept separately from their template.
+
+Optional minor-revision retention has an enable checkbox and a configurable limit (default **100**, initially disabled).
+It applies to DMSF minor/patch revisions from all sources and always preserves major releases. Editing bases and
+approval-related revisions are protected. The editor also provides history, comparisons, restoration, save-copy,
+rename, approved PDF publication, controlled templates and separate comment/review/form permissions.
+
+See [ONLYOFFICE operation and local validation](doc/onlyoffice.md) for settings, recovery, collaboration semantics,
+limitations, migration instructions and the test checklist.
 
 ## Usage
 

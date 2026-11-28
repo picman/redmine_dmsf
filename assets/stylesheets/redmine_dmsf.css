@@ -362,8 +362,35 @@ div.dmsf-scroll {
 }
 
 /* OnlyOffice */
+.dmsf-onlyoffice-open-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.dmsf-onlyoffice-open-actions > a {
+    margin: 0;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fff;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.dmsf-onlyoffice-open-actions > a:hover {
+    background: #f0f0f0;
+}
+
+.dmsf-onlyoffice-open-actions > a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* The canvas owns the height: the placeholder must not exceed it while loading. */
 #dmsf-onlyoffice-editor {
     width: 100%;
-    height: calc(100vh - 180px);
-    min-height: 650px;
+    height: 100%;
 }

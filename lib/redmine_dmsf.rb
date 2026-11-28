@@ -271,6 +271,46 @@ module RedmineDmsf
       value.clamp(300, 604_800)
     end
 
+    def minor_revision_retention_enabled?
+      Setting.plugin_redmine_dmsf['dmsf_minor_revision_retention_enabled'].to_s == '1'
+    end
+
+    def minor_revision_retention_limit
+      value = Setting.plugin_redmine_dmsf['dmsf_minor_revision_retention_limit'].to_i
+      value.positive? ? value.clamp(1, 100_000) : 100
+    end
+
+    def onlyoffice_force_save_enabled?
+      Setting.plugin_redmine_dmsf['dmsf_onlyoffice_force_save_enabled'].to_s == '1'
+    end
+
+    def onlyoffice_snapshot_limit
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_snapshot_limit'].to_i
+      value.positive? ? value.clamp(1, 100) : 3
+    end
+
+    def onlyoffice_mobile_mode
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_mobile_mode'].to_s
+      %w[auto desktop mobile].include?(value) ? value : 'auto'
+    end
+
+    def onlyoffice_session_ttl
+      value = Setting.plugin_redmine_dmsf['dmsf_onlyoffice_session_ttl'].to_i
+      value.positive? ? value.clamp(300, 2_592_000) : 2_592_000
+    end
+
+    def onlyoffice_template_revision_ids
+      Setting.plugin_redmine_dmsf['dmsf_onlyoffice_template_revision_ids'].to_s
+             .split(/[\s,;]+/).map(&:to_i).select(&:positive?).uniq.first(100)
+    end
+
+    def onlyoffice_form_field_mapping
+      value = JSON.parse(Setting.plugin_redmine_dmsf['dmsf_onlyoffice_form_field_mapping'].presence || '{}')
+      value.is_a?(Hash) ? value.select { |key, id| key.is_a?(String) && id.to_s.match?(/\A[1-9]\d*\z/) } : {}
+    rescue JSON::ParserError
+      {}
+    end
+
     def dmsf_global_menu_disabled?
       value = Setting.plugin_redmine_dmsf['dmsf_global_menu_disabled']
       value.to_i.positive? || value == 'true'

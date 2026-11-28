@@ -22,7 +22,21 @@
   <% options[:offset] = dmsf_pages.offset %>
   <% options[:limit] = dmsf_pages.per_page %>
 <% end %>
-<% query.dmsf_nodes(options).each do |node| %>
+<%
+  nodes = query.dmsf_nodes(options)
+  office_files = {}
+  if !query.deleted && RedmineDmsf::OnlyOffice.enabled?
+    file_ids = nodes.filter_map do |node|
+      next unless %w[file file-link].include?(node.type) && RedmineDmsf::OnlyOffice.viewable?(node.filename)
+
+      # File-link rows expose the target file ID in revision_id.
+      node.type == 'file' ? node.id : node.revision_id
+    end
+    office_files = DmsfFile.includes(:dmsf_folder, project: :enabled_modules).where(id: file_ids).index_by(&:id)
+  end
+  office_back_url = query.project ? dmsf_folder_path(id: query.project, folder_id: query.dmsf_folder_id) : dmsf_index_path
+%>
+<% nodes.each do |node| %>
   <% case node.type %>
   <% when 'project'%>
     <% id = "#{node.id}pspan" %>
@@ -46,6 +60,12 @@
     <% end %>
     <td class="buttons">
       <% unless node.system %>
+        <% office_file = if %w[file file-link].include?(node.type)
+                           office_files[node.type == 'file-link' ? node.revision_id : node.id]
+                         end %>
+        <% if office_file %>
+          <%= render partial: 'dmsf_onlyoffice/open_actions', locals: { file: office_file, back_url: office_back_url } %>
+        <% end %>
         <%= link_to_context_menu %>
       <% end %>
     </td>

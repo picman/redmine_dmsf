@@ -27,111 +27,128 @@ module DmsfUploadHelper
     if committed_files
       failed_uploads = []
       committed_files.each_value do |committed_file|
-        name = committed_file[:name]
-        new_revision = DmsfFileRevision.new
-        file = DmsfFile.visible.find_file_by_name(project, folder, name)
-        unless file
-          link = DmsfLink.find_link_by_file_name(project, folder, name)
-          file = link.target_file if link
-        end
-        if file
-          if file.last_revision
-            last_revision = file.last_revision
-            new_revision.source_revision = last_revision
+        a = nil
+        file = nil
+        new_revision = nil
+        wf = nil
+        committed = DmsfFile.transaction(requires_new: true) do
+          name = committed_file[:name]
+          new_revision = DmsfFileRevision.new
+          file = DmsfFile.visible.find_file_by_name(project, folder, name)
+          unless file
+            link = DmsfLink.find_link_by_file_name(project, folder, name)
+            file = link.target_file if link
           end
-        else
-          file = DmsfFile.new
-          file.project_id = project.id
-          file.dmsf_folder = folder
-          file.notification = RedmineDmsf.dmsf_default_notifications?
-        end
-        if file.locked_for_user?
-          failed_uploads.push file
-          next
-        end
-
-        new_revision.dmsf_file = file
-        new_revision.user = User.current
-        new_revision.name = name
-        new_revision.title = committed_file[:title]
-        new_revision.description = committed_file[:description]
-        new_revision.comment = committed_file[:comment]
-        new_revision.major_version = if committed_file[:version_major].present?
-                                       DmsfUploadHelper.db_version committed_file[:version_major]
-                                     else
-                                       1
-                                     end
-        new_revision.minor_version = if committed_file[:version_minor].present?
-                                       DmsfUploadHelper.db_version committed_file[:version_minor]
-                                     end
-        new_revision.patch_version = if committed_file[:version_patch].present?
-                                       DmsfUploadHelper.db_version committed_file[:version_patch]
-                                     end
-        new_revision.size = committed_file[:size]
-        # Custom fields
-        new_revision.copy_custom_field_values(committed_file[:custom_field_values])
-        # Need to save file first to generate id for it in case of creation.
-        # File id is needed to properly generate revision disk filename
-        unless new_revision.valid?
-          Rails.logger.error new_revision.errors.full_messages.to_sentence
-          failed_uploads.push new_revision
-          next
-        end
-        unless file.save
-          Rails.logger.error file.errors.full_messages.to_sentence
-          failed_uploads.push file
-          next
-        end
-
-        if new_revision.save
-          new_revision.assign_workflow committed_file[:dmsf_workflow_id]
-          begin
-            a = Attachment.find_by_token(committed_file[:token]) if committed_file[:token].present?
-            raise StandardError, l(:error_attachment_not_found, name: committed_file[:token]) unless a
-
-            # Attach file to the new revision
-            new_revision.shared_file.attach(
-              io: File.open(a.diskfile),
-              filename: new_revision.name,
-              content_type: committed_file[:mime_type],
-              identify: false
-            )
-            # Destroy the temporary attachment
-            a.delete_from_disk
-            a.destroy
-            file.last_revision = new_revision
-            files.push file
-            container.dmsf_file_added file if container && !new_object
-            Redmine::Hook.call_hook :dmsf_helper_upload_after_commit, { file: file }
-          rescue StandardError => e
-            Rails.logger.error e.message
-            controller.flash[:error] = e.message if controller
+          if file
+            file = DmsfFile.lock.find(file.id)
+            if file.last_revision
+              last_revision = file.last_revision
+              new_revision.source_revision = last_revision
+            end
+          else
+            file = DmsfFile.new
+            file.project_id = project.id
+            file.dmsf_folder = folder
+            file.notification = RedmineDmsf.dmsf_default_notifications?
+          end
+          if file.locked_for_user?
             failed_uploads.push file
+            next
           end
-        else
-          failed_uploads.push new_revision
-        end
-        # Approval workflow
-        next if committed_file[:workflow_id].blank?
 
-        wf = DmsfWorkflow.find_by(id: committed_file[:workflow_id])
-        next unless wf
-
-        # Assign the workflow
-        new_revision.set_workflow wf.id, 'assign'
-        new_revision.assign_workflow wf.id
-        # Start the workflow
-        new_revision.set_workflow wf.id, 'start'
-        if new_revision.save
-          wf.notify_users project, new_revision, controller
-          begin
-            file.lock!
-          rescue DmsfLockError => e
-            Rails.logger.warn e.message
+          new_revision.dmsf_file = file
+          new_revision.user = User.current
+          new_revision.name = name
+          new_revision.title = committed_file[:title]
+          new_revision.description = committed_file[:description]
+          new_revision.comment = committed_file[:comment]
+          new_revision.major_version = if committed_file[:version_major].present?
+                                         DmsfUploadHelper.db_version committed_file[:version_major]
+                                       else
+                                         1
+                                       end
+          new_revision.minor_version = if committed_file[:version_minor].present?
+                                         DmsfUploadHelper.db_version committed_file[:version_minor]
+                                       end
+          new_revision.patch_version = if committed_file[:version_patch].present?
+                                         DmsfUploadHelper.db_version committed_file[:version_patch]
+                                       end
+          new_revision.size = committed_file[:size]
+          if file.persisted? && !new_revision.version_available?
+            new_revision.errors.add(:base, 'The requested version already exists; refresh before uploading')
+            failed_uploads.push new_revision
+            next
           end
-        else
-          Rails.logger.error l(:error_workflow_assign)
+          # Custom fields
+          new_revision.copy_custom_field_values(committed_file[:custom_field_values])
+          # Need to save file first to generate id for it in case of creation.
+          # File id is needed to properly generate revision disk filename
+          unless new_revision.valid?
+            Rails.logger.error new_revision.errors.full_messages.to_sentence
+            failed_uploads.push new_revision
+            next
+          end
+          unless file.save
+            Rails.logger.error file.errors.full_messages.to_sentence
+            failed_uploads.push file
+            next
+          end
+
+          if new_revision.save
+            new_revision.assign_workflow committed_file[:dmsf_workflow_id]
+            begin
+              a = Attachment.find_by_token(committed_file[:token]) if committed_file[:token].present?
+              raise StandardError, l(:error_attachment_not_found, name: committed_file[:token]) unless a
+
+              # Attach file to the new revision
+              File.open(a.diskfile, 'rb') do |io|
+                blob = DmsfOnlyofficeBlob.upload!(io: io, filename: new_revision.name,
+                                                  content_type: committed_file[:mime_type], identify: false)
+                new_revision.shared_file.attach(blob)
+              end
+              file.last_revision = new_revision
+            rescue StandardError => e
+              Rails.logger.error e.message
+              controller.flash[:error] = e.message if controller
+              failed_uploads.push file
+              raise ActiveRecord::Rollback
+            end
+          else
+            failed_uploads.push new_revision
+            raise ActiveRecord::Rollback
+          end
+          # Approval workflow
+          next true if committed_file[:workflow_id].blank?
+
+          wf = DmsfWorkflow.find_by(id: committed_file[:workflow_id])
+          next true unless wf
+
+          # Assign the workflow
+          new_revision.set_workflow wf.id, 'assign'
+          new_revision.assign_workflow wf.id
+          # Start the workflow
+          new_revision.set_workflow wf.id, 'start'
+          if new_revision.save
+            begin
+              file.lock!
+            rescue DmsfLockError => e
+              Rails.logger.warn e.message
+            end
+          else
+            Rails.logger.error l(:error_workflow_assign)
+            failed_uploads.push new_revision
+            raise ActiveRecord::Rollback
+          end
+          true
         end
+        next unless committed
+
+        a.delete_from_disk
+        a.destroy
+        wf&.notify_users(project, new_revision, controller)
+        files.push file
+        container.dmsf_file_added file if container && !new_object
+        Redmine::Hook.call_hook :dmsf_helper_upload_after_commit, { file: file }
       end
       # Notifications
       begin

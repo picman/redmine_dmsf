@@ -1,0 +1,77 @@
+.dmsf-onlyoffice { min-width: 0; }
+.dmsf-onlyoffice-heading,
+.dmsf-onlyoffice-context,
+.dmsf-onlyoffice-toolbar,
+.dmsf-onlyoffice-status,
+.dmsf-onlyoffice-modes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+.dmsf-onlyoffice-heading { justify-content: space-between; }
+.dmsf-onlyoffice-heading h2 { margin-bottom: 8px; overflow-wrap: anywhere; }
+.dmsf-onlyoffice-context { margin-bottom: 12px; color: #555; }
+.dmsf-onlyoffice-modes { margin-left: auto; }
+.dmsf-onlyoffice-modes [aria-current="page"] { font-weight: bold; color: #333; }
+.dmsf-onlyoffice-toolbar {
+  padding: 10px;
+  border: 1px solid #d7d7d7;
+  background: #f7f7f7;
+  border-radius: 4px 4px 0 0;
+}
+.dmsf-onlyoffice-toolbar button { margin: 0; cursor: pointer; }
+.dmsf-onlyoffice-toolbar button:disabled { cursor: wait; opacity: .65; }
+.dmsf-onlyoffice-status {
+  min-height: 20px;
+  padding: 8px 10px;
+  color: #555;
+  background: #fafafa;
+  border: 1px solid #d7d7d7;
+  border-top: none;
+  font-size: .9em;
+}
+#dmsf-onlyoffice-session-status { font-weight: bold; }
+.dmsf-onlyoffice-status[data-state="recovery"],
+.dmsf-onlyoffice-status[data-state="error"] { color: #8a3300; background: #fff5e8; }
+.dmsf-onlyoffice-notice {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid #9bc1a7;
+  background: #f1f8f3;
+  overflow-wrap: anywhere;
+}
+.dmsf-onlyoffice-notice[data-error="true"] { border-color: #e0a2a2; background: #fff0f0; color: #8a2020; }
+.dmsf-onlyoffice-notice a { display: inline-block; margin-left: 12px; }
+.dmsf-onlyoffice-canvas { height: calc(100vh - 275px); min-height: 460px; width: 100%; }
+.dmsf-onlyoffice-canvas > iframe { width: 100%; height: 100%; border: 0; }
+.dmsf-onlyoffice [hidden] { display: none !important; }
+.dmsf-onlyoffice-dialog {
+  width: min(520px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  padding: 22px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px #0003;
+  color: #333;
+}
+.dmsf-onlyoffice-dialog::backdrop { background: #0006; }
+.dmsf-onlyoffice-dialog h3 { margin-top: 0; }
+.dmsf-onlyoffice-dialog label { display: block; margin-top: 14px; margin-bottom: 5px; font-weight: bold; }
+.dmsf-onlyoffice-dialog input,
+.dmsf-onlyoffice-dialog select { width: 100%; box-sizing: border-box; padding: 7px; }
+.dmsf-onlyoffice-dialog select { max-width: 100%; }
+.dmsf-onlyoffice-dialog .dmsf-onlyoffice-help { color: #666; font-size: .9em; margin: 6px 0; }
+.dmsf-onlyoffice-dialog .dmsf-onlyoffice-dialog-error { color: #a22; }
+.dmsf-onlyoffice-dialog .dmsf-onlyoffice-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.dmsf-onlyoffice-dialog button { cursor: pointer; }
+.dmsf-onlyoffice-dialog button:disabled { cursor: wait; opacity: .65; }
+@media (max-width: 640px) {
+  .dmsf-onlyoffice-heading { align-items: flex-start; }
+  .dmsf-onlyoffice-heading h2 { max-width: 80%; font-size: 1.2em; }
+  .dmsf-onlyoffice-modes { margin-left: 0; }
+  .dmsf-onlyoffice-toolbar { gap: 8px; }
+  .dmsf-onlyoffice-toolbar button { flex: 1 1 auto; min-height: 36px; }
+  .dmsf-onlyoffice-canvas { height: 65vh; min-height: 380px; }
+  .dmsf-onlyoffice-dialog { padding: 16px; }
+}

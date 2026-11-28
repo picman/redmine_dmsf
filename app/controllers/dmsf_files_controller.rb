@@ -47,8 +47,9 @@ class DmsfFilesController < ApplicationController
     if params[:download].blank?
       @revision = @dmsf_file.last_revision
     else
-      @revision = DmsfFileRevision.find(params[:download].to_i)
+      @revision = DmsfFileRevision.visible.find(params[:download].to_i)
       raise DmsfAccessError if @revision.dmsf_file != @dmsf_file
+      raise DmsfAccessError unless @revision.history_accessible_to?(User.current)
     end
 
     check_project @revision.dmsf_file
@@ -131,75 +132,93 @@ class DmsfFilesController < ApplicationController
   end
 
   def create_revision
-    if params[:dmsf_file_revision] && !@dmsf_file.locked_for_user?
-      revision = DmsfFileRevision.new
-      revision.title = params[:dmsf_file_revision][:title].scrub.strip
-      revision.name = params[:dmsf_file_revision][:name].scrub.strip
-      revision.description = params[:dmsf_file_revision][:description]&.scrub&.strip
-      revision.comment = params[:dmsf_file_revision][:comment]&.scrub&.strip
-      revision.dmsf_file = @dmsf_file
-      last_revision = @dmsf_file.last_revision
-      revision.source_revision = last_revision
-      revision.user = User.current
+    revision = DmsfFileRevision.new
+    to = nil
+    ok = false
+    attachment = nil
+    @dmsf_file.with_lock(requires_new: true) do
+      if params[:dmsf_file_revision] && !@dmsf_file.locked_for_user?
+        revision = DmsfFileRevision.new
+        revision.title = params[:dmsf_file_revision][:title].scrub.strip
+        revision.name = params[:dmsf_file_revision][:name].scrub.strip
+        revision.description = params[:dmsf_file_revision][:description]&.scrub&.strip
+        revision.comment = params[:dmsf_file_revision][:comment]&.scrub&.strip
+        revision.dmsf_file = @dmsf_file
+        last_revision = @dmsf_file.dmsf_file_revisions.visible.first
+        revision.source_revision = last_revision
+        revision.user = User.current
 
-      # Version
-      revision.major_version = DmsfUploadHelper.db_version(params[:version_major])
-      revision.minor_version = DmsfUploadHelper.db_version(params[:version_minor])
-      revision.patch_version = DmsfUploadHelper.db_version(params[:version_patch])
-
-      # New content
-      if params[:dmsf_attachments].present?
-        keys = params[:dmsf_attachments].keys
-        file_upload = params[:dmsf_attachments][keys.first] if keys&.first
-        a = Attachment.find_by_token(file_upload[:token]) if file_upload
-        if a
-          revision.size = a.filesize
-          revision.shared_file.attach(
-            io: File.open(a.diskfile),
-            filename: a.filename,
-            content_type: a.content_type.presence || 'application/octet-stream',
-            identify: false
-          )
-          # Destroy the temporary attachment
-          a.delete_from_disk
-          a.destroy
+        # Version
+        revision.major_version = DmsfUploadHelper.db_version(params[:version_major])
+        revision.minor_version = DmsfUploadHelper.db_version(params[:version_minor])
+        revision.patch_version = DmsfUploadHelper.db_version(params[:version_patch])
+        unless revision.version_available?
+          revision.errors.add(:base, 'The requested version already exists; refresh before saving')
+          raise ActiveRecord::Rollback
         end
-      else
-        revision.size = last_revision.size
-      end
 
-      # Custom fields
-      revision.copy_custom_field_values(params[:dmsf_file_revision][:custom_field_values], last_revision)
-      ok = true
-      if revision.save
-        revision.assign_workflow params[:dmsf_workflow_id]
-        if @dmsf_file.locked? && !@dmsf_file.locks.empty?
-          begin
-            @dmsf_file.unlock!
-            flash[:notice] = "#{l(:notice_file_unlocked)}, "
-          rescue StandardError => e
-            Rails.logger.error "Cannot unlock the file: #{e.message}"
-            ok = false
+        # New content
+        if params[:dmsf_attachments].present?
+          keys = params[:dmsf_attachments].keys
+          file_upload = params[:dmsf_attachments][keys.first] if keys&.first
+          a = Attachment.find_by_token(file_upload[:token]) if file_upload
+          unless a
+            revision.errors.add(:base, l(:error_attachment_not_found, name: file_upload&.dig(:token)))
+            raise ActiveRecord::Rollback
           end
+          revision.size = a.filesize
+          File.open(a.diskfile, 'rb') do |io|
+            blob = DmsfOnlyofficeBlob.upload!(
+              io: io, filename: a.filename,
+              content_type: a.content_type.presence || 'application/octet-stream', identify: false
+            )
+            revision.shared_file.attach(blob)
+          end
+          attachment = a
+        else
+          revision.size = last_revision.size
         end
-        if ok && @dmsf_file.save
-          @dmsf_file.last_revision = revision
-          call_hook :dmsf_helper_upload_after_commit, { file: @dmsf_file }
-          begin
-            recipients = DmsfMailer.deliver_files_updated(@project, [@dmsf_file])
-            if RedmineDmsf.dmsf_display_notified_recipients? && recipients.any?
-              max_notifications = RedmineDmsf.dmsf_max_notification_receivers_info
-              to = recipients.collect { |user, _| user.name }.first(max_notifications).join(', ')
-              to.presence&.<<((recipients.count > max_notifications ? ',...' : '.'))
+
+        # Custom fields
+        revision.copy_custom_field_values(params[:dmsf_file_revision][:custom_field_values], last_revision)
+        ok = true
+        if revision.save
+          revision.assign_workflow params[:dmsf_workflow_id]
+          if @dmsf_file.locked? && !@dmsf_file.locks.empty?
+            begin
+              @dmsf_file.unlock!
+              flash[:notice] = "#{l(:notice_file_unlocked)}, "
+            rescue StandardError => e
+              Rails.logger.error "Cannot unlock the file: #{e.message}"
+              ok = false
             end
-          rescue StandardError => e
-            Rails.logger.error "Could not send email notifications: #{e.message}"
+          end
+          if ok && @dmsf_file.save
+            @dmsf_file.last_revision = revision
+          else
+            ok = false
           end
         else
           ok = false
         end
-      else
-        ok = false
+      end
+      raise ActiveRecord::Rollback unless ok
+    end
+    if ok && attachment
+      attachment.delete_from_disk
+      attachment.destroy
+    end
+    if ok
+      call_hook :dmsf_helper_upload_after_commit, { file: @dmsf_file }
+      begin
+        recipients = DmsfMailer.deliver_files_updated(@project, [@dmsf_file])
+        if RedmineDmsf.dmsf_display_notified_recipients? && recipients.any?
+          max_notifications = RedmineDmsf.dmsf_max_notification_receivers_info
+          to = recipients.collect { |user, _| user.name }.first(max_notifications).join(', ')
+          to.presence&.<<((recipients.count > max_notifications ? ',...' : '.'))
+        end
+      rescue StandardError => e
+        Rails.logger.error "Could not send email notifications: #{e.message}"
       end
     end
 

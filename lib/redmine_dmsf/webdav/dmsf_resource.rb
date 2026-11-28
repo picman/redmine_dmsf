@@ -531,6 +531,10 @@ module RedmineDmsf
 
       # HTTP PUT request.
       def put(request)
+        DmsfFile.transaction { put_document(request) }
+      end
+
+      def put_document(request)
         raise BadRequest if collection?
         raise Forbidden unless User.current.admin? || User.current.allowed_to?(:file_manipulation, project)
 
@@ -542,14 +546,14 @@ module RedmineDmsf
 
         reuse_revision = false
         if exist? # We're over-writing something, so ultimately a new revision
-          f = file
+          f = DmsfFile.lock.find(file.id)
           # Disable versioning for file name patterns given in the plugin settings.
           if basename.match(RedmineDmsf.dmsf_webdav_disable_versioning)
             Rails.logger.info "Versioning disabled for #{basename}"
             reuse_revision = true
           end
           reuse_revision = true if reuse_version_for_locked_file?(file)
-          last_revision = file.last_revision
+          last_revision = f.dmsf_file_revisions.visible.first
           if last_revision.size.zero? || reuse_revision
             new_revision = last_revision
             reuse_revision = true

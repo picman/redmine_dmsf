@@ -1,0 +1,23 @@
+Independent review, 2026-11-27, checkout adc69d359ff54394408d889d5a303f76a5453dac
+
+Final probe output (qa_r3, real Rails/PostgreSQL/Active Storage; simulated remote transport):
+PROBE N1: {"history_allowed":false,"can_write":true,"old_revision":19,"head":20,"conversion_revision":19,"served_bytes":"OLD confidential content","response":{"json":{"pending":true,"operation_id":11},"status":"accepted"}}
+PROBE N2: {"mode":"fill","recovery_kind":"forgotten","template_revision":21,"head_after_restore":22,"template_head_bytes":"%PDF-1.7 Filled personal data","restored_revision":22}
+PROBE ROLLBACK: {"unchanged_counts":true}
+PROBE N3: {"blob_row_exists":false,"orphan_bytes_exist":true}
+PROBE COMPLETE
+
+Matching SHA-256 hashes in checkout and running Redmine container:
+0680a65d31f3238db0762560f0283b4c85bcd8be9192b56fb459e40d48138916 app/controllers/dmsf_onlyoffice_actions_controller.rb
+35a086ae20f349b696a8ec48679e86531b16ff1ac9550e60826b361004107e40 app/controllers/dmsf_onlyoffice_admin_controller.rb
+6d7bcd090633ec03cb889a2cede9b71924b6155c37c5e2e0f8d2f34c3de89e04 app/controllers/dmsf_onlyoffice_recovery_controller.rb
+f8de23ab0e6520ad39de9531c3aef3a45be12ef0aacfa49dedfc0c6ca823273a app/services/dmsf_onlyoffice_blob.rb
+
+Existing JavaScript suite:
+node --test --test-isolation=none test/javascript/dmsf_onlyoffice_test.js
+tests 17; suites 0; pass 17; fail 0; cancelled 0; skipped 0; todo 0
+
+The default isolated Node test runner initially failed with spawn EPERM in the sandbox.
+The above successful run was executed with approved escalation.
+Ruby is not installed on the host; the probes ran in the existing QA Redmine container.
+No full Rails plugin suite or live editor/converter/forgotten-generation test was run.

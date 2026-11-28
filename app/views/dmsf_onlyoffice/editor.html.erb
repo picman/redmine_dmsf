@@ -18,16 +18,163 @@
   # <https://www.gnu.org/licenses/>.
 %>
 
-<% html_title "#{l(@mode == 'edit' ? :label_dmsf_onlyoffice_edit : :label_dmsf_onlyoffice_view)} - #{@revision.name}" %>
+<%
+  html_title "#{l(:label_dmsf_onlyoffice)} - #{@revision.name}"
+  history_allowed = User.current.allowed_to?(:view_dmsf_file_revisions, @project)
+  can_edit = @onlyoffice_can_edit == true
+  modes = @onlyoffice_modes || (can_edit ? %w[view edit] : ['view'])
+  url_for_action = lambda do |name, options = {}|
+    helper = "dmsf_onlyoffice_#{name}_path"
+    public_send(helper, @file, **options) if respond_to?(helper)
+  end
+  urls = {
+    back: @onlyoffice_return_url.presence || dmsf_file_path(@file),
+    details: dmsf_file_path(@file),
+    history: history_allowed ? url_for_action.call('history') : nil,
+    historyData: history_allowed ? url_for_action.call('history_data', revision_id: '__revision__') : nil,
+    compare: history_allowed ? url_for_action.call('compare') : nil,
+    restore: history_allowed && can_edit ? url_for_action.call('restore') : nil,
+    refresh: url_for_action.call('refresh'),
+    session: @onlyoffice_session ? url_for_action.call('session') : nil,
+    forcesave: @mode != 'view' && RedmineDmsf.onlyoffice_force_save_enabled? ? url_for_action.call('forcesave') : nil,
+    rename: can_edit ? url_for_action.call('rename') : nil,
+    saveAs: can_edit ? url_for_action.call('save_as') : nil,
+    destinations: can_edit ? url_for_action.call('destinations') : nil,
+    publishPdf: can_edit && @revision.workflow == DmsfWorkflow::STATE_APPROVED ?
+                  url_for_action.call('publish_pdf') : nil,
+    templates: can_edit ? url_for_action.call('templates') : nil,
+    createFromTemplate: can_edit ? url_for_action.call('create_from_template') : nil,
+    recovery: can_edit ? url_for_action.call('recovery') : nil,
+    users: url_for_action.call('users'),
+    notify: @mode != 'view' ? url_for_action.call('notify') : nil,
+    actionLink: url_for_action.call('action_link')
+  }.compact
+  messages = {
+    cancel: l(:button_cancel), save: l(:button_save), create: l(:button_create),
+    title: l(:label_title), document: l(:label_document), version: l(:label_dmsf_version),
+    history: l(:label_dmsf_onlyoffice_history, default: 'Version history'),
+    compare: l(:label_dmsf_onlyoffice_compare, default: 'Compare documents'),
+    search: l(:label_dmsf_onlyoffice_search_documents, default: 'Search project documents'),
+    searchHint: l(:note_dmsf_onlyoffice_search_documents, default: 'Enter a file name to find another document in this project.'),
+    searchMore: l(:note_dmsf_onlyoffice_search_more, default: 'More documents match. Refine your search.'),
+    noVersions: l(:notice_dmsf_onlyoffice_no_comparable_versions, default: 'No comparable document revisions were found.'),
+    snapshot: l(:label_dmsf_onlyoffice_snapshot, default: 'Save recovery snapshot'),
+    publishPdf: l(:label_dmsf_onlyoffice_publish_pdf, default: 'Publish approved revision as PDF'),
+    saveCopy: l(:label_dmsf_onlyoffice_save_copy, default: 'Save a copy'),
+    rename: l(:label_dmsf_onlyoffice_rename, default: 'Rename document'),
+    fromTemplate: l(:label_dmsf_onlyoffice_from_template, default: 'New from template'),
+    template: l(:label_dmsf_onlyoffice_template, default: 'Template'),
+    folder: l(:label_dmsf_onlyoffice_destination, default: 'Destination folder'),
+    issue: l(:label_dmsf_onlyoffice_issue_optional, default: 'Related issue number (optional)'),
+    recover: l(:label_dmsf_onlyoffice_recover, default: 'Recover saved work'),
+    openDocument: l(:label_dmsf_onlyoffice_open_result, default: 'Open document'),
+    reviewSaved: l(:label_dmsf_onlyoffice_review_saved, default: 'Open saved revision for approval'),
+    restore: l(:label_dmsf_onlyoffice_restore, default: 'Restore as a new revision'),
+    confirmRestore: l(:text_dmsf_onlyoffice_confirm_restore, default: 'Restore this version as a new DMSF revision? The retained versions will stay available.'),
+    confirmNotify: l(:text_dmsf_onlyoffice_confirm_notify, default: 'Send this comment to the mentioned project members?'),
+    requestFailed: l(:error_dmsf_onlyoffice_request_failed, default: 'The request could not be completed. Please try again.'),
+    editorUnavailable: l(:error_dmsf_onlyoffice_editor_unavailable, default: 'The document editor could not be loaded. Check the ONLYOFFICE connection and retry.'),
+    pending: l(:notice_dmsf_onlyoffice_operation_pending, default: 'The operation is still running. You can continue editing.'),
+    retry: l(:label_dmsf_onlyoffice_retry, default: 'Continue waiting'),
+    completed: l(:notice_dmsf_onlyoffice_operation_complete, default: 'The operation completed successfully.'),
+    noChanges: l(:notice_dmsf_onlyoffice_no_changes, default: 'ONLYOFFICE reports no changes to save.'),
+    snapshotRequested: l(:notice_dmsf_onlyoffice_snapshot_requested, default: 'Snapshot requested. Waiting for the server to confirm it was stored.'),
+    snapshotNote: l(:note_dmsf_onlyoffice_snapshot, default: 'A recovery snapshot keeps the state received by ONLYOFFICE. Approval uses the final revision saved in DMSF.'),
+    noTemplates: l(:notice_dmsf_onlyoffice_no_templates, default: 'No document templates are available for this project.'),
+    restoring: l(:notice_dmsf_onlyoffice_restoring, default: 'Restoring the selected revision…'),
+    restored: l(:notice_dmsf_onlyoffice_restored, default: 'The version was restored as a new DMSF revision. Reopen the document to edit the restored version.'),
+    connecting: l(:label_dmsf_onlyoffice_connecting, default: 'Connecting to ONLYOFFICE…'),
+    localChanges: l(:label_dmsf_onlyoffice_local_changes, default: 'Changes are being sent to ONLYOFFICE.'),
+    editorSynced: l(:label_dmsf_onlyoffice_editor_synced, default: 'Changes have reached ONLYOFFICE.'),
+    sessionActive: l(:label_dmsf_onlyoffice_state_active, default: 'Editing session active'),
+    sessionSnapshot: l(:label_dmsf_onlyoffice_state_snapshot, default: 'Recovery snapshot stored in DMSF'),
+    sessionSaved: l(:label_dmsf_onlyoffice_state_saved, default: 'Final revision saved in DMSF'),
+    sessionRecovery: l(:label_dmsf_onlyoffice_state_recovery, default: 'Saved work needs recovery'),
+    sessionError: l(:label_dmsf_onlyoffice_state_error, default: 'The server reported a save problem'),
+    sessionClosed: l(:label_dmsf_onlyoffice_state_closed, default: 'Editing session closed'),
+    sessionSubmitted: l(:label_dmsf_onlyoffice_state_submitted, default: 'Completed form stored in DMSF'),
+    participants: l(:label_dmsf_onlyoffice_participants, default: 'Connected users'),
+    sessionParticipants: l(:label_dmsf_onlyoffice_session_participants, default: 'Session participants'),
+    lastReceived: l(:label_dmsf_onlyoffice_last_received, default: 'Last server update'),
+    formSubmitted: l(:notice_dmsf_onlyoffice_form_submitted, default: 'The form was submitted. Waiting for DMSF to confirm storage.'),
+    view: l(:label_dmsf_onlyoffice_view), edit: l(:label_dmsf_onlyoffice_edit),
+    review: l(:label_dmsf_onlyoffice_review, default: 'Review with tracked changes'),
+    comment: l(:label_dmsf_onlyoffice_comment, default: 'Comment only'),
+    fill: l(:label_dmsf_onlyoffice_fill, default: 'Fill form')
+  }
+  integration = {
+    fileId: @file.id, folderId: @file.dmsf_folder_id, revisionId: @revision.id, filename: @revision.name,
+    mode: @mode, key: @onlyoffice_config.dig(:document, :key) || @onlyoffice_config.dig('document', 'key'),
+    urls: urls, messages: messages,
+    canEdit: can_edit,
+    canCompare: DmsfOnlyofficeHistoryController::COMPARABLE_EXTENSIONS.include?(
+      RedmineDmsf::OnlyOffice.extension(@revision.name)
+    ),
+    pollInterval: 5000
+  }
+%>
 
-<h2><%= l(@mode == 'edit' ? :label_dmsf_onlyoffice_edit : :label_dmsf_onlyoffice_view) %>: <%= h(@revision.name) %></h2>
+<%= stylesheet_link_tag 'dmsf_onlyoffice', plugin: 'redmine_dmsf' %>
+<section id="dmsf-onlyoffice" class="dmsf-onlyoffice" aria-label="<%= l(:label_dmsf_onlyoffice) %>">
+  <div class="dmsf-onlyoffice-heading">
+    <h2 id="dmsf-onlyoffice-title"><%= h(@revision.name) %></h2>
+    <%= link_to l(:button_back), urls[:back], class: 'icon icon-cancel' %>
+  </div>
+  <div class="dmsf-onlyoffice-context">
+    <%= link_to @project.name, project_path(@project) %>
+    <span><%= l(:label_dmsf_version) %> <span id="dmsf-onlyoffice-version"><%= @revision.version %></span></span>
+    <%= link_to l(:label_document), urls[:details] %>
+    <% if modes.size > 1 %>
+      <nav aria-label="<%= l(:label_dmsf_onlyoffice) %>" class="dmsf-onlyoffice-modes">
+        <% modes.each do |mode| %>
+          <% if mode == @mode %>
+            <span aria-current="page"><%= messages[mode.to_sym] || mode %></span>
+          <% else %>
+            <%= link_to messages[mode.to_sym] || mode,
+                        mode == 'view' ? dmsf_onlyoffice_view_path(@file) :
+                          dmsf_onlyoffice_edit_path(@file, mode: mode) %>
+          <% end %>
+        <% end %>
+      </nav>
+    <% end %>
+  </div>
 
-<div id="dmsf-onlyoffice-editor"></div>
+  <div class="dmsf-onlyoffice-toolbar" role="toolbar" aria-label="<%= l(:label_dmsf_onlyoffice) %>">
+    <% { history: :history, compare: :compare, forcesave: :snapshot, saveAs: :saveCopy,
+         rename: :rename, publishPdf: :publishPdf, createFromTemplate: :fromTemplate }.each do |endpoint, action| %>
+      <% next unless urls[endpoint] %>
+      <% next if action == :compare && !integration[:canCompare] %>
+      <%= button_tag messages[action], type: 'button', data: { office_action: action },
+                                      title: action == :snapshot ? messages[:snapshotNote] : nil %>
+    <% end %>
+    <% if urls[:recovery] %>
+      <%= link_to messages[:recover], urls[:recovery], class: 'dmsf-onlyoffice-recovery' %>
+    <% end %>
+    <% if can_edit %>
+      <%= link_to messages[:reviewSaved], urls[:details], id: 'dmsf-onlyoffice-review-saved', hidden: true %>
+    <% end %>
+  </div>
 
+  <div class="dmsf-onlyoffice-status" aria-live="polite" aria-atomic="true">
+    <span id="dmsf-onlyoffice-editor-status"><%= messages[:connecting] %></span>
+    <span id="dmsf-onlyoffice-session-status"></span>
+    <span id="dmsf-onlyoffice-participants"></span>
+  </div>
+  <div id="dmsf-onlyoffice-notice" class="dmsf-onlyoffice-notice" hidden></div>
+  <%# The Document Server replaces the placeholder with its own iframe: the canvas
+      wrapper keeps the editor height because the placeholder element is removed. %>
+  <div class="dmsf-onlyoffice-canvas">
+    <div id="dmsf-onlyoffice-editor"></div>
+  </div>
+</section>
+
+<%= javascript_include_tag 'dmsf_onlyoffice', plugin: 'redmine_dmsf' %>
 <%= javascript_include_tag @onlyoffice_api_url %>
 <% editor_javascript = <<~JAVASCRIPT
-  const dmsfOnlyOfficeConfig = #{json_escape(@onlyoffice_config.to_json)};
-  window.dmsfOnlyOfficeEditor = new DocsAPI.DocEditor('dmsf-onlyoffice-editor', dmsfOnlyOfficeConfig);
+  window.dmsfOnlyOfficeIntegration = DmsfOnlyoffice.mount(
+    #{json_escape(@onlyoffice_config.to_json)},
+    #{json_escape(integration.to_json)}
+  );
 JAVASCRIPT
 %>
 <%= javascript_tag editor_javascript.html_safe, nonce: true %>

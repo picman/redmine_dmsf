@@ -20,6 +20,8 @@
 <% html_title l(:dmsf) %>
 
 <div class="contextual">
+  <%= render partial: 'dmsf_onlyoffice/open_actions',
+             locals: { file: @dmsf_file, back_url: dmsf_file_path(@dmsf_file) } %>
   <% if @file_manipulation_allowed %>
     <% if @dmsf_file.locked_for_user? %>
       <% if User.current.allowed_to?(:force_file_unlock, @project) %>

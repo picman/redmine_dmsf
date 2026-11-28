@@ -7,12 +7,13 @@ require 'net/http'
 require 'openssl'
 require 'tempfile'
 require 'uri'
+require 'securerandom'
 
 module RedmineDmsf
   # ONLYOFFICE Docs integration for DMSF files and revisions.
   module OnlyOffice
     WORD_EXTENSIONS = %w[
-      doc docm docx docxf dot dotm dotx epub fb2 fodt htm html mht mhtml odt oform ott rtf stw sxw txt wps wpt xml
+      doc docm docx docxf dot dotm dotx epub fb2 fodt htm html md mht mhtml odt oform ott rtf stw sxw txt wps wpt xml
     ].freeze
     CELL_EXTENSIONS = %w[
       csv et ett fods ods ots sxc xls xlsb xlsm xlsx xlt xltm xltx
@@ -21,7 +22,9 @@ module RedmineDmsf
       dps dpt fodp odp otp pot potm potx pps ppsm ppsx ppt pptm pptx sxi
     ].freeze
     PDF_EXTENSIONS = %w[djvu oxps pdf pdfa xps].freeze
-    VIEWABLE_EXTENSIONS = (WORD_EXTENSIONS + CELL_EXTENSIONS + SLIDE_EXTENSIONS + PDF_EXTENSIONS).uniq.freeze
+    DIAGRAM_EXTENSIONS = %w[vsdx vssx vstx vsdm vssm vstm].freeze
+    VIEWABLE_EXTENSIONS = (WORD_EXTENSIONS + CELL_EXTENSIONS + SLIDE_EXTENSIONS + PDF_EXTENSIONS +
+                           DIAGRAM_EXTENSIONS).uniq.freeze
 
     DEFAULT_EDITABLE_EXTENSIONS = %w[
       docx docm dotx dotm odt ott rtf txt html htm
@@ -70,6 +73,7 @@ module RedmineDmsf
         return 'cell' if CELL_EXTENSIONS.include?(ext)
         return 'slide' if SLIDE_EXTENSIONS.include?(ext)
         return 'pdf' if PDF_EXTENSIONS.include?(ext)
+        return 'diagram' if DIAGRAM_EXTENSIONS.include?(ext)
 
         'word'
       end
@@ -78,17 +82,21 @@ module RedmineDmsf
         digest = revision.checksum.presence || Digest::SHA256.hexdigest(
           [revision.id, revision.updated_at.to_i, revision.size].join(':')
         )
-        "dmsf-#{file.id}-#{revision.id}-#{digest.to_s.gsub(/[^0-9A-Za-z_-]/, '')[0, 24]}"
+        # A shared Document Server must never merge sessions from independent Redmine installations.
+        namespace = OpenSSL::HMAC.hexdigest('SHA256', storage_secret, 'document-namespace')[0, 12]
+        "dmsf-#{namespace}-#{file.id}-#{revision.id}-#{digest.to_s.gsub(/[^0-9A-Za-z_-]/, '')[0, 24]}"
       end
 
       def api_url
         join_url(RedmineDmsf.onlyoffice_document_server_url, 'web-apps/apps/api/documents/api.js')
       end
 
-      def editor_config(revision:, user:, mode:, key:, download_url:, callback_url:, back_url:)
+      def editor_config(revision:, user:, mode:, key:, download_url:, callback_url:, back_url:, type: 'desktop',
+                        action_link: nil)
         editable = mode == 'edit'
+        interactive = %w[edit review comment fill].include?(mode)
         config = {
-          type: 'desktop',
+          type: %w[desktop mobile embedded].include?(type) ? type : 'desktop',
           documentType: document_type(revision.name),
           document: {
             fileType: extension(revision.name),
@@ -99,13 +107,14 @@ module RedmineDmsf
               edit: editable,
               download: true,
               print: true,
-              review: editable,
-              comment: editable,
+              review: editable || mode == 'review',
+              comment: editable || %w[review comment].include?(mode),
+              fillForms: editable || mode == 'fill',
               copy: true
             }
           },
           editorConfig: {
-            mode: mode,
+            mode: interactive ? 'edit' : 'view',
             lang: user.language.presence || I18n.locale.to_s,
             callbackUrl: callback_url,
             user: {
@@ -113,20 +122,19 @@ module RedmineDmsf
               name: user.name
             },
             customization: {
-              forcesave: false,
+              forcesave: interactive && RedmineDmsf.onlyoffice_force_save_enabled?,
               goback: {
                 url: back_url
               }
             }
           }
         }
-
-        secret = RedmineDmsf.onlyoffice_jwt_secret
-        config[:token] = jwt_encode(config, secret, algorithm: RedmineDmsf.onlyoffice_jwt_algorithm) if secret.present?
-        config
+        config[:editorConfig][:customization][:review] = { trackChanges: true } if mode == 'review'
+        config[:editorConfig][:actionLink] = action_link if action_link.is_a?(Hash)
+        sign_payload(config)
       end
 
-      def storage_token(file:, revision:, user:, purpose:, key: nil, mode: nil)
+      def storage_token(file:, revision:, user:, purpose:, key: nil, mode: nil, ttl: nil, extra: {})
         claims = {
           purpose: purpose,
           file_id: file.id,
@@ -134,10 +142,72 @@ module RedmineDmsf
           user_id: user.id,
           anonymous: user.anonymous?,
           key: key || document_key(file, revision),
-          exp: Time.now.to_i + RedmineDmsf.onlyoffice_token_ttl
+          exp: Time.now.to_i + (ttl || RedmineDmsf.onlyoffice_token_ttl).to_i
         }
         claims[:mode] = mode if mode.present?
+        # Additional claims cannot replace the file/user/purpose binding.
+        claims = extra.symbolize_keys.merge(claims)
         jwt_encode(claims, storage_secret, algorithm: 'HS256')
+      end
+
+      def sign_payload(payload)
+        result = payload.except(:token, 'token')
+        secret = RedmineDmsf.onlyoffice_jwt_secret
+        result[:token] = jwt_encode(result, secret, algorithm: RedmineDmsf.onlyoffice_jwt_algorithm) if secret.present?
+        result
+      end
+
+      # Docs 9 and 10 require service-specific tokens. Never reuse the editor JWT.
+      def command(command, **parameters)
+        result = service_request('command', 'command', parameters.merge(c: command))
+        raise Error, 'Invalid ONLYOFFICE command response' unless result['error'].is_a?(Integer)
+
+        result
+      end
+
+      def convert(parameters)
+        service_request('converter', 'converter', parameters)
+      end
+
+      def build_document(parameters)
+        service_request('docbuilder', 'docbuilder', parameters)
+      end
+
+      def service_request(operation, endpoint, parameters)
+        raise Error, 'ONLYOFFICE integration is not configured' unless enabled?
+
+        base = RedmineDmsf.onlyoffice_document_server_internal_url.presence ||
+               RedmineDmsf.onlyoffice_document_server_url
+        uri = URI.parse(join_url(base, endpoint))
+        validate_document_server_url!(uri.to_s)
+        payload = sign_payload(parameters.symbolize_keys.merge(operation: operation))
+        request = Net::HTTP::Post.new(uri.request_uri)
+        request['Content-Type'] = 'application/json'
+        request['Accept'] = 'application/json'
+        request[RedmineDmsf.onlyoffice_jwt_header] = "Bearer #{payload[:token]}" if payload[:token]
+        request.body = payload.to_json
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.scheme == 'https'
+        http.verify_mode = RedmineDmsf.onlyoffice_ssl_verification_disabled? ?
+          OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
+        http.open_timeout = 15
+        http.read_timeout = 60
+        body = +''
+        http.request(request) do |response|
+          raise Error, "ONLYOFFICE service returned HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+
+          response.read_body do |chunk|
+            body << chunk
+            raise Error, 'ONLYOFFICE service response is too large' if body.bytesize > 2.megabytes
+          end
+        end
+        result = JSON.parse(body)
+        raise Error, 'Invalid ONLYOFFICE service response' unless result.is_a?(Hash)
+
+        result
+      rescue JSON::ParserError, URI::InvalidURIError, Timeout::Error, IOError, SystemCallError,
+             SocketError, OpenSSL::SSL::SSLError => e
+        raise Error, "ONLYOFFICE service request failed (#{e.class})"
       end
 
       def decode_storage_token(token, purpose:)
@@ -157,14 +227,20 @@ module RedmineDmsf
 
         algorithm = RedmineDmsf.onlyoffice_jwt_algorithm
         body_token = raw_body['token'].to_s
-        return jwt_decode(body_token, secret, algorithm: algorithm).deep_stringify_keys if body_token.present?
+        if body_token.present?
+          decoded = jwt_decode(body_token, secret, algorithm: algorithm)
+          validate_callback_operation!(decoded)
+          return decoded.deep_stringify_keys
+        end
 
         header_name = RedmineDmsf.onlyoffice_jwt_header.presence || 'Authorization'
         header_token = request.headers[header_name].to_s.sub(/\ABearer\s+/i, '')
         if header_token.present?
           decoded = jwt_decode(header_token, secret, algorithm: algorithm)
+          validate_callback_operation!(decoded)
           payload = decoded['payload']
           raise InvalidToken, 'Missing callback payload in ONLYOFFICE JWT header' unless payload.is_a?(Hash)
+          validate_callback_operation!(payload)
 
           return payload.deep_stringify_keys
         end
@@ -236,6 +312,9 @@ module RedmineDmsf
         fetch(target, tempfile, 0, max_bytes)
         tempfile.rewind
         tempfile
+      rescue Timeout::Error, IOError, SystemCallError, SocketError, OpenSSL::SSL::SSLError => e
+        tempfile&.close!
+        raise Error, "ONLYOFFICE file download failed (#{e.class})"
       rescue StandardError
         tempfile&.close!
         raise
@@ -307,6 +386,13 @@ module RedmineDmsf
       end
 
       private
+
+      def validate_callback_operation!(payload)
+        raise InvalidToken, 'Invalid callback token payload' unless payload.is_a?(Hash)
+        if payload['operation'].present? && payload['operation'] != 'callback'
+          raise InvalidToken, 'Unexpected ONLYOFFICE token operation'
+        end
+      end
 
       def base64url(value)
         Base64.urlsafe_encode64(value, padding: false)

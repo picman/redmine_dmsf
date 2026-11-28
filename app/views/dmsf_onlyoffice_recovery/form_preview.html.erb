@@ -1,0 +1,13 @@
+<h2><%= l(:label_dmsf_onlyoffice_form_data) %> — #<%= @issue.id %> <%= @issue.subject %></h2>
+<table class="list"><thead><tr><th><%= l(:field_name) %></th><th><%= l(:label_dmsf_onlyoffice_current_value) %></th><th><%= l(:label_dmsf_onlyoffice_submitted_value) %></th></tr></thead><tbody>
+  <% @issue.editable_custom_field_values(User.current).each do |value| %>
+    <% next unless @updates.key?(value.custom_field_id.to_s) %>
+    <tr><td><%= value.custom_field.name %></td><td><%= Array(value.value).join(', ') %></td><td><%= @updates[value.custom_field_id.to_s] %></td></tr>
+  <% end %>
+</tbody></table>
+<%= form_tag dmsf_onlyoffice_recovery_form_path(@file, recovery_id: @recovery.id), method: :post do %>
+  <%= hidden_field_tag :issue_id, @issue.id %>
+  <%= hidden_field_tag :lock_version, @issue.lock_version %>
+  <%= submit_tag l(:button_apply), disabled: @updates.empty? %>
+<% end %>
+<%= link_to l(:button_back), dmsf_onlyoffice_recovery_path(@file) %>

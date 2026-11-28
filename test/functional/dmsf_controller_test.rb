@@ -235,6 +235,53 @@ class DmsfControllerTest < RedmineDmsf::Test::TestCase
     end
   end
 
+  def test_onlyoffice_read_and_edit_actions_respect_permissions_in_document_rows
+    RedmineDmsf.stubs(:onlyoffice_document_server_url).returns('https://office.example.test')
+    RedmineDmsf.stubs(:onlyoffice_editable_extensions).returns(%w[txt docx])
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+
+    get "/projects/#{@project1.id}/dmsf"
+    assert_response :success
+    assert_select "tr[id='#{@file1.id}item']" do
+      assert_select 'a.dmsf-onlyoffice-read[href^=?]', dmsf_onlyoffice_view_path(@file1), count: 1
+      assert_select 'a.dmsf-onlyoffice-edit[href^=?]', dmsf_onlyoffice_edit_path(@file1), count: 1
+    end
+    assert_select "tr[data-cy$='--file-link_#{@link4.id}']" do
+      assert_select 'a.dmsf-onlyoffice-read[href^=?]', dmsf_onlyoffice_view_path(@link4.target_id), count: 1
+    end
+    assert_select "tr[data-cy*='--folder'] .dmsf-onlyoffice-open-actions", count: 0
+
+    @role_manager.remove_permission! :file_manipulation
+    get "/projects/#{@project1.id}/dmsf"
+    assert_response :success
+    assert_select "tr[id='#{@file1.id}item']" do
+      assert_select 'a.dmsf-onlyoffice-read', count: 1
+      assert_select 'a.dmsf-onlyoffice-edit', count: 0
+    end
+  end
+
+  def test_onlyoffice_actions_handle_locked_files_formats_and_disabled_integration
+    RedmineDmsf.stubs(:onlyoffice_document_server_url).returns('https://office.example.test')
+    RedmineDmsf.stubs(:onlyoffice_editable_extensions).returns(%w[txt docx])
+    User.current = @admin
+    @file1.lock!
+    post '/login', params: { username: 'jsmith', password: 'jsmith' }
+    get "/projects/#{@project1.id}/dmsf"
+    assert_select "tr[id='#{@file1.id}item']" do
+      assert_select 'a.dmsf-onlyoffice-read', count: 1
+      assert_select 'a.dmsf-onlyoffice-edit', count: 0
+    end
+
+    RedmineDmsf.stubs(:onlyoffice_editable_extensions).returns([])
+    get "/projects/#{@project1.id}/dmsf"
+    assert_select 'a.dmsf-onlyoffice-read', minimum: 1
+    assert_select 'a.dmsf-onlyoffice-edit', count: 0
+
+    RedmineDmsf.stubs(:onlyoffice_document_server_url).returns('')
+    get "/projects/#{@project1.id}/dmsf"
+    assert_select '.dmsf-onlyoffice-open-actions', count: 0
+  end
+
   def test_show_webdav_disabled
     post '/login', params: { username: 'jsmith', password: 'jsmith' }
     with_settings plugin_redmine_dmsf: { 'dmsf_webdav' => nil } do

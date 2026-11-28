@@ -1,0 +1,49 @@
+DMSF / ONLYOFFICE - verification 2026-11-27
+Container: redmine-7-0-2-onlyoffice-qa-d45a6bbb-test-redmine-1
+Application copy: /tmp/dmsf-review-tests
+Database: qa_dmsf_fixes_test
+Storage: /tmp/dmsf-review-tests-storage
+
+COMMAND (inside the container):
+sh /tmp/run_dmsf_tests.sh rails test plugins/redmine_dmsf/test/unit plugins/redmine_dmsf/test/functional plugins/redmine_dmsf/test/integration plugins/redmine_dmsf/test/helpers --seed 5612
+
+FINAL RAILS OUTPUT (progress dots omitted):
+Run options: --seed 5612
+Test is missing assertions: `test_files_deleted` /tmp/dmsf-review-tests/plugins/redmine_dmsf/test/unit/dmsf_mailer_test.rb:52
+Test is missing assertions: `test_files_downloaded` /tmp/dmsf-review-tests/plugins/redmine_dmsf/test/unit/dmsf_mailer_test.rb:63
+Test is missing assertions: `test_files_updated` /tmp/dmsf-review-tests/plugins/redmine_dmsf/test/unit/dmsf_mailer_test.rb:41
+sh: 1: libreoffice: not found
+Test is missing assertions: `test_view_preview` /tmp/dmsf-review-tests/plugins/redmine_dmsf/test/functional/dmsf_files_controller_test.rb:113
+Test is missing assertions: `test_email_url` /usr/local/bundle/gems/actionpack-8.1.4/lib/action_dispatch/routing/route_set.rb:334
+Test is missing assertions: `test_email_path` /usr/local/bundle/gems/actionpack-8.1.4/lib/action_dispatch/routing/route_set.rb:334
+Test is missing assertions: `test_previewable` /tmp/dmsf-review-tests/plugins/redmine_dmsf/test/unit/dmsf_file_test.rb:283
+Finished in 119.910081s, 7.5223 runs/s, 103.3191 assertions/s.
+902 runs, 12389 assertions, 0 failures, 0 errors, 0 skips
+
+Exit code: 0
+
+JAVASCRIPT COMMAND (host):
+node --test --test-isolation=none test/javascript/dmsf_onlyoffice_test.js
+Tests: 17; pass: 17; fail: 0; cancelled: 0; skipped: 0; todo: 0; exit code: 0
+
+LEGACY REVIEW-3 PROBES (same isolated application; separate test phase):
+retention_review.rb: 24 PASS / 1 FAIL / 25 assertions
+FAIL RET-02 retention ran before the failure expected=true actual=false
+The legacy diagnostic assertion expected the old bug. History-integrity checks pass.
+late_review.rb: 36 PASS / 0 FAIL / 36 assertions
+operation_review.rb: 38 PASS / 0 FAIL / 38 assertions
+
+RUBOCOP (modified Ruby files plus both new test files):
+{"offense_count": 85, "target_file_count": 22, "inspected_file_count": 22}
+Exit code: 1. No offenses located on added/modified lines; both new test files have none.
+Baseline HEAD on the previously tracked changed Ruby files: 90 offenses.
+Newly included WebDAV test file: 0 offenses.
+No rules disabled. Whole-file lint remains non-green.
+
+git diff --check: passed
+
+LIMITS:
+No live browser/coediting/Document Server conversion or real forgotten recovery in this run.
+LibreOffice absent; existing preview tests return without assertions.
+Intermediate diagnostic data contaminated 3 tests; dedicated DB reset and same seed passed.
+No production deployment; no staging, commit, push or pull.

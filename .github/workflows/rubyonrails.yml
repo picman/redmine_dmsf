@@ -95,6 +95,12 @@ jobs:
         # Link the plugin to the redmine folder
         run: | 
           ln -s $(pwd) /opt/redmine/plugins/redmine_dmsf
+      - name: JavaScript tests
+        # The editor tests run without a browser, a Rails server or a database.
+        run: |
+          cd /opt/redmine/plugins/redmine_dmsf
+          node --check assets/javascripts/dmsf_onlyoffice.js
+          node --test test/javascript/dmsf_onlyoffice_test.js
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1 # The latest major version
         with:
